@@ -1,0 +1,2423 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manshau ERP - Educational Institute Platform</title>
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              300: '#93c5fd',
+              400: '#60a5fa',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          },
+          boxShadow: {
+            'anti-gravity': '0 20px 50px -12px rgba(37, 99, 235, 0.08), 0 8px 24px -8px rgba(15, 23, 42, 0.04)',
+            'anti-gravity-hover': '0 30px 65px -12px rgba(37, 99, 235, 0.16), 0 12px 30px -8px rgba(15, 23, 42, 0.06)',
+            'anti-gravity-lg': '0 35px 80px -15px rgba(37, 99, 235, 0.14), 0 15px 35px -10px rgba(15, 23, 42, 0.06)',
+            'glow-blue': '0 0 30px rgba(37, 99, 235, 0.3)',
+            'glow-emerald': '0 0 25px rgba(16, 185, 129, 0.25)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Optional Chart.js for canvas rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <style>
+    body {
+      background: radial-gradient(circle at 50% 0%, #f1f5f9 0%, #f8fafc 50%, #eff6ff 100%);
+      min-height: 100vh;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+    }
+
+    .anti-gravity-card {
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    
+    .anti-gravity-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 30px 65px -12px rgba(37, 99, 235, 0.16), 0 12px 30px -8px rgba(15, 23, 42, 0.06);
+    }
+
+    .nav-item-lift {
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .nav-item-lift:hover {
+      transform: translateX(5px);
+    }
+
+    @keyframes shimmerGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes subtleFloatName {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .animated-student-name {
+      background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 25%, #7c3aed 50%, #0284c7 75%, #1d4ed8 100%);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmerGradient 6s ease infinite, subtleFloatName 4s ease-in-out infinite;
+      filter: drop-shadow(0 12px 28px rgba(37, 99, 235, 0.25));
+      padding-bottom: 0.15em;
+      margin-bottom: -0.15em;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(241, 245, 249, 0.5);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased text-slate-800 h-full selection:bg-brand-500 selection:text-white">
+  <div id="app" class="min-h-screen flex flex-col"></div>
+
+  <script>
+    // --- EMBEDDED SVG ICON SYSTEM ---
+    const SVG_ICONS = {
+      user: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+      shield: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>',
+      bell: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>',
+      'layout-dashboard': '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>',
+      'file-spreadsheet': '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M8 13h8"/><path d="M8 17h8"/><path d="M10 9h4"/></svg>',
+      'plane-landing': '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 22h20"/><path d="M3.77 10.77 2 9l2-2.5 5 1.5 5-5 2.5 1-3 7 5 3 2.5-1.5L20 14l-4 3-12.23-6.23Z"/></svg>',
+      wallet: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-3"/></svg>',
+      sliders: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="2" x2="6" y1="14" y2="14"/><line x1="10" x2="14" y1="8" y2="8"/><line x1="18" x2="22" y1="16" y2="16"/></svg>',
+      'graduation-cap': '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg>',
+      activity: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>',
+      landmark: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7 12 2"/></svg>',
+      award: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>',
+      calendar: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>',
+      megaphone: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8 a3 3 0 1 1-5.8-1.6"/></svg>',
+      plus: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>',
+      'trash-2': '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>',
+      'check-square': '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
+      radio: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M7.76 16.24a6 6 0 0 1 0-8.49"/><path d="M4.93 19.07a10 10 0 0 1 0-14.14"/></svg>',
+      'user-check': '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>',
+      x: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>',
+      check: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+      'chevron-right': '<svg xmlns="http://.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>',
+      'log-out': '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>',
+      lock: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+      arrowRight: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>',
+      download: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>',
+      clock: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+      key: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3.5"/></svg>',
+      users: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+      bookOpen: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
+      userPlus: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="16" x2="22" y1="11" y2="11"/></svg>'
+    };
+
+    function icon(name, className = "w-5 h-5") {
+      const svg = SVG_ICONS[name] || '';
+      return `<span class="inline-flex items-center justify-center ${className}">${svg}</span>`;
+    }
+
+    function formatINR(amount) {
+      return '₹' + Number(amount).toLocaleString('en-IN');
+    }
+
+    function get12HourTimeString(date = new Date()) {
+      let hours = date.getHours();
+      let minutes = date.getMinutes();
+      let seconds = date.getSeconds();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      const strHours = hours < 10 ? '0' + hours : hours;
+      const strMinutes = minutes < 10 ? '0' + minutes : minutes;
+      const strSeconds = seconds < 10 ? '0' + seconds : seconds;
+      return `${strHours}:${strMinutes}:${strSeconds} ${ampm}`;
+    }
+
+    function getShort12HourTimeString(date = new Date()) {
+      let hours = date.getHours();
+      let minutes = date.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12;
+      const strHours = hours < 10 ? '0' + hours : hours;
+      const strMinutes = minutes < 10 ? '0' + minutes : minutes;
+      return `${strHours}:${strMinutes} ${ampm}`;
+    }
+
+    // --- GLOBAL APPLICATION STATE ---
+    const state = {
+      isAuthenticated: true,
+      loginRole: "student",
+      loginError: "",
+
+      adminCredentials: {
+        username: "admin",
+        password: "123",
+      },
+      
+      role: "student",
+      activeTab: "dashboard",
+      adminActiveTab: "overview",
+      activeGraphTag: "attendance",
+      selectedSem: "Sem 5",
+      
+      currentStudentId: "MSH-2026-8842",
+
+      // 5 DISTINCT STUDENT USERS IN DATABASE
+      students: [
+        {
+          id: "MSH-2026-8842",
+          username: "aadil",
+          password: "123",
+          name: "Muhammad Aadil",
+          status: "Present",
+          school: "Calicut University",
+          class: "Class: Idara",
+          program: "B.Sc Computer Science & Islamic Studies",
+          email: "aadil@manshau.edu.in",
+          phone: "+91 98765 43210",
+          attendanceRate: 94.5,
+          totalLeaveDays: 8,
+          avatarInitials: "MA",
+          avatarBg: "from-brand-600 to-sky-400",
+          transactions: [
+            { id: "TXN-901", date: "2026-07-01", description: "Semester Tuition Fee Payment", type: "Credit", amount: 45000, category: "Tuition" },
+            { id: "TXN-902", date: "2026-06-15", description: "Library Special Fund Deposit", type: "Credit", amount: 2500, category: "Library" },
+            { id: "TXN-903", date: "2026-06-02", description: "Late Exam Registration Fine", type: "Debit", amount: 500, category: "Penalty" },
+          ],
+          exams: [
+            { subject: "Data Structures & Algorithms", code: "CS-301", score: 92, grade: "A+", credits: 4, sem: "Sem 5" },
+            { subject: "Database Management Systems", code: "CS-302", score: 88, grade: "A", credits: 4, sem: "Sem 5" },
+            { subject: "Islamic Jurisprudence & Ethics", code: "IS-204", score: 95, grade: "A+", credits: 3, sem: "Sem 5" },
+          ],
+          leaves: [
+            { id: "LV-101", startDate: "2026-06-10", endDate: "2026-06-12", category: "Medical", reason: "Severe Viral Fever & Medical Rest", status: "Approved", appliedOn: "2026-06-08" },
+            { id: "LV-102", startDate: "2026-07-10", endDate: "2026-07-11", category: "Family Event", reason: "Brother's Graduation Ceremony", status: "Pending", appliedOn: "2026-07-04" },
+          ]
+        },
+        {
+          id: "MSH-2026-8843",
+          username: "sana",
+          password: "123",
+          name: "Fathima Sana",
+          status: "Present",
+          school: "Calicut University",
+          class: "Class: Idara",
+          program: "B.A. English Literature & Media Studies",
+          email: "sana@manshau.edu.in",
+          phone: "+91 98765 43211",
+          attendanceRate: 98.0,
+          totalLeaveDays: 3,
+          avatarInitials: "FS",
+          avatarBg: "from-purple-600 to-pink-500",
+          transactions: [
+            { id: "TXN-801", date: "2026-07-02", description: "Media Lab Equipment Deposit", type: "Credit", amount: 35000, category: "Lab Fee" },
+            { id: "TXN-802", date: "2026-06-20", description: "Merit Excellence Grant", type: "Credit", amount: 15000, category: "Scholarship" },
+          ],
+          exams: [
+            { subject: "Linguistic Phonetics", code: "EN-201", score: 96, grade: "A+", credits: 4, sem: "Sem 5" },
+            { subject: "Mass Media & Journalism", code: "EN-204", score: 91, grade: "A+", credits: 4, sem: "Sem 5" },
+          ],
+          leaves: [
+            { id: "LV-201", startDate: "2026-05-15", endDate: "2026-05-16", category: "Personal", reason: "National Seminar Presentation", status: "Approved", appliedOn: "2026-05-10" }
+          ]
+        },
+        {
+          id: "MSH-2026-8844",
+          username: "zayan",
+          password: "123",
+          name: "Zayan Ahmed",
+          status: "Present",
+          school: "Calicut University",
+          class: "Class: Idara",
+          program: "B.Tech Robotics & Artificial Intelligence",
+          email: "zayan@manshau.edu.in",
+          phone: "+91 98765 43212",
+          attendanceRate: 91.2,
+          totalLeaveDays: 10,
+          avatarInitials: "ZA",
+          avatarBg: "from-emerald-600 to-teal-400",
+          transactions: [
+            { id: "TXN-701", date: "2026-06-30", description: "Robotics Hardware Kit Deposit", type: "Credit", amount: 50000, category: "Tuition" },
+            { id: "TXN-702", date: "2026-06-10", description: "3D Printer Filament Charge", type: "Debit", amount: 1200, category: "Lab Fee" },
+          ],
+          exams: [
+            { subject: "Embedded Neural Networks", code: "AI-401", score: 89, grade: "A", credits: 4, sem: "Sem 5" },
+            { subject: "Kinematics & Microcontrollers", code: "RB-302", score: 87, grade: "A", credits: 4, sem: "Sem 5" },
+          ],
+          leaves: []
+        },
+        {
+          id: "MSH-2026-8845",
+          username: "ayisha",
+          password: "123",
+          name: "Ayisha Haniya",
+          status: "On Leave",
+          school: "Calicut University",
+          class: "Class: Idara",
+          program: "B.Com Finance & Islamic Banking",
+          email: "ayisha@manshau.edu.in",
+          phone: "+91 98765 43213",
+          attendanceRate: 96.5,
+          totalLeaveDays: 5,
+          avatarInitials: "AH",
+          avatarBg: "from-rose-600 to-orange-400",
+          transactions: [
+            { id: "TXN-601", date: "2026-07-03", description: "Financial Analytics Software License", type: "Credit", amount: 40000, category: "Tuition" },
+          ],
+          exams: [
+            { subject: "Islamic Corporate Governance", code: "FI-301", score: 94, grade: "A+", credits: 4, sem: "Sem 5" },
+            { subject: "Managerial Accounting", code: "FI-304", score: 92, grade: "A+", credits: 4, sem: "Sem 5" },
+          ],
+          leaves: [
+            { id: "LV-401", startDate: "2026-07-05", endDate: "2026-07-07", category: "Medical", reason: "Viral Infection Rest", status: "Approved", appliedOn: "2026-07-04" }
+          ]
+        },
+        {
+          id: "MSH-2026-8846",
+          username: "bilal",
+          password: "123",
+          name: "Bilal Rayan",
+          status: "Present",
+          school: "Calicut University",
+          class: "Class: Idara",
+          program: "B.Sc Data Science & Cyber Security",
+          email: "bilal@manshau.edu.in",
+          phone: "+91 98765 43214",
+          attendanceRate: 93.0,
+          totalLeaveDays: 7,
+          avatarInitials: "BR",
+          avatarBg: "from-indigo-600 to-blue-400",
+          transactions: [
+            { id: "TXN-501", date: "2026-06-25", description: "Cloud Server Sandbox Credit", type: "Credit", amount: 42000, category: "Tuition" },
+          ],
+          exams: [
+            { subject: "Ethical Hacking & Cryptography", code: "CS-405", score: 90, grade: "A+", credits: 4, sem: "Sem 5" },
+            { subject: "Statistical Modeling", code: "DS-301", score: 85, grade: "A", credits: 4, sem: "Sem 5" },
+          ],
+          leaves: []
+        }
+      ],
+
+      announcements: [
+        { id: 1, title: "Final Semester Examination Timetable Released", date: "Today, 02:30 PM", category: "Academic", urgency: "High", read: false, content: "The schedule for Mid-Term Assessment & Final Papers has been published on the student portal. Download your hall ticket by Friday." },
+        { id: 2, title: "Annual Science & Tech Fest 'Antigravity 2026' Registrations Open", date: "Yesterday, 11:15 AM", category: "Event", urgency: "Normal", read: false, content: "Participate in AI coding hackathons, robotics challenges, and paper presentations. Cash prizes worth ₹50,000." },
+        { id: 3, title: "Campus Central Library Timings Extended", date: "July 03, 09:00 AM", category: "Facility", urgency: "Normal", read: true, content: "During examination weeks, the library will remain open 24/7 with tea & study pod facilities available." },
+      ],
+
+      modals: {
+        leave: false,
+        profile: false,
+        notification: false,
+        addStudent: false,
+      }
+    };
+
+    const STORAGE_KEY = "manshau_erp_state";
+    const BACKEND_URL = "http://localhost:3000/api/state";
+    let isBackendActive = false;
+
+    function saveStateLocalOnly() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          students: state.students,
+          announcements: state.announcements,
+          currentStudentId: state.currentStudentId
+        }));
+      } catch(e) {}
+    }
+
+    async function loadState() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (parsed.students) state.students = parsed.students;
+          if (parsed.announcements) state.announcements = parsed.announcements;
+          if (parsed.currentStudentId) state.currentStudentId = parsed.currentStudentId;
+        } catch(e) {}
+      }
+
+      try {
+        const res = await fetch(BACKEND_URL);
+        if (res.ok) {
+          const remoteState = await res.json();
+          if (remoteState) {
+            if (remoteState.students) state.students = remoteState.students;
+            if (remoteState.announcements) state.announcements = remoteState.announcements;
+            if (remoteState.currentStudentId) state.currentStudentId = remoteState.currentStudentId;
+            isBackendActive = true;
+            saveStateLocalOnly();
+            renderApp();
+          }
+        }
+      } catch(e) {
+        console.warn("Backend server not reached. Operating in local storage mode.");
+        isBackendActive = false;
+      }
+    }
+
+    async function saveState() {
+      saveStateLocalOnly();
+      try {
+        const response = await fetch(BACKEND_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            students: state.students,
+            announcements: state.announcements,
+            currentStudentId: state.currentStudentId
+          })
+        });
+        if (response.ok) {
+          isBackendActive = true;
+        } else {
+          isBackendActive = false;
+        }
+      } catch(e) {
+        isBackendActive = false;
+      }
+    }
+
+    function getCurrentStudent() {
+      return state.students.find(s => s.id === state.currentStudentId) || state.students[0];
+    }
+
+    function getFinancials(studentObj) {
+      const student = studentObj || getCurrentStudent();
+      const totalCredits = student.transactions.filter(t => t.type === "Credit").reduce((sum, t) => sum + t.amount, 0);
+      const totalDebits = student.transactions.filter(t => t.type === "Debit").reduce((sum, t) => sum + t.amount, 0);
+      const totalFeesAssigned = 85000;
+      const pendingDues = Math.max(0, totalFeesAssigned - totalCredits + totalDebits);
+      return { totalCredits, totalDebits, totalFeesAssigned, pendingDues };
+    }
+
+    // --- MAIN APP CONTROLLER ---
+    function renderApp() {
+      try {
+        saveState();
+        const container = document.getElementById("app");
+
+        if (!state.isAuthenticated) {
+          container.innerHTML = renderLoginWindow();
+          return;
+        }
+
+        const unreadCount = state.announcements.filter(a => !a.read).length;
+        const currentStudent = getCurrentStudent();
+        const fin = getFinancials(currentStudent);
+
+        container.innerHTML = `
+          <!-- Sticky Header -->
+          <header class="sticky top-0 z-40 bg-white/85 backdrop-blur-md border-b border-slate-100 shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+              <!-- Brand Logo -->
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-sky-400 p-2 shadow-md shadow-brand-500/20 flex items-center justify-center text-white font-black text-xl tracking-wider">
+                  M
+                </div>
+                <div>
+                  <div class="flex items-center space-x-2">
+                    <span class="font-extrabold text-slate-900 text-lg tracking-tight">MANSHAU</span>
+                    <span class="bg-brand-50 text-brand-600 text-[11px] px-2.5 py-0.5 rounded-full font-bold border border-brand-100">ERP 2.0</span>
+                  </div>
+                  <p class="text-[10px] text-slate-600 font-semibold">Educational Institute Platform</p>
+                </div>
+              </div>
+
+              <!-- LIVE 12-HR CLOCK & ROLE SWITCHER & BELL -->
+              <div class="flex items-center space-x-3 sm:space-x-4">
+                
+                <!-- DATABASE PERSISTENCE STATUS BADGE -->
+                <div class="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-[10px] font-extrabold border shadow-sm ${
+                  isBackendActive 
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
+                    : "bg-blue-50 text-blue-700 border-blue-200"
+                }">
+                  <span class="w-1.5 h-1.5 rounded-full ${isBackendActive ? "bg-emerald-500 animate-ping" : "bg-blue-500 animate-pulse"}"></span>
+                  <span>${isBackendActive ? "MongoDB Atlas Synced" : "Local Storage Mode"}</span>
+                </div>
+                
+                <!-- LIVE 12-HOUR CLOCK PILL -->
+                <div class="hidden sm:flex items-center space-x-2 bg-slate-100/90 px-3.5 py-1.5 rounded-full text-xs font-extrabold text-slate-700 border border-slate-200/80 shadow-inner">
+                  ${icon('clock', 'w-4 h-4 text-brand-600 animate-pulse')}
+                  <span id="liveClockPill">${get12HourTimeString()}</span>
+                </div>
+
+                <!-- Role Switcher Toggle -->
+                <div class="bg-slate-100 p-1 rounded-xl flex items-center space-x-1 border border-slate-200/80 shadow-inner">
+                  <button
+                    onclick="setRole('student')"
+                    class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 ${
+                      state.role === "student"
+                        ? "bg-white text-brand-600 shadow-sm"
+                        : "text-slate-500 hover:text-slate-800"
+                    }"
+                  >
+                    ${icon('user', 'w-3.5 h-3.5')}
+                    <span>Student View</span>
+                  </button>
+                  <button
+                    onclick="setRole('admin')"
+                    class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-300 ${
+                      state.role === "admin"
+                        ? "bg-slate-900 text-white shadow-sm"
+                        : "text-slate-500 hover:text-slate-800"
+                    }"
+                  >
+                    ${icon('shield', 'w-3.5 h-3.5')}
+                    <span>Admin Panel</span>
+                  </button>
+                </div>
+
+                <!-- NOTIFICATION BELL ICON -->
+                <button 
+                  onclick="toggleModal('notification', true)"
+                  class="relative p-2 rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-200/80 shadow-sm transition-all hover:scale-105"
+                  title="Academic Notifications & Alerts"
+                >
+                  ${icon('bell', 'w-5 h-5 text-slate-600')}
+                  ${unreadCount > 0 ? `
+                    <span class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center animate-bounce shadow-sm">
+                      ${unreadCount}
+                    </span>
+                  ` : ''}
+                </button>
+
+                <!-- Logout Button -->
+                <button
+                  onclick="logout()"
+                  class="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition-all font-bold text-xs flex items-center space-x-1"
+                  title="Sign Out"
+                >
+                  ${icon('log-out', 'w-4 h-4')}
+                  <span class="hidden sm:inline">Logout</span>
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <!-- Main Body Stage -->
+          <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            ${state.role === "student" ? renderStudentPortal(currentStudent, fin) : renderAdminPortal(currentStudent, fin)}
+          </main>
+
+          <!-- Modals -->
+          ${renderModals()}
+        `;
+
+        setTimeout(initCharts, 50);
+      } catch(err) {
+        console.error("Render error caught:", err);
+      }
+    }
+
+    // --- ELEGANT USER LOGIN WINDOW WITH 5 DEMO USER SHORTCUTS ---
+    function renderLoginWindow() {
+      const isStudentRole = state.loginRole === 'student';
+      const defaultUser = isStudentRole ? (state.students[0] ? state.students[0].username : "aadil") : state.adminCredentials.username;
+      const defaultPass = isStudentRole ? (state.students[0] ? state.students[0].password : "123") : state.adminCredentials.password;
+
+      return `
+        <div class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-slate-900 via-brand-950 to-slate-900 text-slate-800">
+          <div class="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-brand-600/20 blur-3xl pointer-events-none"></div>
+          <div class="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-purple-600/20 blur-3xl pointer-events-none"></div>
+
+          <div class="w-full max-w-xl relative z-10">
+            <div class="text-center mb-6">
+              <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 to-sky-400 p-0.5 shadow-glow-blue inline-flex items-center justify-center text-white font-black text-3xl mb-3 shadow-2xl">
+                M
+              </div>
+              <h1 class="text-3xl font-black text-white tracking-tight">MANSHAU ERP</h1>
+              <p class="text-xs text-sky-200/80 font-semibold mt-1">Educational Institute Authentication Gateway</p>
+            </div>
+
+            <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-anti-gravity-lg border border-white/40">
+              <div class="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-2xl mb-6 border border-slate-200/80">
+                <button
+                  type="button"
+                  onclick="setLoginRole('student')"
+                  class="py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-1.5 ${
+                    state.loginRole === "student"
+                      ? "bg-white text-brand-600 shadow-md font-extrabold"
+                      : "text-slate-500 hover:text-slate-800"
+                  }"
+                >
+                  ${icon('user', 'w-4 h-4')}
+                  <span>Student Login</span>
+                </button>
+
+                <button
+                  type="button"
+                  onclick="setLoginRole('admin')"
+                  class="py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-1.5 ${
+                    state.loginRole === "admin"
+                      ? "bg-slate-900 text-white shadow-md font-extrabold"
+                      : "text-slate-500 hover:text-slate-800"
+                  }"
+                >
+                  ${icon('shield', 'w-4 h-4')}
+                  <span>Admin Panel</span>
+                </button>
+              </div>
+
+              ${state.loginError ? `
+                <div class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold mb-4 flex items-center space-x-2">
+                  ${icon('x', 'w-4 h-4 text-rose-500')}
+                  <span>${state.loginError}</span>
+                </div>
+              ` : ''}
+
+              <form onsubmit="handleLoginSubmit(event)" class="space-y-4 text-xs">
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1.5">Username / Student ID</label>
+                  <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                      ${icon('user', 'w-4 h-4')}
+                    </span>
+                    <input
+                      type="text"
+                      id="loginUsername"
+                      required
+                      placeholder="${defaultUser}"
+                      value="${defaultUser}"
+                      class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:outline-none font-medium text-slate-900 bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1.5">Password</label>
+                  <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                      ${icon('lock', 'w-4 h-4')}
+                    </span>
+                    <input
+                      type="password"
+                      id="loginPassword"
+                      required
+                      placeholder="${defaultPass}"
+                      value="${defaultPass}"
+                      class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:outline-none font-medium text-slate-900 bg-white"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  class="w-full py-3.5 px-4 rounded-xl text-white font-extrabold text-sm transition-all duration-300 shadow-md shadow-brand-500/30 flex items-center justify-center space-x-2 ${
+                    state.loginRole === 'student'
+                      ? "bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-700 hover:to-brand-600"
+                      : "bg-gradient-to-r from-slate-900 to-slate-800 hover:from-black hover:to-slate-900"
+                  }"
+                >
+                  <span>Sign In to ${state.loginRole === 'student' ? 'Student Portal' : 'Admin Panel'}</span>
+                  ${icon('arrowRight', 'w-4 h-4')}
+                </button>
+              </form>
+
+              <div class="mt-6 pt-5 border-t border-slate-100">
+                <p class="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider text-center mb-3">5 Active Student Demo Shortcuts</p>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  ${state.students.map(s => `
+                    <button
+                      type="button"
+                      onclick="quickLoginStudent('${s.id}')"
+                      class="p-2 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-700 text-[11px] font-bold border border-brand-100 transition-all text-left flex items-center space-x-2"
+                    >
+                      <span class="w-6 h-6 rounded-full bg-gradient-to-tr ${s.avatarBg} text-white text-[9px] font-black flex items-center justify-center flex-shrink-0">${s.avatarInitials}</span>
+                      <div class="min-w-0">
+                        <p class="truncate font-extrabold">${s.name.split(' ')[0]}</p>
+                        <p class="text-[9px] text-slate-400 truncate">(${s.username} / ${s.password})</p>
+                      </div>
+                    </button>
+                  `).join('')}
+                  
+                  <button
+                    type="button"
+                    onclick="quickLogin('admin')"
+                    class="p-2 rounded-xl bg-slate-900 hover:bg-black text-white text-[11px] font-bold border border-slate-800 transition-all text-left flex items-center space-x-2"
+                  >
+                    <span class="w-6 h-6 rounded-full bg-slate-700 text-sky-300 text-[9px] font-black flex items-center justify-center flex-shrink-0">ADM</span>
+                    <div class="min-w-0">
+                      <p class="truncate font-extrabold">Admin</p>
+                      <p class="text-[9px] text-slate-400 truncate">(admin / 123)</p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MAIN STUDENT PORTAL ---
+    function renderStudentPortal(student, fin) {
+      return `
+        <div class="flex flex-col lg:flex-row gap-8">
+          <!-- Floating Sidebar -->
+          <aside class="w-full lg:w-64 flex-shrink-0">
+            <div class="glass-card rounded-3xl p-4 shadow-anti-gravity anti-gravity-card border border-white sticky top-20">
+              
+              <!-- Student Switcher Dropdown in Student View -->
+              <div class="mb-4">
+                <label class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">Switch Student Account</label>
+                <select 
+                  onchange="switchStudentAccount(this.value)"
+                  class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                >
+                  ${state.students.map(s => `
+                    <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>
+                      ${s.name} (${s.username})
+                    </option>
+                  `).join('')}
+                </select>
+              </div>
+
+              <div class="px-3 py-1.5 text-[11px] font-extrabold tracking-wider text-slate-600 uppercase">
+                Student Navigation
+              </div>
+
+              <nav class="space-y-1.5 mt-1">
+                ${[
+                  { id: "dashboard", label: "Dashboard", iconName: "layout-dashboard" },
+                  { id: "examination", label: "Examination", iconName: "file-spreadsheet" },
+                  { id: "leaves", label: "Leave Taken", iconName: "plane-landing" },
+                  { id: "bank", label: "Bank Credits", iconName: "wallet" },
+                  { id: "settings", label: "Settings", iconName: "sliders" },
+                ].map(item => {
+                  const isActive = state.activeTab === item.id;
+                  return `
+                    <button
+                      onclick="setActiveTab('${item.id}')"
+                      class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 nav-item-lift ${
+                        isActive
+                          ? "bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-md shadow-brand-500/25 font-bold"
+                          : "text-slate-600 hover:bg-brand-50/70 hover:text-brand-600"
+                      }"
+                    >
+                      ${icon(item.iconName, `w-4 h-4 ${isActive ? "text-white" : "text-slate-400"}`)}
+                      <span>${item.label}</span>
+                    </button>
+                  `;
+                }).join('')}
+              </nav>
+
+              <div class="my-4 border-t border-slate-100"></div>
+
+              <!-- Anchored Identity Board -->
+              <div 
+                onclick="toggleModal('profile', true)"
+                class="group p-3 rounded-2xl bg-gradient-to-b from-slate-50 to-brand-50/30 border border-slate-100 hover:border-brand-200 cursor-pointer transition-all duration-300 shadow-sm"
+              >
+                <div class="flex items-center space-x-3">
+                  <div class="relative">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr ${student.avatarBg} text-white flex items-center justify-center font-black text-sm ring-2 ring-brand-400 shadow-sm">
+                      ${student.avatarInitials}
+                    </div>
+                    <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full ring-2 ring-white ${
+                      student.status === "Present" ? "bg-emerald-500" : "bg-amber-500"
+                    }"></span>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold text-slate-900 truncate group-hover:text-brand-600 transition-colors">
+                      ${student.name}
+                    </p>
+                    <p class="text-[11px] text-slate-500 truncate">${student.id}</p>
+                  </div>
+                  ${icon('chevron-right', 'w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform')}
+                </div>
+              </div>
+
+              <button
+                onclick="logout()"
+                class="mt-3 w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-all"
+              >
+                ${icon('log-out', 'w-3.5 h-3.5 text-slate-400')}
+                <span>Sign Out Account</span>
+              </button>
+            </div>
+          </aside>
+
+          <!-- MAIN CONTENT STAGE ROUTER -->
+          <div class="flex-1 min-w-0">
+            ${renderActiveNavView(student, fin)}
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MAIN ADMIN PORTAL WITH NAVIGATION SIDEBAR ---
+    function renderAdminPortal(student, fin) {
+      return `
+        <div class="flex flex-col lg:flex-row gap-8">
+          <!-- ADMIN NAVIGATION SIDEBAR -->
+          <aside class="w-full lg:w-64 flex-shrink-0">
+            <div class="glass-card rounded-3xl p-4 shadow-anti-gravity anti-gravity-card border border-white sticky top-20 bg-slate-900 text-white">
+              <div class="px-3 py-2 text-[11px] font-extrabold tracking-wider text-slate-400 uppercase flex items-center justify-between">
+                <span>Admin Command</span>
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              </div>
+
+              <nav class="space-y-1.5 mt-1">
+                ${[
+                  { id: "overview", label: "Overview", iconName: "layout-dashboard" },
+                  { id: "students", label: "Student Roster & Auth", iconName: "users" },
+                  { id: "academics", label: "Academics & Exams", iconName: "bookOpen" },
+                  { id: "leaves", label: "Leave Approvals", iconName: "check-square" },
+                  { id: "finance", label: "Bank Ledger (₹)", iconName: "landmark" },
+                  { id: "broadcast", label: "Broadcaster", iconName: "radio" },
+                ].map(item => {
+                  const isActive = state.adminActiveTab === item.id;
+                  return `
+                    <button
+                      onclick="setAdminActiveTab('${item.id}')"
+                      class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 nav-item-lift ${
+                        isActive
+                          ? "bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-md font-bold"
+                          : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                      }"
+                    >
+                      ${icon(item.iconName, `w-4 h-4 ${isActive ? "text-white" : "text-slate-400"}`)}
+                      <span>${item.label}</span>
+                    </button>
+                  `;
+                }).join('')}
+              </nav>
+
+              <div class="my-4 border-t border-slate-800"></div>
+
+              <!-- Admin Identity Card -->
+              <div class="p-3 rounded-2xl bg-slate-800/80 border border-slate-700/80">
+                <div class="flex items-center space-x-3">
+                  <div class="w-9 h-9 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold">
+                    ${icon('shield', 'w-4 h-4')}
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold text-white truncate">Administrator</p>
+                    <p class="text-[10px] text-slate-400 truncate">System Orchestrator</p>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onclick="logout()"
+                class="mt-3 w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
+              >
+                ${icon('log-out', 'w-3.5 h-3.5 text-slate-400')}
+                <span>Exit Admin Mode</span>
+              </button>
+            </div>
+          </aside>
+
+          <!-- ADMIN CONTENT STAGE ROUTER -->
+          <div class="flex-1 min-w-0">
+            ${renderActiveAdminNavView(student, fin)}
+          </div>
+        </div>
+      `;
+    }
+
+    // --- STUDENT NAVIGATION VIEW ROUTER ---
+    function renderActiveNavView(student, fin) {
+      if (state.activeTab === "dashboard") return renderDashboardView(student, fin);
+      if (state.activeTab === "examination") return renderExaminationView(student);
+      if (state.activeTab === "leaves") return renderLeaveTakenView(student);
+      if (state.activeTab === "bank") return renderBankCreditsView(student, fin);
+      if (state.activeTab === "settings") return renderSettingsView(student);
+      return renderDashboardView(student, fin);
+    }
+
+    // --- ADMIN NAVIGATION VIEW ROUTER ---
+    function renderActiveAdminNavView(student, fin) {
+      if (state.adminActiveTab === "overview") return renderAdminOverviewView(fin);
+      if (state.adminActiveTab === "students") return renderAdminStudentsView();
+      if (state.adminActiveTab === "academics") return renderAdminAcademicsView(student);
+      if (state.adminActiveTab === "leaves") return renderAdminLeavesView();
+      if (state.adminActiveTab === "finance") return renderAdminFinanceView(student, fin);
+      if (state.adminActiveTab === "broadcast") return renderAdminBroadcastView();
+      return renderAdminOverviewView(fin);
+    }
+
+    // --- ADMIN MODULE 1: OVERVIEW ---
+    function renderAdminOverviewView(fin) {
+      return `
+        <div class="space-y-6">
+          <div class="p-6 rounded-3xl bg-slate-900 text-white shadow-anti-gravity">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="bg-brand-500/20 text-sky-400 text-xs px-3 py-1 rounded-full font-bold border border-sky-400/30">
+                  ORCHESTRATOR COMMAND CENTER
+                </span>
+                <h2 class="text-3xl font-black tracking-tight mt-2">Admin Dashboard Overview</h2>
+                <p class="text-xs text-slate-400">Real-time status synchronization across Student Portals and Institute Databases</p>
+              </div>
+              <div class="hidden sm:flex items-center space-x-2 text-xs font-semibold text-emerald-400 bg-slate-800/80 px-4 py-2 rounded-2xl border border-slate-700">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span>Context State Synchronized</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+              <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+                <p class="text-[10px] uppercase font-bold text-slate-400">Active Students</p>
+                <p class="text-2xl font-black text-white mt-1">${state.students.length} Accounts</p>
+              </div>
+              <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+                <p class="text-[10px] uppercase font-bold text-slate-400">Pending Leaves</p>
+                <p class="text-2xl font-black text-amber-400 mt-1">${state.students.reduce((acc, s) => acc + s.leaves.filter(l => l.status === "Pending").length, 0)} Requests</p>
+              </div>
+              <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+                <p class="text-[10px] uppercase font-bold text-slate-400">Total Collections</p>
+                <p class="text-2xl font-black text-emerald-400 mt-1">${formatINR(fin.totalCredits)}</p>
+              </div>
+              <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+                <p class="text-[10px] uppercase font-bold text-slate-400">Average Attendance</p>
+                <p class="text-2xl font-black text-sky-400 mt-1">95.2%</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+              <h3 class="text-base font-extrabold text-slate-900 mb-2">Live Student Roster Summary</h3>
+              <p class="text-xs text-slate-500 mb-4">5 Active student users in institute database</p>
+              <div class="space-y-2">
+                ${state.students.map(s => `
+                  <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs">
+                    <div class="flex items-center space-x-2.5">
+                      <span class="w-7 h-7 rounded-full bg-gradient-to-tr ${s.avatarBg} text-white font-extrabold text-[10px] flex items-center justify-center">${s.avatarInitials}</span>
+                      <div>
+                        <p class="font-bold text-slate-800">${s.name}</p>
+                        <p class="text-[10px] text-slate-400">${s.id} • User: ${s.username}</p>
+                      </div>
+                    </div>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${s.status === 'Present' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${s.status}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+              <h3 class="text-base font-extrabold text-slate-900 mb-2">Quick Student User Actions</h3>
+              <p class="text-xs text-slate-500 mb-4">Manage, add or remove student accounts</p>
+              <div class="space-y-3">
+                <button onclick="toggleModal('addStudent', true)" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs flex items-center justify-center space-x-2 shadow-md">
+                  ${icon('userPlus', 'w-4 h-4')}
+                  <span>Add New Student User</span>
+                </button>
+                <button onclick="setAdminActiveTab('students')" class="w-full py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center space-x-2 border border-slate-200">
+                  ${icon('users', 'w-4 h-4')}
+                  <span>Manage All Student Logins & Passwords</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- ADMIN MODULE 2: STUDENT MANAGEMENT & CREDENTIALS WITH FULL ADD/EDIT/DELETE ---
+    function renderAdminStudentsView() {
+      return `
+        <div class="space-y-6">
+          <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <span class="bg-brand-50 text-brand-600 text-xs px-3 py-1 rounded-full font-bold border border-brand-100">
+                STUDENT USER & AUTHENTICATION CONTROLLER
+              </span>
+              <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Student Accounts Manager</h2>
+              <p class="text-xs text-slate-500">Add new student users, update passwords/usernames, or delete student accounts</p>
+            </div>
+
+            <button onclick="toggleModal('addStudent', true)" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-3 rounded-2xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105">
+              ${icon('userPlus', 'w-4 h-4')}
+              <span>Add New Student User</span>
+            </button>
+          </div>
+
+          <!-- STUDENT ACCOUNTS ROSTER TABLE -->
+          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+            <h3 class="text-base font-extrabold text-slate-900 mb-4">Registered Student Users (${state.students.length})</h3>
+            
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
+                    <th class="py-2.5 px-3">Student Name</th>
+                    <th class="py-2.5 px-3">Username</th>
+                    <th class="py-2.5 px-3">Password</th>
+                    <th class="py-2.5 px-3">Status</th>
+                    <th class="py-2.5 px-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                  ${state.students.map(s => `
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                      <td class="py-3 px-3 font-bold text-slate-800">
+                        <div class="flex items-center space-x-2.5">
+                          <span class="w-7 h-7 rounded-full bg-gradient-to-tr ${s.avatarBg} text-white font-extrabold text-[10px] flex items-center justify-center flex-shrink-0">${s.avatarInitials}</span>
+                          <div>
+                            <p>${s.name}</p>
+                            <p class="text-[10px] text-slate-400 font-normal">${s.id} • ${s.program}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="py-3 px-3 font-bold text-brand-600">${s.username}</td>
+                      <td class="py-3 px-3 font-mono font-bold text-slate-700">${s.password}</td>
+                      <td class="py-3 px-3">
+                        <button onclick="toggleSpecificStudentStatus('${s.id}')" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${s.status === 'Present' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                          ${s.status}
+                        </button>
+                      </td>
+                      <td class="py-3 px-3 text-right space-x-2">
+                        <button onclick="promptEditStudentCredentials('${s.id}')" class="px-2.5 py-1 rounded-lg bg-brand-50 text-brand-600 font-bold hover:bg-brand-100 text-[11px]">
+                          Edit Credentials
+                        </button>
+                        <button onclick="deleteStudentUser('${s.id}')" class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 font-bold hover:bg-rose-100 text-[11px]" title="Delete Student">
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- ADMIN MODULE 3: ACADEMICS & EXAMINATIONS ---
+    function renderAdminAcademicsView(student) {
+      return `
+        <div class="space-y-6">
+          <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <span class="bg-brand-50 text-brand-600 text-xs px-3 py-1 rounded-full font-bold border border-brand-100">
+                ACADEMIC ORCHESTRATOR
+              </span>
+              <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Academics & Examination Control</h2>
+              <p class="text-xs text-slate-500">Currently Editing Scores for: <span class="font-bold text-brand-600">${student.name}</span></p>
+            </div>
+
+            <!-- Student Switcher -->
+            <select onchange="switchStudentAccount(this.value)" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+              ${state.students.map(s => `
+                <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name} (${s.id})</option>
+              `).join('')}
+            </select>
+          </div>
+
+          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+            <h3 class="text-base font-extrabold text-slate-900 mb-4">Course Grades & Marks Sheet for ${student.name}</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
+                    <th class="py-2.5 px-3">Subject</th>
+                    <th class="py-2.5 px-3 text-center">Score</th>
+                    <th class="py-2.5 px-3 text-center">Grade</th>
+                    <th class="py-2.5 px-3 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                  ${student.exams.map((item, idx) => `
+                    <tr class="hover:bg-slate-50/80 transition-colors">
+                      <td class="py-3 px-3 font-bold text-slate-800">
+                        <p>${item.subject}</p>
+                        <span class="text-[10px] text-slate-400 font-normal">${item.code}</span>
+                      </td>
+                      <td class="py-3 px-3 text-center font-extrabold text-slate-900">${item.score}%</td>
+                      <td class="py-3 px-3 text-center">
+                        <span class="px-2.5 py-1 rounded-md text-[10px] font-black bg-emerald-100 text-emerald-700">
+                          ${item.grade}
+                        </span>
+                      </td>
+                      <td class="py-3 px-3 text-right">
+                        <button onclick="editExamScoreForStudent('${student.id}', ${idx})" class="text-brand-600 hover:text-brand-800 font-bold">Edit Score</button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- ADMIN MODULE 4: LEAVE APPROVAL QUEUE ---
+    function renderAdminLeavesView() {
+      const allLeaves = [];
+      state.students.forEach(s => {
+        s.leaves.forEach(l => {
+          allLeaves.push({ ...l, studentName: s.name, studentId: s.id });
+        });
+      });
+
+      return `
+        <div class="space-y-6">
+          <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white">
+            <span class="bg-amber-50 text-amber-600 text-xs px-3 py-1 rounded-full font-bold border border-amber-100">
+              OFFICIAL ABSENCE QUEUE
+            </span>
+            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Leave Application Approval Queue</h2>
+            <p class="text-xs text-slate-500">Review, approve, or reject student leave of absence requests</p>
+          </div>
+
+          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+            <div class="space-y-3">
+              ${allLeaves.length === 0 ? `
+                <p class="text-xs text-slate-400 text-center py-8">No leave applications found.</p>
+              ` : allLeaves.map(l => `
+                <div class="p-4 rounded-2xl bg-white border border-slate-100 text-xs flex items-center justify-between">
+                  <div>
+                    <p class="font-bold text-slate-800 text-sm">${l.reason} <span class="text-brand-600 font-semibold">(${l.studentName})</span></p>
+                    <p class="text-[11px] text-slate-500 mt-0.5">${l.startDate} to ${l.endDate} (${l.category}) • Applied On: ${l.appliedOn}</p>
+                    <span class="inline-block mt-2 px-3 py-0.5 rounded-full text-[10px] font-bold ${
+                      l.status === "Approved" ? "bg-emerald-100 text-emerald-700 border border-emerald-200" :
+                      l.status === "Pending" ? "bg-amber-100 text-amber-700 border border-amber-200" : "bg-rose-100 text-rose-700 border border-rose-200"
+                    }">${l.status}</span>
+                  </div>
+
+                  <div class="flex items-center space-x-2">
+                    <button onclick="updateStudentLeaveStatus('${l.studentId}', '${l.id}', 'Approved')" class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold transition-all shadow-sm">
+                      Approve
+                    </button>
+                    <button onclick="updateStudentLeaveStatus('${l.studentId}', '${l.id}', 'Rejected')" class="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold transition-all shadow-sm">
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- ADMIN MODULE 5: FINANCIAL LEDGER ---
+    function renderAdminFinanceView(student, fin) {
+      return `
+        <div class="space-y-6">
+          <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <span class="bg-emerald-50 text-emerald-700 text-xs px-3 py-1 rounded-full font-bold border border-emerald-100">
+                INR FINANCIAL CONTROLLER (₹)
+              </span>
+              <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Bank Simulator & Ledger Injector</h2>
+              <p class="text-xs text-slate-500">Injecting Transactions for: <span class="font-bold text-brand-600">${student.name}</span></p>
+            </div>
+
+            <!-- Student Switcher -->
+            <select onchange="switchStudentAccount(this.value)" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+              ${state.students.map(s => `
+                <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name} (${s.id})</option>
+              `).join('')}
+            </select>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+              <h3 class="text-base font-extrabold text-slate-900 mb-4 flex items-center space-x-2">
+                ${icon('landmark', 'w-5 h-5 text-emerald-600')}
+                <span>Inject Transaction into ${student.name}'s Ledger (INR ₹)</span>
+              </h3>
+
+              <form onsubmit="handleAdminInjectTxnForStudent(event, '${student.id}')" class="space-y-3 text-xs">
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Transaction Type</label>
+                  <select id="adminTxnType" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-bold">
+                    <option value="Credit">+ Credit Transaction (INR)</option>
+                    <option value="Debit">- Debit Charge (INR)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Transaction Description</label>
+                  <input type="text" id="adminTxnDesc" required placeholder="e.g. Lab Deposit Refund" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
+                </div>
+
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Amount (₹)</label>
+                  <input type="number" id="adminTxnAmount" required placeholder="2500" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
+                </div>
+
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 rounded-xl transition-all shadow-md shadow-emerald-500/20">
+                  Inject Transaction into Live Ledger (₹)
+                </button>
+              </form>
+            </div>
+
+            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+              <h3 class="text-base font-extrabold text-slate-900 mb-4">${student.name}'s Financial Summary</h3>
+              <div class="space-y-3 text-xs">
+                <div class="p-3.5 rounded-2xl bg-emerald-50 text-emerald-800 font-bold flex justify-between">
+                  <span>Total Bank Credits:</span>
+                  <span>${formatINR(fin.totalCredits)}</span>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-rose-50 text-rose-800 font-bold flex justify-between">
+                  <span>Total Debits:</span>
+                  <span>${formatINR(fin.totalDebits)}</span>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-slate-900 text-white font-bold flex justify-between">
+                  <span>Pending Dues Balance:</span>
+                  <span>${formatINR(fin.pendingDues)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- ADMIN MODULE 6: BROADCASTER ---
+    function renderAdminBroadcastView() {
+      return `
+        <div class="space-y-6">
+          <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white">
+            <span class="bg-rose-50 text-rose-700 text-xs px-3 py-1 rounded-full font-bold border border-rose-100">
+              INSTITUTE BROADCASTER
+            </span>
+            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Academic Notice Broadcaster</h2>
+            <p class="text-xs text-slate-500">Broadcast high-priority alerts and notices to all student feeds and notification windows</p>
+          </div>
+
+          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+            <form onsubmit="handleAdminBroadcast(event)" class="space-y-4 text-xs">
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Announcement Title</label>
+                <input type="text" id="adminAnnTitle" required placeholder="e.g. Mid-Term Examination Guidelines" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
+              </div>
+
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Urgency Priority</label>
+                <select id="adminAnnUrgency" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-bold">
+                  <option value="Normal">Normal Urgency</option>
+                  <option value="High">High Urgency</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Announcement Details</label>
+                <textarea id="adminAnnContent" rows="3" required placeholder="Details..." class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200"></textarea>
+              </div>
+
+              <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-extrabold py-3 rounded-xl transition-all shadow-md shadow-brand-500/20">
+                Broadcast to Student Feed
+              </button>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- VIEW 1: DASHBOARD ---
+    function renderDashboardView(student, fin) {
+      return `
+        <!-- HERO BANNER -->
+        <div class="relative overflow-hidden glass-card rounded-3xl p-6 sm:p-10 shadow-anti-gravity anti-gravity-card border border-white bg-gradient-to-r from-white via-slate-50/60 to-brand-50/50 mb-6">
+          <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+              <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide border shadow-sm mb-4 ${
+                student.status === "Present"
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  : "bg-amber-50 text-amber-700 border-amber-200"
+              }">
+                <span class="w-2.5 h-2.5 rounded-full ${
+                  student.status === "Present" ? "bg-emerald-500 animate-ping" : "bg-amber-500 animate-pulse"
+                }"></span>
+                <span>${student.status}</span>
+                <span class="text-slate-300">•</span>
+                <span class="text-[11px] text-slate-500 font-semibold">Live Student Registry</span>
+              </div>
+
+              <h1 class="text-4xl sm:text-6xl md:text-7xl font-black text-slate-900 tracking-tight leading-tight mb-3">
+                Hi <span class="animated-student-name inline-block">${student.name}</span>
+              </h1>
+
+              <p class="text-sm sm:text-base font-semibold text-slate-600 flex items-center space-x-2">
+                ${icon('graduation-cap', 'w-5 h-5 text-brand-500')}
+                <span>${student.school}</span>
+                <span class="text-slate-300">|</span>
+                <span class="font-extrabold text-slate-800">${student.class}</span>
+              </p>
+            </div>
+
+            <div class="flex items-center space-x-3 self-start md:self-auto">
+              <div onclick="toggleModal('profile', true)" class="bg-white/95 p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all cursor-pointer text-center min-w-[115px]">
+                <p class="text-[10px] uppercase font-extrabold tracking-wider text-slate-500">Attendance</p>
+                <p class="text-2xl font-black text-brand-600 mt-0.5">${student.attendanceRate}%</p>
+              </div>
+              <div class="bg-white/95 p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all text-center min-w-[115px]">
+                <p class="text-[10px] uppercase font-extrabold tracking-wider text-slate-500">Leaves Taken</p>
+                <p class="text-2xl font-black text-slate-800 mt-0.5">${student.totalLeaveDays} Days</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SPECIALIZED TAGS & GRAPHS -->
+        <div class="glass-card rounded-3xl p-6 shadow-anti-gravity anti-gravity-card border border-white mb-6">
+          <div class="flex items-center space-x-2 overflow-x-auto pb-3 mb-6 scrollbar-none">
+            ${[
+              { id: "attendance", label: "Attendance Analytics", iconName: "activity" },
+              { id: "bank", label: "Bank Credits & Ledger", iconName: "landmark" },
+              { id: "exams", label: "Exam & Co-Factors", iconName: "award" },
+              { id: "leave", label: "Leave Manager", iconName: "calendar" },
+            ].map(tag => `
+              <button
+                onclick="setActiveGraphTag('${tag.id}')"
+                class="flex items-center space-x-2 px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all duration-300 shadow-sm ${
+                  state.activeGraphTag === tag.id
+                    ? "bg-slate-900 text-white shadow-md scale-105"
+                    : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/70"
+                }"
+              >
+                ${icon(tag.iconName, `w-4 h-4 ${state.activeGraphTag === tag.id ? "text-sky-400" : "text-slate-400"}`)}
+                <span>${tag.label}</span>
+              </button>
+            `).join('')}
+          </div>
+
+          ${renderGraphContent(student, fin)}
+        </div>
+
+        <!-- ACADEMIC UPDATES TICKER -->
+        ${renderAcademicUpdatesTicker()}
+      `;
+    }
+
+    // --- VIEW 2: EXAMINATION HUB ---
+    function renderExaminationView(student) {
+      return `
+        <div class="space-y-6">
+          <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <span class="bg-brand-50 text-brand-600 text-xs px-3 py-1 rounded-full font-bold border border-brand-100">
+                ACADEMIC PERFORMANCE HUB
+              </span>
+              <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Examinations & Marksheet</h2>
+              <p class="text-xs text-slate-500">Official course grade sheets, GPA records and non-academic behavioral metrics</p>
+            </div>
+
+            <div class="flex items-center space-x-3">
+              <button onclick="alert('Downloading Official Marksheet PDF...')" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105">
+                ${icon('download', 'w-4 h-4')}
+                <span>Download Marksheet PDF</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-base font-extrabold text-slate-900">Semester Course Scores</h3>
+                <span class="text-xs font-bold text-brand-600">Sem 5 • CGPA: 3.88</span>
+              </div>
+
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr class="border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
+                      <th class="py-2.5 px-3">Subject</th>
+                      <th class="py-2.5 px-3 text-center">Score</th>
+                      <th class="py-2.5 px-3 text-center">Grade</th>
+                      <th class="py-2.5 px-3 text-right">Credits</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-50">
+                    ${student.exams.map(item => `
+                      <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="py-3 px-3 font-bold text-slate-800">
+                          <p>${item.subject}</p>
+                          <span class="text-[10px] text-slate-400 font-normal">${item.code}</span>
+                        </td>
+                        <td class="py-3 px-3 text-center font-extrabold text-slate-900">${item.score}%</td>
+                        <td class="py-3 px-3 text-center">
+                          <span class="px-2.5 py-1 rounded-md text-[10px] font-black bg-emerald-100 text-emerald-700">
+                            ${item.grade}
+                          </span>
+                        </td>
+                        <td class="py-3 px-3 text-right font-semibold text-slate-600">${item.credits}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+              <h3 class="text-base font-extrabold text-slate-900 mb-4">Behavioral & Extracurricular Co-Factors</h3>
+              <div class="space-y-4">
+                ${state.coFactors.map(item => `
+                  <div class="p-3.5 rounded-2xl bg-white border border-slate-100 shadow-sm">
+                    <div class="flex items-center justify-between text-xs mb-2">
+                      <span class="font-bold text-slate-800">${item.metric}</span>
+                      <span class="font-bold text-brand-600">${item.score}% (${item.status})</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                      <div class="bg-gradient-to-r from-brand-500 to-sky-400 h-3 rounded-full transition-all duration-500" style="width: ${item.score}%"></div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- VIEW 3: LEAVE TAKEN CENTER ---
+    function renderLeaveTakenView(student) {
+      return `
+        <div class="space-y-6">
+          <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <span class="bg-amber-50 text-amber-600 text-xs px-3 py-1 rounded-full font-bold border border-amber-100">
+                OFFICIAL ABSENCE MANAGEMENT
+              </span>
+              <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Leave Management Center</h2>
+              <p class="text-xs text-slate-500">View applied leave requests, medical certificates, and live status approvals</p>
+            </div>
+
+            <button onclick="toggleModal('leave', true)" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-3 rounded-2xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105">
+              ${icon('plus', 'w-4 h-4')}
+              <span>Apply New Leave</span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm text-center">
+              <p class="text-xs uppercase font-extrabold text-slate-400">Allowed Annual Leaves</p>
+              <p class="text-3xl font-black text-slate-900 mt-1">15 Days</p>
+            </div>
+            <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm text-center">
+              <p class="text-xs uppercase font-extrabold text-slate-400">Total Leaves Taken</p>
+              <p class="text-3xl font-black text-brand-600 mt-1">${student.totalLeaveDays} Days</p>
+            </div>
+            <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm text-center">
+              <p class="text-xs uppercase font-extrabold text-slate-400">Remaining Balance</p>
+              <p class="text-3xl font-black text-emerald-600 mt-1">${15 - student.totalLeaveDays} Days</p>
+            </div>
+          </div>
+
+          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+            <h3 class="text-base font-extrabold text-slate-900 mb-4">Leave Application History</h3>
+            <div class="space-y-3">
+              ${student.leaves.map(l => `
+                <div class="p-4 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-between text-xs">
+                  <div class="flex items-center space-x-3">
+                    <span class="w-3.5 h-3.5 rounded-full ${
+                      l.status === "Approved" ? "bg-emerald-500 shadow-glow-emerald" :
+                      l.status === "Pending" ? "bg-amber-500 animate-ping" : "bg-rose-500"
+                    }"></span>
+                    <div>
+                      <p class="font-bold text-slate-800 text-sm">${l.reason}</p>
+                      <p class="text-[11px] text-slate-500 mt-0.5">
+                        ${l.startDate} to ${l.endDate} • <span class="font-semibold text-brand-600">${l.category}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center space-x-3">
+                    <span class="px-3 py-1 rounded-full text-xs font-bold ${
+                      l.status === "Approved" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" :
+                      l.status === "Pending" ? "bg-amber-50 text-amber-700 border border-amber-200" :
+                      "bg-rose-50 text-rose-700 border border-rose-200"
+                    }">${l.status}</span>
+                    ${l.status === "Pending" ? `
+                      <button onclick="deleteStudentLeave('${student.id}', '${l.id}')" class="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition-colors" title="Cancel Request">
+                        ${icon('trash-2', 'w-4 h-4')}
+                      </button>
+                    ` : ''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- VIEW 4: BANK CREDITS HUB ---
+    function renderBankCreditsView(student, fin) {
+      return `
+        <div class="space-y-6">
+          <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <span class="bg-emerald-50 text-emerald-700 text-xs px-3 py-1 rounded-full font-bold border border-emerald-100">
+                FINANCIAL LEDGER & BANK CREDITS (INR ₹)
+              </span>
+              <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">${student.name}'s Fund Manager</h2>
+              <p class="text-xs text-slate-500">Track paid fees, credits, scholarships, and pending institution dues in Indian Rupees (₹)</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="p-5 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md">
+              <p class="text-xs font-semibold opacity-90">Total Bank Credits</p>
+              <p class="text-3xl font-black mt-1">${formatINR(fin.totalCredits)}</p>
+            </div>
+            <div class="p-5 rounded-3xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-md">
+              <p class="text-xs font-semibold opacity-90">Total Debits</p>
+              <p class="text-3xl font-black mt-1">${formatINR(fin.totalDebits)}</p>
+            </div>
+            <div class="p-5 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-md">
+              <p class="text-xs font-semibold opacity-90">Pending Dues Balance</p>
+              <p class="text-3xl font-black mt-1">${formatINR(fin.pendingDues)}</p>
+            </div>
+          </div>
+
+          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+            <h3 class="text-base font-extrabold text-slate-900 mb-4">Transaction History & Payment Ledger</h3>
+            <div class="space-y-2">
+              ${student.transactions.map(t => `
+                <div class="flex items-center justify-between p-3.5 rounded-2xl bg-white border border-slate-100 hover:border-slate-200 transition-all text-xs">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold ${
+                      t.type === "Credit" ? "bg-emerald-100 text-emerald-600" : "bg-rose-100 text-rose-600"
+                    }">
+                      ${t.type === "Credit" ? "+" : "-"}
+                    </div>
+                    <div>
+                      <p class="font-bold text-slate-800 text-sm">${t.description}</p>
+                      <p class="text-[10px] text-slate-400">${t.date} • ${t.category} • ID: ${t.id}</p>
+                    </div>
+                  </div>
+                  <span class="font-black text-base ${t.type === "Credit" ? "text-emerald-600" : "text-rose-600"}">
+                    ${t.type === "Credit" ? `+${formatINR(t.amount)}` : `-${formatINR(t.amount)}`}
+                  </span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- VIEW 5: SETTINGS ---
+    function renderSettingsView(student) {
+      return `
+        <div class="space-y-6">
+          <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white">
+            <span class="bg-brand-50 text-brand-600 text-xs px-3 py-1 rounded-full font-bold border border-brand-100">
+              PORTAL CONFIGURATION
+            </span>
+            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Student Portal Settings</h2>
+            <p class="text-xs text-slate-500">Manage account information, contact preferences and aesthetic options for ${student.name}</p>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+              <h3 class="text-base font-extrabold text-slate-900 mb-4">Account Identity Settings</h3>
+              <form onsubmit="handleUpdateStudentSettings(event)" class="space-y-3 text-xs">
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Student Name</label>
+                  <input type="text" id="settingsStudentName" value="${student.name}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-800" />
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">School / University</label>
+                  <input type="text" id="settingsStudentSchool" value="${student.school}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-800" />
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Class / Grade Name</label>
+                  <input type="text" id="settingsStudentClass" value="${student.class}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-800" />
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Email Address</label>
+                  <input type="email" id="settingsStudentEmail" value="${student.email}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-800" />
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Phone Number</label>
+                  <input type="text" id="settingsStudentPhone" value="${student.phone}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-800" />
+                </div>
+                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2.5 rounded-xl transition-all shadow-md shadow-brand-500/20">
+                  Save Profile Settings
+                </button>
+              </form>
+            </div>
+
+            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+              <h3 class="text-base font-extrabold text-slate-900 mb-4">Notification & Theme Preferences</h3>
+              <div class="space-y-4 text-xs">
+                <label class="flex items-center justify-between p-3 rounded-2xl bg-white border border-slate-100 cursor-pointer">
+                  <div>
+                    <p class="font-bold text-slate-800">SMS Instant Exam Notifications</p>
+                    <p class="text-[10px] text-slate-400">Receive SMS for published mark sheets</p>
+                  </div>
+                  <input type="checkbox" checked class="rounded text-brand-600 w-4 h-4" />
+                </label>
+
+                <label class="flex items-center justify-between p-3 rounded-2xl bg-white border border-slate-100 cursor-pointer">
+                  <div>
+                    <p class="font-bold text-slate-800">12-Hour Clock Display (AM/PM)</p>
+                    <p class="text-[10px] text-slate-400">Format system clock in 12-hour format</p>
+                  </div>
+                  <input type="checkbox" checked disabled class="rounded text-brand-600 w-4 h-4" />
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- GRAPH CONTENT RENDERER ---
+    function renderGraphContent(student, fin) {
+      if (state.activeGraphTag === "attendance") {
+        return `
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-lg font-bold text-slate-900">Attendance vs Leave Interval Graph</h3>
+                <p class="text-xs text-slate-500">Real-time correlation tracking attendance stability and leave days for ${student.name}</p>
+              </div>
+              <span class="text-xs font-bold text-brand-600 bg-brand-50 px-3 py-1 rounded-full border border-brand-100">
+                Target: 90%+
+              </span>
+            </div>
+            <div class="h-72 w-full relative">
+              <canvas id="attendanceCanvas"></canvas>
+            </div>
+          </div>
+        `;
+      }
+
+      if (state.activeGraphTag === "bank") {
+        return `
+          <div>
+            <div class="mb-6">
+              <h3 class="text-lg font-bold text-slate-900">Bank-Style Credit & Debit Ledger Graph (INR)</h3>
+              <p class="text-xs text-slate-500">Visual breakdown of all account credit injections and debit fees in Indian Rupee (₹)</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+              <div class="p-4 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm">
+                <p class="text-xs font-semibold opacity-90">Total Bank Credits</p>
+                <p class="text-2xl font-black mt-1">${formatINR(fin.totalCredits)}</p>
+              </div>
+              <div class="p-4 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-sm">
+                <p class="text-xs font-semibold opacity-90">Total Debits</p>
+                <p class="text-2xl font-black mt-1">${formatINR(fin.totalDebits)}</p>
+              </div>
+              <div class="p-4 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 text-white shadow-sm">
+                <p class="text-xs font-semibold opacity-90">Pending Dues Balance</p>
+                <p class="text-2xl font-black mt-1">${formatINR(fin.pendingDues)}</p>
+              </div>
+            </div>
+
+            <div class="h-64 w-full mb-6">
+              <canvas id="bankCanvas"></canvas>
+            </div>
+
+            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Recent Ledger Transactions (₹)</h4>
+            <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+              ${student.transactions.map(t => `
+                <div class="flex items-center justify-between p-3 rounded-xl bg-white border border-slate-100 hover:border-slate-200 transition-all text-xs">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold ${
+                      t.type === "Credit" ? "bg-emerald-100 text-emerald-600" : "bg-rose-100 text-rose-600"
+                    }">
+                      ${t.type === "Credit" ? "+" : "-"}
+                    </div>
+                    <div>
+                      <p class="font-bold text-slate-800">${t.description}</p>
+                      <p class="text-[10px] text-slate-400">${t.date} • ${t.category}</p>
+                    </div>
+                  </div>
+                  <span class="font-black text-sm ${t.type === "Credit" ? "text-emerald-600" : "text-rose-600"}">
+                    ${t.type === "Credit" ? `+${formatINR(t.amount)}` : `-${formatINR(t.amount)}`}
+                  </span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      if (state.activeGraphTag === "exams") {
+        return `
+          <div>
+            <div class="mb-6">
+              <h3 class="text-lg font-bold text-slate-900">Academic Marks & Behavioral Co-Factors</h3>
+              <p class="text-xs text-slate-500">Evaluation of subject performance alongside holistic non-academic metrics</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Subject Performance</h4>
+                <div class="h-64 w-full">
+                  <canvas id="examCanvas"></canvas>
+                </div>
+              </div>
+
+              <div>
+                <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Behavioral Co-Factors Metrics</h4>
+                <div class="space-y-4">
+                  ${state.coFactors.map((item, idx) => `
+                    <div class="p-3 rounded-2xl bg-white border border-slate-100 shadow-sm">
+                      <div class="flex items-center justify-between text-xs mb-1.5">
+                        <span class="font-bold text-slate-800">${item.metric}</span>
+                        <span class="font-bold text-brand-600">${item.score}% (${item.status})</span>
+                      </div>
+                      <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                        <div class="bg-gradient-to-r from-brand-500 to-sky-400 h-2.5 rounded-full" style="width: ${item.score}%"></div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (state.activeGraphTag === "leave") {
+        return `
+          <div>
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h3 class="text-lg font-bold text-slate-900">Leave Management System</h3>
+                <p class="text-xs text-slate-500">Apply for official leave of absence and track approval status</p>
+              </div>
+              <button 
+                onclick="toggleModal('leave', true)"
+                class="flex items-center space-x-1.5 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105"
+              >
+                ${icon('plus', 'w-3.5 h-3.5')}
+                <span>Apply New Leave</span>
+              </button>
+            </div>
+
+            <div class="space-y-3">
+              ${student.leaves.length === 0 ? `
+                <p class="text-xs text-slate-400 text-center py-8">No leave records submitted yet.</p>
+              ` : student.leaves.map(l => `
+                <div class="p-4 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-between text-xs">
+                  <div class="flex items-center space-x-3">
+                    <span class="w-3 h-3 rounded-full ${
+                      l.status === "Approved" ? "bg-emerald-500 shadow-glow-emerald" :
+                      l.status === "Pending" ? "bg-amber-500 animate-ping" : "bg-rose-500"
+                    }"></span>
+                    <div>
+                      <p class="font-bold text-slate-800 text-sm">${l.reason}</p>
+                      <p class="text-[11px] text-slate-500 mt-0.5">
+                        ${l.startDate} to ${l.endDate} • <span class="font-semibold">${l.category}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="flex items-center space-x-3">
+                    <span class="px-3 py-1 rounded-full text-[11px] font-bold ${
+                      l.status === "Approved" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" :
+                      l.status === "Pending" ? "bg-amber-50 text-amber-700 border border-amber-200" :
+                      "bg-rose-50 text-rose-700 border border-rose-200"
+                    }">
+                      ${l.status}
+                    </span>
+                    ${l.status === "Pending" ? `
+                      <button onclick="deleteStudentLeave('${student.id}', '${l.id}')" class="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition-colors" title="Cancel Request">
+                        ${icon('trash-2', 'w-4 h-4')}
+                      </button>
+                    ` : ''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // --- ACADEMIC UPDATES TICKER ---
+    function renderAcademicUpdatesTicker() {
+      return `
+        <div id="academic-ticker" class="glass-card rounded-3xl p-6 shadow-anti-gravity anti-gravity-card border border-white">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
+                ${icon('megaphone', 'w-4 h-4')}
+              </div>
+              <div>
+                <h3 class="text-sm font-extrabold text-slate-900">Anchored Academic Updates Ticker</h3>
+                <p class="text-[11px] text-slate-500">Live stream for institute notices, schedules & announcements (12-Hour AM/PM)</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            ${state.announcements.map(item => `
+              <div class="p-4 rounded-2xl border transition-all duration-300 hover:-translate-y-1 ${
+                item.urgency === "High" ? "bg-rose-50/40 border-rose-200/80" : "bg-white border-slate-100"
+              }">
+                <div class="flex items-start justify-between gap-2 mb-2">
+                  <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold ${
+                    item.urgency === "High" ? "bg-rose-500 text-white" : "bg-brand-100 text-brand-700"
+                  }">
+                    ${item.category}
+                  </span>
+                  <span class="text-[10px] text-slate-400 font-semibold">${item.date}</span>
+                </div>
+                <h4 class="text-xs font-bold text-slate-900 mb-1">${item.title}</h4>
+                <p class="text-[11px] text-slate-600 line-clamp-2">${item.content}</p>
+                ${!item.read ? `
+                  <button onclick="markRead(${item.id})" class="mt-2 text-[10px] font-bold text-brand-600 hover:text-brand-800 transition-colors flex items-center space-x-1">
+                    <span>Mark as Read</span>
+                    ${icon('check', 'w-3 h-3')}
+                  </button>
+                ` : ''}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // --- MODALS RENDERER ---
+    function renderModals() {
+      let html = '';
+
+      // ADD NEW STUDENT USER MODAL
+      if (state.modals.addStudent) {
+        html += `
+          <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+            <div class="glass-card w-full max-w-md rounded-3xl p-6 sm:p-8 shadow-anti-gravity-lg border border-white">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-slate-900">Add New Student User</h3>
+                <button onclick="toggleModal('addStudent', false)" class="text-slate-400 hover:text-slate-600 p-1">
+                  ${icon('x', 'w-5 h-5')}
+                </button>
+              </div>
+
+              <form onsubmit="handleAddStudentSubmit(event)" class="space-y-3 text-xs">
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Full Student Name</label>
+                  <input type="text" id="newStudName" required placeholder="e.g. Rayan Khalid" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="block font-bold text-slate-700 mb-1">Username</label>
+                    <input type="text" id="newStudUser" required placeholder="rayan" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
+                  </div>
+                  <div>
+                    <label class="block font-bold text-slate-700 mb-1">Password</label>
+                    <input type="text" id="newStudPass" required value="123" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Academic Program / Major</label>
+                  <input type="text" id="newStudProgram" required placeholder="B.Sc Artificial Intelligence" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
+                </div>
+
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Email Address</label>
+                  <input type="email" id="newStudEmail" required placeholder="rayan@manshau.edu.in" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
+                </div>
+
+                <div class="flex space-x-2 pt-3">
+                  <button type="button" onclick="toggleModal('addStudent', false)" class="flex-1 py-2.5 rounded-xl font-bold text-slate-600 bg-slate-100">Cancel</button>
+                  <button type="submit" class="flex-1 py-2.5 rounded-xl font-bold text-white bg-brand-600 shadow-md shadow-brand-500/20">Add Student Account</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `;
+      }
+
+      if (state.modals.notification) {
+        const unreadCount = state.announcements.filter(a => !a.read).length;
+        html += `
+          <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+            <div class="glass-card w-full max-w-xl rounded-3xl p-6 sm:p-8 shadow-anti-gravity-lg border border-white">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center shadow-sm">
+                    ${icon('bell', 'w-5 h-5')}
+                  </div>
+                  <div>
+                    <h3 class="text-lg font-extrabold text-slate-900">Academic Notifications</h3>
+                    <p class="text-xs text-slate-500">Live institute updates, schedules & announcements (12-Hour AM/PM)</p>
+                  </div>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                  ${unreadCount > 0 ? `
+                    <button onclick="markAllRead()" class="text-[11px] font-bold text-brand-600 hover:text-brand-800 bg-brand-50 px-3 py-1.5 rounded-xl border border-brand-100 transition-colors">
+                      Mark All Read
+                    </button>
+                  ` : ''}
+                  <button onclick="toggleModal('notification', false)" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 transition-all">
+                    ${icon('x', 'w-5 h-5')}
+                  </button>
+                </div>
+              </div>
+
+              <div class="space-y-3 max-h-96 overflow-y-auto pr-1">
+                ${state.announcements.length === 0 ? `
+                  <p class="text-xs text-slate-400 text-center py-10">No notifications found.</p>
+                ` : state.announcements.map(item => `
+                  <div class="p-4 rounded-2xl border transition-all duration-300 ${
+                    item.urgency === "High"
+                      ? "bg-rose-50/50 border-rose-200/90"
+                      : item.read ? "bg-slate-50/80 border-slate-100 opacity-80" : "bg-white border-slate-200 shadow-sm"
+                  }">
+                    <div class="flex items-start justify-between gap-2 mb-2">
+                      <div class="flex items-center space-x-2">
+                        <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold ${
+                          item.urgency === "High" ? "bg-rose-500 text-white" : "bg-brand-100 text-brand-700"
+                        }">
+                          ${item.category}
+                        </span>
+                        ${!item.read ? '<span class="w-2 h-2 rounded-full bg-brand-500 animate-ping"></span>' : ''}
+                      </div>
+                      <span class="text-[10px] text-slate-400 font-semibold">${item.date}</span>
+                    </div>
+
+                    <h4 class="text-xs font-bold text-slate-900 mb-1">${item.title}</h4>
+                    <p class="text-[11px] text-slate-600 leading-relaxed">${item.content}</p>
+
+                    ${!item.read ? `
+                      <div class="mt-3 pt-2 border-t border-slate-100/60 flex justify-end">
+                        <button onclick="markRead(${item.id})" class="text-[11px] font-bold text-brand-600 hover:text-brand-800 bg-brand-50/80 px-3 py-1 rounded-lg transition-colors flex items-center space-x-1">
+                          <span>Mark as Read</span>
+                          ${icon('check', 'w-3 h-3')}
+                        </button>
+                      </div>
+                    ` : ''}
+                  </div>
+                `).join('')}
+              </div>
+
+              <div class="mt-6 pt-4 border-t border-slate-100 text-center">
+                <button onclick="toggleModal('notification', false)" class="w-full py-2.5 rounded-xl font-bold text-xs text-slate-600 bg-slate-100 hover:bg-slate-200 transition-all">
+                  Close Notification Window
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (state.modals.leave) {
+        html += `
+          <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+            <div class="glass-card w-full max-w-md rounded-3xl p-6 shadow-anti-gravity-lg border border-white">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-slate-900">Apply for Official Leave</h3>
+                <button onclick="toggleModal('leave', false)" class="text-slate-400 hover:text-slate-600 p-1">
+                  ${icon('x', 'w-5 h-5')}
+                </button>
+              </div>
+
+              <form onsubmit="handleApplyLeave(event)" class="space-y-4 text-xs">
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block font-bold text-slate-700 mb-1">Start Date</label>
+                    <input type="date" id="leaveStart" required class="w-full px-3.5 py-2 rounded-xl border border-slate-200" />
+                  </div>
+                  <div>
+                    <label class="block font-bold text-slate-700 mb-1">End Date</label>
+                    <input type="date" id="leaveEnd" required class="w-full px-3.5 py-2 rounded-xl border border-slate-200" />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Category</label>
+                  <select id="leaveCategory" class="w-full px-3.5 py-2 rounded-xl border border-slate-200">
+                    <option value="Medical">Medical / Sick Leave</option>
+                    <option value="Family Event">Family Event</option>
+                    <option value="Personal">Personal Emergency</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Reason</label>
+                  <textarea id="leaveReason" rows="3" required placeholder="Explain cause..." class="w-full px-3.5 py-2 rounded-xl border border-slate-200"></textarea>
+                </div>
+
+                <div class="flex space-x-2 pt-2">
+                  <button type="button" onclick="toggleModal('leave', false)" class="flex-1 py-2.5 rounded-xl font-bold text-slate-600 bg-slate-100">Cancel</button>
+                  <button type="submit" class="flex-1 py-2.5 rounded-xl font-bold text-white bg-brand-600 shadow-md shadow-brand-500/20">Submit Application</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `;
+      }
+
+      if (state.modals.profile) {
+        const student = getCurrentStudent();
+        html += `
+          <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+            <div class="glass-card w-full max-w-md rounded-3xl p-6 shadow-anti-gravity-lg border border-white">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-bold text-slate-900">Student Profile Identity</h3>
+                <button onclick="toggleModal('profile', false)" class="text-slate-400 hover:text-slate-600 p-1">
+                  ${icon('x', 'w-5 h-5')}
+                </button>
+              </div>
+
+              <div class="text-center mb-6">
+                <div class="w-20 h-20 rounded-full bg-gradient-to-tr ${student.avatarBg} text-white font-black text-2xl mx-auto flex items-center justify-center ring-4 ring-brand-300 shadow-md mb-2">
+                  ${student.avatarInitials}
+                </div>
+                <p class="font-extrabold text-slate-900 text-lg">${student.name}</p>
+                <p class="text-xs text-slate-500">${student.id} • ${student.program}</p>
+              </div>
+
+              <div class="flex space-x-2 pt-2">
+                <button type="button" onclick="toggleModal('profile', false)" class="w-full py-2.5 rounded-xl font-bold text-slate-600 bg-slate-100">Close</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      return html;
+    }
+
+    // --- CHART INITIALIZER WITH CRITICAL INSTANCE DESTRUCTION GUARD ---
+    const chartInstances = {};
+
+    function initCharts() {
+      if (typeof Chart === 'undefined') return;
+
+      try {
+        const student = getCurrentStudent();
+
+        // Attendance Chart
+        const attCanvas = document.getElementById("attendanceCanvas");
+        if (attCanvas) {
+          if (chartInstances.attendance) chartInstances.attendance.destroy();
+          chartInstances.attendance = new Chart(attCanvas.getContext('2d'), {
+            type: 'line',
+            data: {
+              labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+              datasets: [
+                {
+                  label: 'Attendance Rate (%)',
+                  data: [98, 96, 92, 95, 94, 91, student.attendanceRate],
+                  borderColor: '#2563eb',
+                  backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                  borderWidth: 3,
+                  fill: true,
+                  tension: 0.4,
+                },
+                {
+                  label: 'Leaves (Days)',
+                  data: [0, 1, 3, 1, 2, 4, student.totalLeaveDays],
+                  borderColor: '#f59e0b',
+                  borderDash: [4, 4],
+                  borderWidth: 2,
+                  fill: false,
+                }
+              ]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 100 } } }
+          });
+        }
+
+        // Bank Chart (INR ₹)
+        const bankCanvas = document.getElementById("bankCanvas");
+        if (bankCanvas) {
+          if (chartInstances.bank) chartInstances.bank.destroy();
+          chartInstances.bank = new Chart(bankCanvas.getContext('2d'), {
+            type: 'bar',
+            data: {
+              labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+              datasets: [
+                { label: 'Credits (₹)', data: [15000, 25000, 8000, 30000, 5000, 45000, 12000], backgroundColor: '#10b981', borderRadius: 6 },
+                { label: 'Debits (₹)', data: [5000, 8000, 2000, 3000, 12500, 1500, 4000], backgroundColor: '#ef4444', borderRadius: 6 }
+              ]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+          });
+        }
+
+        // Exam Chart
+        const examCanvas = document.getElementById("examCanvas");
+        if (examCanvas) {
+          if (chartInstances.exam) chartInstances.exam.destroy();
+          chartInstances.exam = new Chart(examCanvas.getContext('2d'), {
+            type: 'bar',
+            data: {
+              labels: student.exams.map(e => e.subject.substring(0, 15)),
+              datasets: [{ label: 'Marks (%)', data: student.exams.map(e => e.score), backgroundColor: '#2563eb', borderRadius: 6 }]
+            },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false }
+          });
+        }
+      } catch(e) {
+        console.warn("Chart exception handled:", e);
+      }
+    }
+
+    // --- STATE ACTION HANDLERS ---
+    function setLoginRole(role) {
+      state.loginRole = role;
+      state.loginError = "";
+      renderApp();
+    }
+
+    function handleLoginSubmit(e) {
+      e.preventDefault();
+      const userEl = document.getElementById("loginUsername");
+      const passEl = document.getElementById("loginPassword");
+      const u = userEl ? userEl.value.trim() : "";
+      const p = passEl ? passEl.value.trim() : "";
+
+      if (state.loginRole === "student") {
+        const found = state.students.find(s => s.username === u && s.password === p);
+        if (found) {
+          state.currentStudentId = found.id;
+          state.isAuthenticated = true;
+          state.role = "student";
+          state.loginError = "";
+          renderApp();
+        } else {
+          state.loginError = `Invalid Student Credentials! Check student usernames: ${state.students.map(s => s.username).join(', ')}`;
+          renderApp();
+        }
+      } else if (state.loginRole === "admin") {
+        if (u === state.adminCredentials.username && p === state.adminCredentials.password) {
+          state.isAuthenticated = true;
+          state.role = "admin";
+          state.loginError = "";
+          renderApp();
+        } else {
+          state.loginError = `Invalid Admin Credentials! Use admin / 123`;
+          renderApp();
+        }
+      }
+    }
+
+    function quickLoginStudent(studentId) {
+      state.currentStudentId = studentId;
+      state.isAuthenticated = true;
+      state.role = "student";
+      state.loginRole = "student";
+      state.loginError = "";
+      renderApp();
+    }
+
+    function switchStudentAccount(studentId) {
+      state.currentStudentId = studentId;
+      renderApp();
+    }
+
+    function quickLogin(role) {
+      state.isAuthenticated = true;
+      state.role = role;
+      state.loginRole = role;
+      state.loginError = "";
+      renderApp();
+    }
+
+    function logout() {
+      state.isAuthenticated = false;
+      state.loginError = "";
+      renderApp();
+    }
+
+    function setRole(role) {
+      state.role = role;
+      renderApp();
+    }
+
+    function setActiveTab(tab) {
+      state.activeTab = tab;
+      renderApp();
+    }
+
+    function setAdminActiveTab(tab) {
+      state.adminActiveTab = tab;
+      renderApp();
+    }
+
+    function setActiveGraphTag(tag) {
+      state.activeGraphTag = tag;
+      renderApp();
+    }
+
+    function toggleStudentStatus() {
+      const student = getCurrentStudent();
+      student.status = student.status === "Present" ? "On Leave" : "Present";
+      renderApp();
+    }
+
+    function toggleSpecificStudentStatus(studentId) {
+      const student = state.students.find(s => s.id === studentId);
+      if (student) {
+        student.status = student.status === "Present" ? "On Leave" : "Present";
+        renderApp();
+      }
+    }
+
+    function toggleModal(modalName, isOpen) {
+      state.modals[modalName] = isOpen;
+      renderApp();
+    }
+
+    function markRead(id) {
+      const item = state.announcements.find(a => a.id === id);
+      if (item) item.read = true;
+      renderApp();
+    }
+
+    function markAllRead() {
+      state.announcements.forEach(a => a.read = true);
+      renderApp();
+    }
+
+    function deleteStudentUser(studentId) {
+      if (state.students.length <= 1) {
+        alert("Cannot delete the last remaining student user.");
+        return;
+      }
+      const student = state.students.find(s => s.id === studentId);
+      if (confirm(`Are you sure you want to delete student user "${student ? student.name : studentId}"?`)) {
+        state.students = state.students.filter(s => s.id !== studentId);
+        if (state.currentStudentId === studentId) {
+          state.currentStudentId = state.students[0].id;
+        }
+        alert("Student user deleted successfully!");
+        renderApp();
+      }
+    }
+
+    function promptEditStudentCredentials(studentId) {
+      const student = state.students.find(s => s.id === studentId);
+      if (!student) return;
+
+      const newU = prompt(`Edit Username for ${student.name}:`, student.username);
+      if (newU === null) return;
+      const newP = prompt(`Edit Password for ${student.name}:`, student.password);
+      if (newP === null) return;
+
+      if (!newU.trim() || !newP.trim()) {
+        alert("Username and Password cannot be empty.");
+        return;
+      }
+
+      student.username = newU.trim();
+      student.password = newP.trim();
+      alert(`Updated credentials for ${student.name}!\nUsername: ${student.username}\nPassword: ${student.password}`);
+      renderApp();
+    }
+
+    function handleAddStudentSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById("newStudName").value.trim();
+      const username = document.getElementById("newStudUser").value.trim();
+      const password = document.getElementById("newStudPass").value.trim();
+      const program = document.getElementById("newStudProgram").value.trim();
+      const email = document.getElementById("newStudEmail").value.trim();
+
+      const exists = state.students.some(s => s.username === username);
+      if (exists) {
+        alert(`Username "${username}" is already taken. Please choose another.`);
+        return;
+      }
+
+      const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || "ST";
+      const colors = ["from-brand-600 to-sky-400", "from-purple-600 to-pink-500", "from-emerald-600 to-teal-400", "from-rose-600 to-orange-400", "from-indigo-600 to-blue-400"];
+      const bg = colors[Math.floor(Math.random() * colors.length)];
+
+      const newStudent = {
+        id: `MSH-2026-${Math.floor(8800 + Math.random() * 100)}`,
+        username, password, name, program, email,
+        status: "Present",
+        school: "Calicut University",
+        class: "Class: Idara",
+        phone: "+91 98765 00000",
+        attendanceRate: 95.0,
+        totalLeaveDays: 0,
+        avatarInitials: initials,
+        avatarBg: bg,
+        transactions: [
+          { id: `TXN-${Math.floor(100+Math.random()*900)}`, date: new Date().toISOString().split('T')[0], description: "Initial Enrollment Fee Credit", type: "Credit", amount: 40000, category: "Tuition" }
+        ],
+        exams: [
+          { subject: "Introductory Computer Science", code: "CS-101", score: 90, grade: "A+", credits: 4, sem: "Sem 5" }
+        ],
+        leaves: []
+      };
+
+      state.students.push(newStudent);
+      toggleModal('addStudent', false);
+      alert(`Student account created successfully!\nName: ${name}\nUsername: ${username}\nPassword: ${password}`);
+      renderApp();
+    }
+
+    function updateStudentLeaveStatus(studentId, leaveId, newStatus) {
+      const student = state.students.find(s => s.id === studentId);
+      if (student) {
+        const leave = student.leaves.find(l => l.id === leaveId);
+        if (leave) leave.status = newStatus;
+        renderApp();
+      }
+    }
+
+    function deleteStudentLeave(studentId, leaveId) {
+      const student = state.students.find(s => s.id === studentId);
+      if (student) {
+        student.leaves = student.leaves.filter(l => l.id !== leaveId);
+        renderApp();
+      }
+    }
+
+    function editExamScoreForStudent(studentId, index) {
+      const student = state.students.find(s => s.id === studentId);
+      if (student && student.exams[index]) {
+        const newScore = prompt(`Enter new score for ${student.name} (${student.exams[index].subject}):`, student.exams[index].score);
+        if (newScore !== null && !isNaN(newScore)) {
+          student.exams[index].score = parseInt(newScore);
+          alert(`Score updated to ${newScore}%!`);
+          renderApp();
+        }
+      }
+    }
+
+    function handleAdminUpdateIdentity(e) {
+      e.preventDefault();
+      const student = getCurrentStudent();
+      student.name = document.getElementById("adminNameInput").value;
+      student.school = document.getElementById("adminSchoolInput").value;
+      student.class = document.getElementById("adminClassInput").value;
+      alert(`Updated identity for ${student.name}!`);
+      renderApp();
+    }
+
+    function handleUpdateStudentSettings(e) {
+      e.preventDefault();
+      const student = getCurrentStudent();
+      student.name = document.getElementById("settingsStudentName").value.trim();
+      student.school = document.getElementById("settingsStudentSchool").value.trim();
+      student.class = document.getElementById("settingsStudentClass").value.trim();
+      student.email = document.getElementById("settingsStudentEmail").value.trim();
+      student.phone = document.getElementById("settingsStudentPhone").value.trim();
+      
+      // Dynamically re-calculate initials in case name was changed
+      const initials = student.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || "ST";
+      student.avatarInitials = initials;
+
+      alert(`Profile settings updated for ${student.name}!`);
+      renderApp();
+    }
+
+    function handleAdminInjectTxnForStudent(e, studentId) {
+      e.preventDefault();
+      const student = state.students.find(s => s.id === studentId) || getCurrentStudent();
+      const type = document.getElementById("adminTxnType").value;
+      const desc = document.getElementById("adminTxnDesc").value;
+      const amount = parseFloat(document.getElementById("adminTxnAmount").value);
+      student.transactions.unshift({
+        id: `TXN-${Math.floor(100 + Math.random() * 900)}`,
+        date: new Date().toISOString().split('T')[0],
+        description: desc,
+        type: type,
+        amount: amount,
+        category: "Admin Simulator"
+      });
+      alert(`Transaction of ₹${amount} injected into ${student.name}'s live ledger!`);
+      renderApp();
+    }
+
+    function handleAdminBroadcast(e) {
+      e.preventDefault();
+      const title = document.getElementById("adminAnnTitle").value;
+      const urgency = document.getElementById("adminAnnUrgency").value;
+      const content = document.getElementById("adminAnnContent").value;
+      state.announcements.unshift({
+        id: Date.now(),
+        title,
+        content,
+        urgency,
+        category: "Admin Broadcast",
+        date: `Just Now (${getShort12HourTimeString()})`,
+        read: false
+      });
+      alert("Announcement broadcasted directly to student feed!");
+      renderApp();
+    }
+
+    function handleApplyLeave(e) {
+      e.preventDefault();
+      const student = getCurrentStudent();
+      const startDate = document.getElementById("leaveStart").value;
+      const endDate = document.getElementById("leaveEnd").value;
+      const category = document.getElementById("leaveCategory").value;
+      const reason = document.getElementById("leaveReason").value;
+      student.leaves.unshift({
+        id: `LV-${Math.floor(100 + Math.random() * 900)}`,
+        startDate, endDate, category, reason,
+        status: "Pending",
+        appliedOn: new Date().toISOString().split('T')[0]
+      });
+      toggleModal('leave', false);
+      renderApp();
+    }
+
+    // Live 12-Hour Clock Interval Ticker
+    setInterval(() => {
+      const clockEl = document.getElementById("liveClockPill");
+      if (clockEl) {
+        clockEl.innerText = get12HourTimeString();
+      }
+    }, 1000);
+
+    // Initialize App Render
+    document.addEventListener("DOMContentLoaded", () => {
+      loadState();
+      renderApp();
+    });
+    loadState();
+    renderApp();
+  </script>
+</body>
+</html>
