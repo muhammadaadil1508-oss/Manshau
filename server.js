@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = 3000;
-const uri = "mongodb+srv://Aadil:15082003@fest.jx37gni.mongodb.net/?appName=Fest";
+const uri = process.env.MONGODB_URI || "mongodb+srv://Aadil:15082003@fest.jx37gni.mongodb.net/?appName=Fest";
 const client = new MongoClient(uri);
 
 let db, stateCollection;
