@@ -359,6 +359,24 @@
       ? "http://localhost:3000/api/state" 
       : "/api/state";
     let isBackendActive = false;
+    let lastFetchedStateStr = "";
+
+    function isUserActivelyEditing() {
+      const active = document.activeElement;
+      return active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA" || active.tagName === "SELECT");
+    }
+
+    function updateStatusBadgeUI() {
+      const badge = document.getElementById("dbStatusBadge");
+      if (!badge) return;
+      if (isBackendActive) {
+        badge.className = "hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-[10px] font-extrabold border shadow-sm bg-emerald-50 text-emerald-700 border-emerald-200";
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span><span>MongoDB Atlas Synced</span>`;
+      } else {
+        badge.className = "hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-[10px] font-extrabold border shadow-sm bg-blue-50 text-blue-700 border-blue-200";
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span><span>Local Storage Mode</span>`;
+      }
+    }
 
     function saveStateLocalOnly() {
       try {
@@ -370,6 +388,45 @@
       } catch(e) {}
     }
 
+    async function syncWithServer() {
+      try {
+        const res = await fetch(BACKEND_URL);
+        if (res.ok) {
+          const remoteState = await res.json();
+          if (remoteState) {
+            const remoteStr = JSON.stringify({
+              students: remoteState.students,
+              announcements: remoteState.announcements,
+              currentStudentId: remoteState.currentStudentId
+            });
+
+            if (remoteStr !== lastFetchedStateStr) {
+              state.students = remoteState.students;
+              state.announcements = remoteState.announcements;
+              state.currentStudentId = remoteState.currentStudentId;
+              lastFetchedStateStr = remoteStr;
+              isBackendActive = true;
+              saveStateLocalOnly();
+
+              if (!isUserActivelyEditing()) {
+                renderApp();
+              } else {
+                updateStatusBadgeUI();
+              }
+            } else if (!isBackendActive) {
+              isBackendActive = true;
+              updateStatusBadgeUI();
+            }
+          }
+        }
+      } catch(e) {
+        if (isBackendActive) {
+          isBackendActive = false;
+          updateStatusBadgeUI();
+        }
+      }
+    }
+
     async function loadState() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -378,47 +435,50 @@
           if (parsed.students) state.students = parsed.students;
           if (parsed.announcements) state.announcements = parsed.announcements;
           if (parsed.currentStudentId) state.currentStudentId = parsed.currentStudentId;
+          
+          lastFetchedStateStr = JSON.stringify({
+            students: state.students,
+            announcements: state.announcements,
+            currentStudentId: state.currentStudentId
+          });
         } catch(e) {}
       }
 
-      try {
-        const res = await fetch(BACKEND_URL);
-        if (res.ok) {
-          const remoteState = await res.json();
-          if (remoteState) {
-            if (remoteState.students) state.students = remoteState.students;
-            if (remoteState.announcements) state.announcements = remoteState.announcements;
-            if (remoteState.currentStudentId) state.currentStudentId = remoteState.currentStudentId;
-            isBackendActive = true;
-            saveStateLocalOnly();
-            renderApp();
-          }
-        }
-      } catch(e) {
-        console.warn("Backend server not reached. Operating in local storage mode.");
-        isBackendActive = false;
-      }
+      await syncWithServer();
     }
 
     async function saveState() {
+      const stateObj = {
+        students: state.students,
+        announcements: state.announcements,
+        currentStudentId: state.currentStudentId
+      };
+
       saveStateLocalOnly();
+      lastFetchedStateStr = JSON.stringify(stateObj);
+
       try {
         const response = await fetch(BACKEND_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            students: state.students,
-            announcements: state.announcements,
-            currentStudentId: state.currentStudentId
-          })
+          body: JSON.stringify(stateObj)
         });
         if (response.ok) {
-          isBackendActive = true;
+          if (!isBackendActive) {
+            isBackendActive = true;
+            updateStatusBadgeUI();
+          }
         } else {
-          isBackendActive = false;
+          if (isBackendActive) {
+            isBackendActive = false;
+            updateStatusBadgeUI();
+          }
         }
       } catch(e) {
-        isBackendActive = false;
+        if (isBackendActive) {
+          isBackendActive = false;
+          updateStatusBadgeUI();
+        }
       }
     }
 
@@ -472,7 +532,7 @@
               <div class="flex items-center space-x-3 sm:space-x-4">
                 
                 <!-- DATABASE PERSISTENCE STATUS BADGE -->
-                <div class="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-[10px] font-extrabold border shadow-sm ${
+                <div id="dbStatusBadge" class="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-[10px] font-extrabold border shadow-sm ${
                   isBackendActive 
                     ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
                     : "bg-blue-50 text-blue-700 border-blue-200"
@@ -2420,6 +2480,20 @@
     });
     loadState();
     renderApp();
+
+    // SWR-Style Live Synchronization Engine
+    // 1. Periodic poll every 4 seconds
+    setInterval(syncWithServer, 4000);
+
+    // 2. Focus Revalidation (sync instantly when returning to browser tab)
+    window.addEventListener("focus", () => {
+      syncWithServer();
+    });
+
+    // 3. Online Status Revalidation (sync instantly when internet connection returns)
+    window.addEventListener("online", () => {
+      syncWithServer();
+    });
   </script>
 </body>
 </html>
