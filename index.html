@@ -209,7 +209,7 @@
       activeGraphTag: "attendance",
       selectedSem: "Sem 5",
       
-      currentStudentId: "MSH-2026-8842",
+      currentStudentId: "MSH-2026-0001",
 
       coFactors: [
         { metric: "Behavioral Rating & Character", score: 94, status: "Excellent" },
@@ -218,137 +218,29 @@
         { metric: "Social & Community Contribution", score: 92, status: "Excellent" }
       ],
 
-      // 5 DISTINCT STUDENT USERS IN DATABASE
+      // SINGLE SEED USER (password: 123)
       students: [
         {
-          id: "MSH-2026-8842",
-          username: "aadil",
+          id: "MSH-2026-0001",
+          username: "user",
           password: "123",
-          name: "Muhammad Aadil",
+          name: "Student User",
           status: "Present",
           school: "Calicut University",
           class: "Class: Idara",
-          program: "B.Sc Computer Science & Islamic Studies",
-          email: "aadil@manshau.edu.in",
-          phone: "+91 98765 43210",
-          attendanceRate: 94.5,
-          totalLeaveDays: 8,
-          avatarInitials: "MA",
+          program: "B.Sc Computer Science",
+          email: "user@manshau.edu.in",
+          phone: "+91 98765 00000",
+          attendanceRate: 95.0,
+          totalLeaveDays: 0,
+          avatarInitials: "SU",
           avatarBg: "from-brand-600 to-sky-400",
+          lastUpdated: Date.now(),
           transactions: [
-            { id: "TXN-901", date: "2026-07-01", description: "Semester Tuition Fee Payment", type: "Credit", amount: 45000, category: "Tuition" },
-            { id: "TXN-902", date: "2026-06-15", description: "Library Special Fund Deposit", type: "Credit", amount: 2500, category: "Library" },
-            { id: "TXN-903", date: "2026-06-02", description: "Late Exam Registration Fine", type: "Debit", amount: 500, category: "Penalty" },
+            { id: "TXN-001", date: "2026-07-20", description: "Semester Tuition Fee Payment", type: "Credit", amount: 45000, category: "Tuition" }
           ],
           exams: [
-            { subject: "Data Structures & Algorithms", code: "CS-301", score: 92, grade: "A+", credits: 4, sem: "Sem 5" },
-            { subject: "Database Management Systems", code: "CS-302", score: 88, grade: "A", credits: 4, sem: "Sem 5" },
-            { subject: "Islamic Jurisprudence & Ethics", code: "IS-204", score: 95, grade: "A+", credits: 3, sem: "Sem 5" },
-          ],
-          leaves: [
-            { id: "LV-101", startDate: "2026-06-10", endDate: "2026-06-12", category: "Medical", reason: "Severe Viral Fever & Medical Rest", status: "Approved", appliedOn: "2026-06-08" },
-            { id: "LV-102", startDate: "2026-07-10", endDate: "2026-07-11", category: "Family Event", reason: "Brother's Graduation Ceremony", status: "Pending", appliedOn: "2026-07-04" },
-          ]
-        },
-        {
-          id: "MSH-2026-8843",
-          username: "sana",
-          password: "123",
-          name: "Fathima Sana",
-          status: "Present",
-          school: "Calicut University",
-          class: "Class: Idara",
-          program: "B.A. English Literature & Media Studies",
-          email: "sana@manshau.edu.in",
-          phone: "+91 98765 43211",
-          attendanceRate: 98.0,
-          totalLeaveDays: 3,
-          avatarInitials: "FS",
-          avatarBg: "from-purple-600 to-pink-500",
-          transactions: [
-            { id: "TXN-801", date: "2026-07-02", description: "Media Lab Equipment Deposit", type: "Credit", amount: 35000, category: "Lab Fee" },
-            { id: "TXN-802", date: "2026-06-20", description: "Merit Excellence Grant", type: "Credit", amount: 15000, category: "Scholarship" },
-          ],
-          exams: [
-            { subject: "Linguistic Phonetics", code: "EN-201", score: 96, grade: "A+", credits: 4, sem: "Sem 5" },
-            { subject: "Mass Media & Journalism", code: "EN-204", score: 91, grade: "A+", credits: 4, sem: "Sem 5" },
-          ],
-          leaves: [
-            { id: "LV-201", startDate: "2026-05-15", endDate: "2026-05-16", category: "Personal", reason: "National Seminar Presentation", status: "Approved", appliedOn: "2026-05-10" }
-          ]
-        },
-        {
-          id: "MSH-2026-8844",
-          username: "zayan",
-          password: "123",
-          name: "Zayan Ahmed",
-          status: "Present",
-          school: "Calicut University",
-          class: "Class: Idara",
-          program: "B.Tech Robotics & Artificial Intelligence",
-          email: "zayan@manshau.edu.in",
-          phone: "+91 98765 43212",
-          attendanceRate: 91.2,
-          totalLeaveDays: 10,
-          avatarInitials: "ZA",
-          avatarBg: "from-emerald-600 to-teal-400",
-          transactions: [
-            { id: "TXN-701", date: "2026-06-30", description: "Robotics Hardware Kit Deposit", type: "Credit", amount: 50000, category: "Tuition" },
-            { id: "TXN-702", date: "2026-06-10", description: "3D Printer Filament Charge", type: "Debit", amount: 1200, category: "Lab Fee" },
-          ],
-          exams: [
-            { subject: "Embedded Neural Networks", code: "AI-401", score: 89, grade: "A", credits: 4, sem: "Sem 5" },
-            { subject: "Kinematics & Microcontrollers", code: "RB-302", score: 87, grade: "A", credits: 4, sem: "Sem 5" },
-          ],
-          leaves: []
-        },
-        {
-          id: "MSH-2026-8845",
-          username: "ayisha",
-          password: "123",
-          name: "Ayisha Haniya",
-          status: "On Leave",
-          school: "Calicut University",
-          class: "Class: Idara",
-          program: "B.Com Finance & Islamic Banking",
-          email: "ayisha@manshau.edu.in",
-          phone: "+91 98765 43213",
-          attendanceRate: 96.5,
-          totalLeaveDays: 5,
-          avatarInitials: "AH",
-          avatarBg: "from-rose-600 to-orange-400",
-          transactions: [
-            { id: "TXN-601", date: "2026-07-03", description: "Financial Analytics Software License", type: "Credit", amount: 40000, category: "Tuition" },
-          ],
-          exams: [
-            { subject: "Islamic Corporate Governance", code: "FI-301", score: 94, grade: "A+", credits: 4, sem: "Sem 5" },
-            { subject: "Managerial Accounting", code: "FI-304", score: 92, grade: "A+", credits: 4, sem: "Sem 5" },
-          ],
-          leaves: [
-            { id: "LV-401", startDate: "2026-07-05", endDate: "2026-07-07", category: "Medical", reason: "Viral Infection Rest", status: "Approved", appliedOn: "2026-07-04" }
-          ]
-        },
-        {
-          id: "MSH-2026-8846",
-          username: "bilal",
-          password: "123",
-          name: "Bilal Rayan",
-          status: "Present",
-          school: "Calicut University",
-          class: "Class: Idara",
-          program: "B.Sc Data Science & Cyber Security",
-          email: "bilal@manshau.edu.in",
-          phone: "+91 98765 43214",
-          attendanceRate: 93.0,
-          totalLeaveDays: 7,
-          avatarInitials: "BR",
-          avatarBg: "from-indigo-600 to-blue-400",
-          transactions: [
-            { id: "TXN-501", date: "2026-06-25", description: "Cloud Server Sandbox Credit", type: "Credit", amount: 42000, category: "Tuition" },
-          ],
-          exams: [
-            { subject: "Ethical Hacking & Cryptography", code: "CS-405", score: 90, grade: "A+", credits: 4, sem: "Sem 5" },
-            { subject: "Statistical Modeling", code: "DS-301", score: 85, grade: "A", credits: 4, sem: "Sem 5" },
+            { subject: "Data Structures & Algorithms", code: "CS-301", score: 92, grade: "A+", credits: 4, sem: "Sem 5" }
           ],
           leaves: []
         }
@@ -357,7 +249,7 @@
       announcements: [
         { id: 1, title: "Final Semester Examination Timetable Released", date: "Today, 02:30 PM", category: "Academic", urgency: "High", read: false, content: "The schedule for Mid-Term Assessment & Final Papers has been published on the student portal. Download your hall ticket by Friday." },
         { id: 2, title: "Annual Science & Tech Fest 'Antigravity 2026' Registrations Open", date: "Yesterday, 11:15 AM", category: "Event", urgency: "Normal", read: false, content: "Participate in AI coding hackathons, robotics challenges, and paper presentations. Cash prizes worth ₹50,000." },
-        { id: 3, title: "Campus Central Library Timings Extended", date: "July 03, 09:00 AM", category: "Facility", urgency: "Normal", read: true, content: "During examination weeks, the library will remain open 24/7 with tea & study pod facilities available." },
+        { id: 3, title: "Campus Central Library Timings Extended", date: "July 03, 09:00 AM", category: "Facility", urgency: "Normal", read: true, content: "During examination weeks, the library will remain open 24/7 with tea & study pod facilities available." }
       ],
 
       modals: {
@@ -368,7 +260,7 @@
       }
     };
 
-    const STORAGE_KEY = "manshau_erp_state";
+    const STORAGE_KEY = "manshau_erp_state_v3";
     const BACKEND_URL = window.location.protocol === "file:" 
       ? "http://localhost:3000/api/state" 
       : "/api/state";

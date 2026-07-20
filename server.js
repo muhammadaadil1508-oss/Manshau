@@ -20,6 +20,15 @@ async function connectDB() {
     console.log("=========================================");
     console.log("✅ Successfully connected to MongoDB Atlas!");
     console.log("=========================================");
+
+    // Purge old collections if old student ID is found (self-healing reset)
+    const oldStudent = await db.collection('students').findOne({ id: "MSH-2026-8842" });
+    if (oldStudent) {
+      console.log("⚠️ Old database records detected. Purging data for clean reset...");
+      try { await db.collection('state').drop(); } catch(e) {}
+      try { await db.collection('students').drop(); } catch(e) {}
+      console.log("✅ Database reset successfully! Ready to seed clean state.");
+    }
   } catch (e) {
     console.error("=========================================");
     console.error("❌ Failed to connect to MongoDB Atlas!");
