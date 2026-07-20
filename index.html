@@ -1088,7 +1088,13 @@
           </div>
 
           <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-            <h3 class="text-base font-extrabold text-slate-900 mb-4">Course Grades & Marks Sheet for ${student.name}</h3>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-base font-extrabold text-slate-900">Course Grades & Marks Sheet for ${student.name}</h3>
+              <button onclick="promptAddCourseForStudent('${student.id}')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-600 font-bold text-xs border border-brand-100/60 shadow-sm transition-all hover:scale-105">
+                ${icon('plus', 'w-3.5 h-3.5')}
+                <span>Add Subject</span>
+              </button>
+            </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse text-xs min-w-[500px]">
                 <thead>
@@ -1112,8 +1118,9 @@
                           ${item.grade}
                         </span>
                       </td>
-                      <td class="py-3 px-3 text-right">
+                      <td class="py-3 px-3 text-right space-x-3">
                         <button onclick="editExamScoreForStudent('${student.id}', ${idx})" class="text-brand-600 hover:text-brand-800 font-bold">Edit Score</button>
+                        <button onclick="deleteExamForStudent('${student.id}', ${idx})" class="text-rose-600 hover:text-rose-800 font-bold">Delete</button>
                       </td>
                     </tr>
                   `).join('')}
@@ -1392,7 +1399,7 @@
             <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-base font-extrabold text-slate-900">Semester Course Scores</h3>
-                <span class="text-xs font-bold text-brand-600">Sem 5 • CGPA: 3.88</span>
+                <span class="text-xs font-bold text-brand-600">Sem 5 • CGPA: ${calculateStudentCGPA(student)}</span>
               </div>
 
               <div class="overflow-x-auto">
@@ -2347,13 +2354,92 @@
       }
     }
 
+    function getGradeFromScore(score) {
+      if (score >= 95) return "A+";
+      if (score >= 90) return "A";
+      if (score >= 85) return "B+";
+      if (score >= 80) return "B";
+      if (score >= 75) return "C+";
+      if (score >= 70) return "C";
+      if (score >= 60) return "D";
+      return "F";
+    }
+
+    function calculateStudentCGPA(student) {
+      if (!student.exams || student.exams.length === 0) return "0.00";
+      let totalPoints = 0;
+      let totalCredits = 0;
+      
+      student.exams.forEach(exam => {
+        let gp = 0;
+        const score = exam.score;
+        if (score >= 95) gp = 4.0;
+        else if (score >= 90) gp = 3.7;
+        else if (score >= 85) gp = 3.3;
+        else if (score >= 80) gp = 3.0;
+        else if (score >= 75) gp = 2.7;
+        else if (score >= 70) gp = 2.0;
+        else if (score >= 60) gp = 1.0;
+        else gp = 0.0;
+        
+        const credits = Number(exam.credits) || 3;
+        totalPoints += gp * credits;
+        totalCredits += credits;
+      });
+      
+      return totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "0.00";
+    }
+
     function editExamScoreForStudent(studentId, index) {
       const student = state.students.find(s => s.id === studentId);
       if (student && student.exams[index]) {
         const newScore = prompt(`Enter new score for ${student.name} (${student.exams[index].subject}):`, student.exams[index].score);
         if (newScore !== null && !isNaN(newScore)) {
-          student.exams[index].score = parseInt(newScore);
-          alert(`Score updated to ${newScore}%!`);
+          const score = parseInt(newScore);
+          student.exams[index].score = score;
+          student.exams[index].grade = getGradeFromScore(score);
+          alert(`Score updated to ${score}% (Grade: ${student.exams[index].grade})!`);
+          renderApp();
+        }
+      }
+    }
+
+    function promptAddCourseForStudent(studentId) {
+      const student = state.students.find(s => s.id === studentId);
+      if (!student) return;
+      const subject = prompt("Enter Subject Name (e.g. Operating Systems):");
+      if (!subject) return;
+      const code = prompt("Enter Subject Code (e.g. CS-304):");
+      if (!code) return;
+      const scoreStr = prompt("Enter Score Percentage (0-100):", "90");
+      if (scoreStr === null || isNaN(scoreStr)) return;
+      const creditsStr = prompt("Enter Course Credits (e.g. 4):", "4");
+      if (creditsStr === null || isNaN(creditsStr)) return;
+      
+      const score = parseInt(scoreStr);
+      const credits = parseInt(creditsStr);
+      const grade = getGradeFromScore(score);
+      
+      if (!student.exams) student.exams = [];
+      student.exams.push({
+        subject,
+        code,
+        score,
+        grade,
+        credits,
+        sem: "Sem 5"
+      });
+      
+      alert(`Successfully added ${subject} (Grade: ${grade}) to ${student.name}'s records!`);
+      renderApp();
+    }
+
+    function deleteExamForStudent(studentId, index) {
+      const student = state.students.find(s => s.id === studentId);
+      if (student && student.exams[index]) {
+        if (confirm(`Are you sure you want to delete ${student.exams[index].subject} from ${student.name}'s records?`)) {
+          student.exams.splice(index, 1);
+          alert("Subject deleted successfully!");
           renderApp();
         }
       }
