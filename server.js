@@ -31,15 +31,28 @@ async function connectDB() {
 
 connectDB();
 
-// Get ERP state from database
+// Get ERP state from database (individual partitioned documents merged)
 app.get('/api/state', async (req, res) => {
   try {
     if (!stateCollection) {
       return res.status(503).json({ error: "Database not connected yet" });
     }
-    const doc = await stateCollection.findOne({ type: "global_state" });
-    if (doc) {
-      res.json(doc.state);
+    
+    // 1. Fetch announcements
+    const annDoc = await stateCollection.findOne({ type: "announcements" });
+    const announcements = annDoc ? annDoc.announcements : [];
+    
+    // 2. Fetch all individual student documents
+    const studentsCol = db.collection('students');
+    const students = await studentsCol.find({}).toArray();
+    
+    if (students.length > 0) {
+      // Remove mongodb internal _id field to prevent serialization bugs
+      const cleanedStudents = students.map(({ _id, ...rest }) => rest);
+      res.json({
+        students: cleanedStudents,
+        announcements
+      });
     } else {
       res.json(null);
     }
@@ -48,18 +61,43 @@ app.get('/api/state', async (req, res) => {
   }
 });
 
-// Update ERP state in database
+// Update ERP state in database (partitioned with optimistic concurrency timestamp validation)
 app.post('/api/state', async (req, res) => {
   try {
     if (!stateCollection) {
       return res.status(503).json({ error: "Database not connected yet" });
     }
-    const state = req.body;
+    const { students, announcements } = req.body;
+    
+    // 1. Update global announcements
     await stateCollection.updateOne(
-      { type: "global_state" },
-      { $set: { state, updatedAt: new Date() } },
+      { type: "announcements" },
+      { $set: { announcements, updatedAt: new Date() } },
       { upsert: true }
     );
+    
+    // 2. Process each student as an individual document
+    const studentsCol = db.collection('students');
+    for (const student of students) {
+      const existing = await studentsCol.findOne({ id: student.id });
+      
+      const incomingTime = Number(student.lastUpdated) || 0;
+      const existingTime = existing ? (Number(existing.lastUpdated) || 0) : -1;
+      
+      // Save if student doesn't exist yet, or client's incoming change is newer
+      if (!existing || incomingTime > existingTime) {
+        await studentsCol.updateOne(
+          { id: student.id },
+          { $set: { ...student, lastUpdated: incomingTime, updatedAt: new Date() } },
+          { upsert: true }
+        );
+      }
+    }
+    
+    // 3. Remove any students from the database that are no longer in the client's list (deleted students)
+    const incomingIds = students.map(s => s.id);
+    await studentsCol.deleteMany({ id: { $nin: incomingIds } });
+    
     res.json({ success: true });
   } catch (e) {
     res.status(500).json({ error: e.message });

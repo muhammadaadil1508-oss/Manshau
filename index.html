@@ -2244,6 +2244,7 @@
       const student = state.students.find(s => s.id === studentId);
       if (student) {
         student.status = student.status === "Present" ? "On Leave" : "Present";
+        student.lastUpdated = Date.now();
         renderApp();
       }
     }
@@ -2296,6 +2297,7 @@
 
       student.username = newU.trim();
       student.password = newP.trim();
+      student.lastUpdated = Date.now();
       alert(`Updated credentials for ${student.name}!\nUsername: ${student.username}\nPassword: ${student.password}`);
       renderApp();
     }
@@ -2329,6 +2331,7 @@
         totalLeaveDays: 0,
         avatarInitials: initials,
         avatarBg: bg,
+        lastUpdated: Date.now(),
         transactions: [
           { id: `TXN-${Math.floor(100+Math.random()*900)}`, date: new Date().toISOString().split('T')[0], description: "Initial Enrollment Fee Credit", type: "Credit", amount: 40000, category: "Tuition" }
         ],
@@ -2349,6 +2352,7 @@
       if (student) {
         const leave = student.leaves.find(l => l.id === leaveId);
         if (leave) leave.status = newStatus;
+        student.lastUpdated = Date.now();
         renderApp();
       }
     }
@@ -2357,6 +2361,7 @@
       const student = state.students.find(s => s.id === studentId);
       if (student) {
         student.leaves = student.leaves.filter(l => l.id !== leaveId);
+        student.lastUpdated = Date.now();
         renderApp();
       }
     }
@@ -2458,6 +2463,7 @@
       student.name = document.getElementById("adminNameInput").value;
       student.school = document.getElementById("adminSchoolInput").value;
       student.class = document.getElementById("adminClassInput").value;
+      student.lastUpdated = Date.now();
       alert(`Updated identity for ${student.name}!`);
       renderApp();
     }
@@ -2470,6 +2476,7 @@
       student.class = document.getElementById("settingsStudentClass").value.trim();
       student.email = document.getElementById("settingsStudentEmail").value.trim();
       student.phone = document.getElementById("settingsStudentPhone").value.trim();
+      student.lastUpdated = Date.now();
       
       // Dynamically re-calculate initials in case name was changed
       const initials = student.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || "ST";
@@ -2493,6 +2500,7 @@
         amount: amount,
         category: "Admin Simulator"
       });
+      student.lastUpdated = Date.now();
       alert(`Transaction of ₹${amount} injected into ${student.name}'s live ledger!`);
       renderApp();
     }
@@ -2528,6 +2536,7 @@
         status: "Pending",
         appliedOn: new Date().toISOString().split('T')[0]
       });
+      student.lastUpdated = Date.now();
       toggleModal('leave', false);
       renderApp();
     }
