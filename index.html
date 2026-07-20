@@ -194,7 +194,7 @@
 
     // --- GLOBAL APPLICATION STATE ---
     const state = {
-      isAuthenticated: true,
+      isAuthenticated: false,
       loginRole: "student",
       loginError: "",
 
@@ -397,7 +397,9 @@
         localStorage.setItem(STORAGE_KEY, JSON.stringify({
           students: state.students,
           announcements: state.announcements,
-          currentStudentId: state.currentStudentId
+          currentStudentId: state.currentStudentId,
+          role: state.role,
+          isAuthenticated: state.isAuthenticated
         }));
       } catch(e) {}
     }
@@ -410,14 +412,12 @@
           if (remoteState) {
             const remoteStr = JSON.stringify({
               students: remoteState.students,
-              announcements: remoteState.announcements,
-              currentStudentId: remoteState.currentStudentId
+              announcements: remoteState.announcements
             });
 
             if (remoteStr !== lastFetchedStateStr) {
               state.students = remoteState.students;
               state.announcements = remoteState.announcements;
-              state.currentStudentId = remoteState.currentStudentId;
               lastFetchedStateStr = remoteStr;
               isBackendActive = true;
               saveStateLocalOnly();
@@ -449,11 +449,12 @@
           if (parsed.students) state.students = parsed.students;
           if (parsed.announcements) state.announcements = parsed.announcements;
           if (parsed.currentStudentId) state.currentStudentId = parsed.currentStudentId;
+          if (parsed.role) state.role = parsed.role;
+          if (parsed.isAuthenticated !== undefined) state.isAuthenticated = parsed.isAuthenticated;
           
           lastFetchedStateStr = JSON.stringify({
             students: state.students,
-            announcements: state.announcements,
-            currentStudentId: state.currentStudentId
+            announcements: state.announcements
           });
         } catch(e) {}
       }
@@ -464,8 +465,7 @@
     async function saveState() {
       const stateObj = {
         students: state.students,
-        announcements: state.announcements,
-        currentStudentId: state.currentStudentId
+        announcements: state.announcements
       };
 
       saveStateLocalOnly();
