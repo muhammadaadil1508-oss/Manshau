@@ -620,28 +620,26 @@
       }
     }
 
-    // --- ELEGANT USER LOGIN WINDOW WITH 5 DEMO USER SHORTCUTS ---
+    // --- ELEGANT USER LOGIN WINDOW ---
     function renderLoginWindow() {
       const isStudentRole = state.loginRole === 'student';
-      const defaultUser = isStudentRole ? (state.students[0] ? state.students[0].username : "aadil") : state.adminCredentials.username;
-      const defaultPass = isStudentRole ? (state.students[0] ? state.students[0].password : "123") : state.adminCredentials.password;
 
       return `
-        <div class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-slate-900 via-brand-950 to-slate-900 text-slate-800">
-          <div class="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-brand-600/20 blur-3xl pointer-events-none"></div>
-          <div class="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-purple-600/20 blur-3xl pointer-events-none"></div>
+        <div class="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/50 to-slate-100 text-slate-800">
+          <div class="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-brand-400/10 blur-3xl pointer-events-none"></div>
+          <div class="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-purple-400/10 blur-3xl pointer-events-none"></div>
 
-          <div class="w-full max-w-xl relative z-10">
+          <div class="w-full max-w-md relative z-10">
             <div class="text-center mb-6">
-              <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 to-sky-400 p-0.5 shadow-glow-blue inline-flex items-center justify-center text-white font-black text-3xl mb-3 shadow-2xl">
+              <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-brand-600 to-sky-400 p-0.5 shadow-md inline-flex items-center justify-center text-white font-black text-3xl mb-3 shadow-brand-500/20">
                 M
               </div>
-              <h1 class="text-3xl font-black text-white tracking-tight">MANSHAU ERP</h1>
-              <p class="text-xs text-sky-200/80 font-semibold mt-1">Educational Institute Authentication Gateway</p>
+              <h1 class="text-3xl font-black text-slate-900 tracking-tight lowercase">manshau</h1>
+              <p class="text-xs text-slate-500 font-semibold mt-1">Educational Institute Authentication Gateway</p>
             </div>
 
-            <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-anti-gravity-lg border border-white/40">
-              <div class="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-2xl mb-6 border border-slate-200/80">
+            <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-anti-gravity border border-white bg-white/80 backdrop-blur-md">
+              <div class="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-2xl mb-6 border border-slate-200">
                 <button
                   type="button"
                   onclick="setLoginRole('student')"
@@ -678,7 +676,7 @@
 
               <form onsubmit="handleLoginSubmit(event)" class="space-y-4 text-xs">
                 <div>
-                  <label class="block font-bold text-slate-700 mb-1.5">Username / Student ID</label>
+                  <label class="block font-bold text-slate-600 mb-1.5">Username / Student ID</label>
                   <div class="relative">
                     <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                       ${icon('user', 'w-4 h-4')}
@@ -687,15 +685,14 @@
                       type="text"
                       id="loginUsername"
                       required
-                      placeholder="${defaultUser}"
-                      value="${defaultUser}"
+                      placeholder="${isStudentRole ? 'e.g. aadil' : 'e.g. admin'}"
                       class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:outline-none font-medium text-slate-900 bg-white"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label class="block font-bold text-slate-700 mb-1.5">Password</label>
+                  <label class="block font-bold text-slate-600 mb-1.5">Password</label>
                   <div class="relative">
                     <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                       ${icon('lock', 'w-4 h-4')}
@@ -704,8 +701,7 @@
                       type="password"
                       id="loginPassword"
                       required
-                      placeholder="${defaultPass}"
-                      value="${defaultPass}"
+                      placeholder="••••••••"
                       class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:outline-none font-medium text-slate-900 bg-white"
                     />
                   </div>
@@ -713,47 +709,16 @@
 
                 <button
                   type="submit"
-                  class="w-full py-3.5 px-4 rounded-xl text-white font-extrabold text-sm transition-all duration-300 shadow-md shadow-brand-500/30 flex items-center justify-center space-x-2 ${
+                  class="w-full py-3.5 px-4 rounded-xl text-white font-extrabold text-sm transition-all duration-300 shadow-md shadow-brand-500/20 flex items-center justify-center space-x-2 ${
                     state.loginRole === 'student'
                       ? "bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-700 hover:to-brand-600"
-                      : "bg-gradient-to-r from-slate-900 to-slate-800 hover:from-black hover:to-slate-900"
+                      : "bg-slate-900 hover:bg-black"
                   }"
                 >
                   <span>Sign In to ${state.loginRole === 'student' ? 'Student Portal' : 'Admin Panel'}</span>
                   ${icon('arrowRight', 'w-4 h-4')}
                 </button>
               </form>
-
-              <div class="mt-6 pt-5 border-t border-slate-100">
-                <p class="text-[11px] font-extrabold text-slate-400 uppercase tracking-wider text-center mb-3">5 Active Student Demo Shortcuts</p>
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  ${state.students.map(s => `
-                    <button
-                      type="button"
-                      onclick="quickLoginStudent('${s.id}')"
-                      class="p-2 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-700 text-[11px] font-bold border border-brand-100 transition-all text-left flex items-center space-x-2"
-                    >
-                      <span class="w-6 h-6 rounded-full bg-gradient-to-tr ${s.avatarBg} text-white text-[9px] font-black flex items-center justify-center flex-shrink-0">${s.avatarInitials}</span>
-                      <div class="min-w-0">
-                        <p class="truncate font-extrabold">${s.name.split(' ')[0]}</p>
-                        <p class="text-[9px] text-slate-400 truncate">(${s.username} / ${s.password})</p>
-                      </div>
-                    </button>
-                  `).join('')}
-                  
-                  <button
-                    type="button"
-                    onclick="quickLogin('admin')"
-                    class="p-2 rounded-xl bg-slate-900 hover:bg-black text-white text-[11px] font-bold border border-slate-800 transition-all text-left flex items-center space-x-2"
-                  >
-                    <span class="w-6 h-6 rounded-full bg-slate-700 text-sky-300 text-[9px] font-black flex items-center justify-center flex-shrink-0">ADM</span>
-                    <div class="min-w-0">
-                      <p class="truncate font-extrabold">Admin</p>
-                      <p class="text-[9px] text-slate-400 truncate">(admin / 123)</p>
-                    </div>
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
         </div>
