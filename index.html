@@ -119,6 +119,7 @@
       scrollbar-width: none;
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body class="font-sans antialiased text-slate-800 h-full selection:bg-brand-500 selection:text-white">
   <div id="app" class="min-h-screen flex flex-col"></div>
@@ -261,9 +262,9 @@
     };
 
     const STORAGE_KEY = "manshau_erp_state_v3";
-    const BACKEND_URL = window.location.protocol === "file:" 
-      ? "http://localhost:3000/api/state" 
-      : "/api/state";
+    const SUPABASE_URL = "https://wwogjqbechpdwodnscte.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_bBuvYda1aprNFhp344Zltg_9-TF5psx";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     let isBackendActive = false;
     let lastFetchedStateStr = "";
 
@@ -277,7 +278,7 @@
       if (!badge) return;
       if (isBackendActive) {
         badge.className = "hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-[10px] font-extrabold border shadow-sm bg-emerald-50 text-emerald-700 border-emerald-200";
-        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span><span>MongoDB Atlas Synced</span>`;
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span><span>Supabase Synced</span>`;
       } else {
         badge.className = "hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-[10px] font-extrabold border shadow-sm bg-blue-50 text-blue-700 border-blue-200";
         badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span><span>Local Storage Mode</span>`;
@@ -298,32 +299,72 @@
 
     async function syncWithServer() {
       try {
-        const res = await fetch(BACKEND_URL);
-        if (res.ok) {
-          const remoteState = await res.json();
-          if (remoteState) {
-            const remoteStr = JSON.stringify({
-              students: remoteState.students,
-              announcements: remoteState.announcements
-            });
+        // 1. Fetch announcements
+        const { data: annData, error: annErr } = await supabaseClient
+          .from('announcements')
+          .select('data')
+          .eq('id', 'global')
+          .maybeSingle();
+          
+        const announcements = annData ? annData.data : [];
 
-            if (remoteStr !== lastFetchedStateStr) {
-              state.students = remoteState.students;
-              state.announcements = remoteState.announcements;
-              lastFetchedStateStr = remoteStr;
-              isBackendActive = true;
-              saveStateLocalOnly();
+        // 2. Fetch all students
+        const { data: dbStudents, error: studErr } = await supabaseClient
+          .from('students')
+          .select('*');
 
-              if (!isUserActivelyEditing()) {
-                renderApp();
+        if (studErr || annErr) {
+          throw new Error("Supabase connection error");
+        }
+
+        if (dbStudents && dbStudents.length > 0) {
+          const students = dbStudents.map(s => s.data);
+          
+          const remoteStr = JSON.stringify({
+            students,
+            announcements
+          });
+
+          if (remoteStr !== lastFetchedStateStr) {
+            // Optimistic merge: compare timestamps before overwriting local state
+            dbStudents.forEach(row => {
+              const dbStud = row.data;
+              const localIndex = state.students.findIndex(s => s.id === dbStud.id);
+              if (localIndex > -1) {
+                const localStud = state.students[localIndex];
+                const localTime = Number(localStud.lastUpdated) || 0;
+                const dbTime = Number(row.last_updated) || 0;
+                if (dbTime > localTime) {
+                  state.students[localIndex] = dbStud;
+                }
               } else {
-                updateStatusBadgeUI();
+                state.students.push(dbStud);
               }
-            } else if (!isBackendActive) {
-              isBackendActive = true;
+            });
+            
+            // Delete students that are not in database
+            const dbIds = dbStudents.map(s => s.id);
+            state.students = state.students.filter(s => dbIds.includes(s.id));
+
+            state.announcements = announcements;
+            lastFetchedStateStr = remoteStr;
+            isBackendActive = true;
+            saveStateLocalOnly();
+
+            if (!isUserActivelyEditing()) {
+              renderApp();
+            } else {
               updateStatusBadgeUI();
             }
+          } else if (!isBackendActive) {
+            isBackendActive = true;
+            updateStatusBadgeUI();
           }
+        } else {
+          // Empty DB: seed initial state
+          isBackendActive = true;
+          updateStatusBadgeUI();
+          await saveState();
         }
       } catch(e) {
         if (isBackendActive) {
@@ -364,21 +405,44 @@
       lastFetchedStateStr = JSON.stringify(stateObj);
 
       try {
-        const response = await fetch(BACKEND_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(stateObj)
-        });
-        if (response.ok) {
-          if (!isBackendActive) {
-            isBackendActive = true;
-            updateStatusBadgeUI();
+        // 1. Upsert all students to Supabase
+        for (const student of state.students) {
+          const incomingTime = Number(student.lastUpdated) || 0;
+          await supabaseClient
+            .from('students')
+            .upsert({ 
+              id: student.id, 
+              data: student, 
+              last_updated: incomingTime 
+            });
+        }
+
+        // 2. Clear any deleted students from database
+        const currentIds = state.students.map(s => s.id);
+        const { data: dbStudents } = await supabaseClient
+          .from('students')
+          .select('id');
+        if (dbStudents) {
+          const toDelete = dbStudents.filter(s => !currentIds.includes(s.id)).map(s => s.id);
+          if (toDelete.length > 0) {
+            await supabaseClient
+              .from('students')
+              .delete()
+              .in('id', toDelete);
           }
-        } else {
-          if (isBackendActive) {
-            isBackendActive = false;
-            updateStatusBadgeUI();
-          }
+        }
+
+        // 3. Save announcements
+        await supabaseClient
+          .from('announcements')
+          .upsert({ 
+            id: 'global', 
+            data: state.announcements 
+          });
+
+        if (!isBackendActive) {
+          isBackendActive = true;
+          updateStatusBadgeUI();
         }
       } catch(e) {
         if (isBackendActive) {
@@ -444,7 +508,7 @@
                     : "bg-blue-50 text-blue-700 border-blue-200"
                 }">
                   <span class="w-1.5 h-1.5 rounded-full ${isBackendActive ? "bg-emerald-500 animate-ping" : "bg-blue-500 animate-pulse"}"></span>
-                  <span>${isBackendActive ? "MongoDB Atlas Synced" : "Local Storage Mode"}</span>
+                  <span>${isBackendActive ? "Supabase Synced" : "Local Storage Mode"}</span>
                 </div>
                 
                 <!-- LIVE 12-HOUR CLOCK PILL -->
