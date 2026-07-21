@@ -262,9 +262,10 @@
     };
 
     const STORAGE_KEY = "manshau_erp_state_v3";
+    // Supabase ക്ലയന്റ് ആരംഭിക്കുന്നു
     const SUPABASE_URL = "https://wwogjqbechpdwodnscte.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_bBuvYda1aprNFhp344Zltg_9-TF5psx";
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const SUPABASE_ANON_KEY = "sb_publishable_bBuvYda1aprNFhp344Zltg_9-TF5psx";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let isBackendActive = false;
     let lastFetchedStateStr = "";
 
@@ -300,7 +301,7 @@
     async function syncWithServer() {
       try {
         // 1. Fetch announcements
-        const { data: annData, error: annErr } = await supabaseClient
+        const { data: annData, error: annErr } = await supabase
           .from('announcements')
           .select('data')
           .eq('id', 'global')
@@ -309,7 +310,7 @@
         const announcements = annData ? annData.data : [];
 
         // 2. Fetch all students
-        const { data: dbStudents, error: studErr } = await supabaseClient
+        const { data: dbStudents, error: studErr } = await supabase
           .from('students')
           .select('*');
 
@@ -408,7 +409,7 @@
         // 1. Upsert all students to Supabase
         for (const student of state.students) {
           const incomingTime = Number(student.lastUpdated) || 0;
-          await supabaseClient
+          await supabase
             .from('students')
             .upsert({ 
               id: student.id, 
@@ -418,7 +419,7 @@
         }
 
         // 2. Save announcements
-        await supabaseClient
+        await supabase
           .from('announcements')
           .upsert({ 
             id: 'global', 
@@ -2219,7 +2220,7 @@
         }
 
         try {
-          await supabaseClient
+          await supabase
             .from('students')
             .delete()
             .eq('id', studentId);
