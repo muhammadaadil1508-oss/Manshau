@@ -417,22 +417,7 @@
             });
         }
 
-        // 2. Clear any deleted students from database
-        const currentIds = state.students.map(s => s.id);
-        const { data: dbStudents } = await supabaseClient
-          .from('students')
-          .select('id');
-        if (dbStudents) {
-          const toDelete = dbStudents.filter(s => !currentIds.includes(s.id)).map(s => s.id);
-          if (toDelete.length > 0) {
-            await supabaseClient
-              .from('students')
-              .delete()
-              .in('id', toDelete);
-          }
-        }
-
-        // 3. Save announcements
+        // 2. Save announcements
         await supabaseClient
           .from('announcements')
           .upsert({ 
@@ -2221,7 +2206,7 @@
       renderApp();
     }
 
-    function deleteStudentUser(studentId) {
+    async function deleteStudentUser(studentId) {
       if (state.students.length <= 1) {
         alert("Cannot delete the last remaining student user.");
         return;
@@ -2232,6 +2217,16 @@
         if (state.currentStudentId === studentId) {
           state.currentStudentId = state.students[0].id;
         }
+
+        try {
+          await supabaseClient
+            .from('students')
+            .delete()
+            .eq('id', studentId);
+        } catch(e) {
+          console.error("Failed to delete student from Supabase:", e);
+        }
+
         alert("Student user deleted successfully!");
         renderApp();
       }
