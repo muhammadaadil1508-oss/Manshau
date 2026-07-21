@@ -311,7 +311,7 @@
 
         // 2. Fetch all students
         const { data: dbStudents, error: studErr } = await supabase
-          .from('students')
+          .from('users')
           .select('*');
 
         if (studErr || annErr) {
@@ -410,7 +410,7 @@
         for (const student of state.students) {
           const incomingTime = Number(student.lastUpdated) || 0;
           await supabase
-            .from('students')
+            .from('users')
             .upsert({ 
               id: student.id, 
               data: student, 
@@ -2221,7 +2221,7 @@
 
         try {
           await supabase
-            .from('students')
+            .from('users')
             .delete()
             .eq('id', studentId);
         } catch(e) {
