@@ -119,8 +119,6 @@
       scrollbar-width: none;
     }
   </style>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
 <body class="font-sans antialiased text-slate-800 h-full selection:bg-brand-500 selection:text-white">
   <div id="app" class="min-h-screen flex flex-col"></div>
@@ -262,25 +260,43 @@
       }
     };
 
-    const STORAGE_KEY = "manshau_erp_state_v4";
+    const STORAGE_KEY = "manshau_erp_state_v5";
 
     // Firebase ക്ലയന്റ് ആരംഭിക്കുന്നു
     const firebaseConfig = {
-      apiKey: "YOUR_FIREBASE_API_KEY",
-      authDomain: "YOUR_FIREBASE_PROJECT_ID.firebaseapp.com",
-      projectId: "YOUR_FIREBASE_PROJECT_ID",
-      storageBucket: "YOUR_FIREBASE_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_FIREBASE_MESSAGING_SENDER_ID",
-      appId: "YOUR_FIREBASE_APP_ID"
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+      projectId: "YOUR_PROJECT",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "YOUR_APP_ID"
     };
 
-    // Initialize Firebase
-    try {
-      firebase.initializeApp(firebaseConfig);
-    } catch(e) {}
-    const db = typeof firebase !== 'undefined' ? firebase.firestore() : null;
+    let db, dbRef, dbSet, dbOnValue;
     let isBackendActive = false;
     let lastFetchedStateStr = "";
+
+    async function initFirebase() {
+      if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+        console.warn("Firebase initialization skipped (placeholders active).");
+        return;
+      }
+      try {
+        const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js");
+        const { getDatabase, ref, set, onValue } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js");
+
+        const app = initializeApp(firebaseConfig);
+        db = getDatabase(app);
+        dbRef = ref;
+        dbSet = set;
+        dbOnValue = onValue;
+
+        setupRealtimeSync();
+      } catch (e) {
+        console.error("Firebase init failed:", e);
+      }
+    }
 
     function isUserActivelyEditing() {
       const active = document.activeElement;
@@ -311,87 +327,84 @@
       } catch(e) {}
     }
 
-    async function syncWithServer() {
-      if (!db) {
-        if (isBackendActive) {
-          isBackendActive = false;
-          updateStatusBadgeUI();
-        }
-        return;
-      }
+    function setupRealtimeSync() {
+      if (!db || !dbRef || !dbOnValue) return;
 
-      try {
-        // 1. Fetch announcements
-        const annDoc = await db.collection('announcements').doc('global').get();
-        const announcements = annDoc.exists ? (annDoc.data().data || []) : [];
+      // 1. Listen to announcements updates
+      dbOnValue(dbRef(db, 'announcements/global'), (snapshot) => {
+        const annVal = snapshot.val();
+        const announcements = annVal ? (annVal.data || []) : [];
 
-        // 2. Fetch all students
-        const querySnapshot = await db.collection('users').get();
-        const dbStudents = [];
-        querySnapshot.forEach((doc) => {
-          const docData = doc.data();
-          dbStudents.push({
-            id: doc.id,
-            data: docData.data,
-            last_updated: docData.last_updated
+        // 2. Listen to users updates
+        dbOnValue(dbRef(db, 'users'), (snapshot) => {
+          const usersVal = snapshot.val() || {};
+          const dbStudents = [];
+          Object.keys(usersVal).forEach(id => {
+            dbStudents.push({
+              id: id,
+              data: usersVal[id].data,
+              last_updated: usersVal[id].last_updated
+            });
           });
+
+          handleIncomingSync(dbStudents, announcements);
+        });
+      });
+    }
+
+    function handleIncomingSync(dbStudents, announcements) {
+      if (dbStudents.length > 0) {
+        const students = dbStudents.map(s => s.data);
+        const remoteStr = JSON.stringify({
+          students,
+          announcements
         });
 
-        if (dbStudents.length > 0) {
-          const students = dbStudents.map(s => s.data);
-          
-          const remoteStr = JSON.stringify({
-            students,
-            announcements
-          });
-
-          if (remoteStr !== lastFetchedStateStr) {
-            // Optimistic merge: compare timestamps before overwriting local state
-            dbStudents.forEach(row => {
-              const dbStud = row.data;
-              const localIndex = state.students.findIndex(s => s.id === dbStud.id);
-              if (localIndex > -1) {
-                const localStud = state.students[localIndex];
-                const localTime = Number(localStud.lastUpdated) || 0;
-                const dbTime = Number(row.last_updated) || 0;
-                if (dbTime > localTime) {
-                  state.students[localIndex] = dbStud;
-                }
-              } else {
-                state.students.push(dbStud);
+        if (remoteStr !== lastFetchedStateStr) {
+          // Optimistic merge: compare timestamps before overwriting local state
+          dbStudents.forEach(row => {
+            const dbStud = row.data;
+            const localIndex = state.students.findIndex(s => s.id === dbStud.id);
+            if (localIndex > -1) {
+              const localStud = state.students[localIndex];
+              const localTime = Number(localStud.lastUpdated) || 0;
+              const dbTime = Number(row.last_updated) || 0;
+              if (dbTime > localTime) {
+                state.students[localIndex] = dbStud;
               }
-            });
-            
-            // Delete students that are not in database
-            const dbIds = dbStudents.map(s => s.id);
-            state.students = state.students.filter(s => dbIds.includes(s.id));
-
-            state.announcements = announcements;
-            lastFetchedStateStr = remoteStr;
-            isBackendActive = true;
-            saveStateLocalOnly();
-
-            if (!isUserActivelyEditing()) {
-              renderApp();
             } else {
-              updateStatusBadgeUI();
+              state.students.push(dbStud);
             }
-          } else if (!isBackendActive) {
-            isBackendActive = true;
+          });
+          
+          // Delete students that are not in database
+          const dbIds = dbStudents.map(s => s.id);
+          state.students = state.students.filter(s => dbIds.includes(s.id));
+
+          state.announcements = announcements;
+          lastFetchedStateStr = remoteStr;
+          isBackendActive = true;
+          saveStateLocalOnly();
+
+          if (!isUserActivelyEditing()) {
+            renderApp();
+          } else {
             updateStatusBadgeUI();
           }
-        } else {
-          // Empty DB: seed initial state
+        } else if (!isBackendActive) {
           isBackendActive = true;
           updateStatusBadgeUI();
-          await saveState();
         }
-      } catch(e) {
-        if (isBackendActive) {
-          isBackendActive = false;
-          updateStatusBadgeUI();
-        }
+      } else {
+        // Empty DB: seed initial state
+        isBackendActive = true;
+        updateStatusBadgeUI();
+        saveState();
       }
+    }
+
+    async function syncWithServer() {
+      // Real-time syncing is handled live by Firebase onValue listeners!
     }
 
     async function loadState() {
@@ -416,7 +429,7 @@
     }
 
     async function saveState() {
-      if (!db) return;
+      if (!db || !dbRef || !dbSet) return;
 
       const stateObj = {
         students: state.students,
@@ -427,17 +440,17 @@
       lastFetchedStateStr = JSON.stringify(stateObj);
 
       try {
-        // 1. Upsert all students to Firebase Firestore
+        // 1. Upsert all students to Firebase Realtime Database
         for (const student of state.students) {
           const incomingTime = Number(student.lastUpdated) || 0;
-          await db.collection('users').doc(student.id).set({
+          await dbSet(dbRef(db, `users/${student.id}`), {
             data: student,
             last_updated: incomingTime
           });
         }
 
         // 2. Save announcements
-        await db.collection('announcements').doc('global').set({
+        await dbSet(dbRef(db, 'announcements/global'), {
           data: state.announcements
         });
 
@@ -2519,22 +2532,7 @@
     document.addEventListener("DOMContentLoaded", () => {
       loadState();
       renderApp();
-    });
-    loadState();
-    renderApp();
-
-    // SWR-Style Live Synchronization Engine
-    // 1. Periodic poll every 4 seconds
-    setInterval(syncWithServer, 4000);
-
-    // 2. Focus Revalidation (sync instantly when returning to browser tab)
-    window.addEventListener("focus", () => {
-      syncWithServer();
-    });
-
-    // 3. Online Status Revalidation (sync instantly when internet connection returns)
-    window.addEventListener("online", () => {
-      syncWithServer();
+      initFirebase();
     });
   </script>
 </body>
