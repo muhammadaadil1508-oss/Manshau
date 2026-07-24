@@ -276,9 +276,26 @@
     let db;
     let fsDoc, fsSetDoc, fsDeleteDoc, fsCollection, fsGetDocs, fsOnSnapshot;
     let isBackendActive = false;
-    let lastFetchedStateStr = "";
-
     async function initFirebase() {
+      // Check if global window.db is already initialized by another script
+      if (window.db) {
+        db = window.db;
+        try {
+          const { doc, setDoc, deleteDoc, collection, getDocs, onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js");
+          fsDoc = doc;
+          fsSetDoc = setDoc;
+          fsDeleteDoc = deleteDoc;
+          fsCollection = collection;
+          fsGetDocs = getDocs;
+          fsOnSnapshot = onSnapshot;
+          
+          setupRealtimeSync();
+          return;
+        } catch(e) {
+          console.error("Failed to load modular Firestore helpers for global window.db:", e);
+        }
+      }
+
       if (firebaseConfig.apiKey === "YOUR_API_KEY") {
         console.warn("Firebase initialization skipped (placeholders active).");
         return;
@@ -289,6 +306,8 @@
 
         const app = initializeApp(firebaseConfig);
         db = getFirestore(app);
+        window.db = db; // Expose locally initialized Firestore globally!
+        
         fsDoc = doc;
         fsSetDoc = setDoc;
         fsDeleteDoc = deleteDoc;
