@@ -248,11 +248,13 @@
       ],
 
       modals: {
-      leave: false,
+        leave: false,
         profile: false,
         notification: false,
         addStudent: false,
-      }
+        editStudent: false,
+      },
+      editingStudentId: ""
     };
 
     const STORAGE_KEY = "manshau_erp_state_v7";
@@ -755,8 +757,7 @@
                   { id: "dashboard", label: "Dashboard", iconName: "layout-dashboard" },
                   { id: "examination", label: "Examination", iconName: "file-spreadsheet" },
                   { id: "leaves", label: "Leave Taken", iconName: "plane-landing" },
-                  { id: "bank", label: "Bank Credits", iconName: "wallet" },
-                  { id: "settings", label: "Settings", iconName: "sliders" },
+                  { id: "bank", label: "Bank Credits", iconName: "wallet" }
                 ].map(item => {
                   const isActive = state.activeTab === item.id;
                   return `
@@ -900,7 +901,6 @@
       if (state.activeTab === "examination") return renderExaminationView(student);
       if (state.activeTab === "leaves") return renderLeaveTakenView(student);
       if (state.activeTab === "bank") return renderBankCreditsView(student, fin);
-      if (state.activeTab === "settings") return renderSettingsView(student);
       return renderDashboardView(student, fin);
     }
 
@@ -1047,8 +1047,8 @@
                         </button>
                       </td>
                       <td class="py-3 px-3 text-right space-x-2">
-                        <button onclick="promptEditStudentCredentials('${s.id}')" class="px-2.5 py-1 rounded-lg bg-brand-50 text-brand-600 font-bold hover:bg-brand-100 text-[11px]">
-                          Edit Credentials
+                        <button onclick="openEditStudentModal('${s.id}')" class="px-2.5 py-1 rounded-lg bg-brand-50 text-brand-600 font-bold hover:bg-brand-100 text-[11px]">
+                          Edit Profile & Settings
                         </button>
                         <button onclick="deleteStudentUser('${s.id}')" class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 font-bold hover:bg-rose-100 text-[11px]" title="Delete Student">
                           Delete
@@ -1580,72 +1580,6 @@
       `;
     }
 
-    // --- VIEW 5: SETTINGS ---
-    function renderSettingsView(student) {
-      return `
-        <div class="space-y-6">
-          <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white">
-            <span class="bg-brand-50 text-brand-600 text-xs px-3 py-1 rounded-full font-bold border border-brand-100">
-              PORTAL CONFIGURATION
-            </span>
-            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Student Portal Settings</h2>
-            <p class="text-xs text-slate-500">Manage account information, contact preferences and aesthetic options for ${student.name}</p>
-          </div>
-
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-              <h3 class="text-base font-extrabold text-slate-900 mb-4">Account Identity Settings</h3>
-              <form onsubmit="handleUpdateStudentSettings(event)" class="space-y-3 text-xs">
-                <div>
-                  <label class="block font-bold text-slate-700 mb-1">Student Name</label>
-                  <input type="text" id="settingsStudentName" value="${student.name}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-800" />
-                </div>
-                <div>
-                  <label class="block font-bold text-slate-700 mb-1">School / University</label>
-                  <input type="text" id="settingsStudentSchool" value="${student.school}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-800" />
-                </div>
-                <div>
-                  <label class="block font-bold text-slate-700 mb-1">Class / Grade Name</label>
-                  <input type="text" id="settingsStudentClass" value="${student.class}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-800" />
-                </div>
-                <div>
-                  <label class="block font-bold text-slate-700 mb-1">Email Address</label>
-                  <input type="email" id="settingsStudentEmail" value="${student.email}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-800" />
-                </div>
-                <div>
-                  <label class="block font-bold text-slate-700 mb-1">Phone Number</label>
-                  <input type="text" id="settingsStudentPhone" value="${student.phone}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-800" />
-                </div>
-                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-2.5 rounded-xl transition-all shadow-md shadow-brand-500/20">
-                  Save Profile Settings
-                </button>
-              </form>
-            </div>
-
-            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-              <h3 class="text-base font-extrabold text-slate-900 mb-4">Notification & Theme Preferences</h3>
-              <div class="space-y-4 text-xs">
-                <label class="flex items-center justify-between p-3 rounded-2xl bg-white border border-slate-100 cursor-pointer">
-                  <div>
-                    <p class="font-bold text-slate-800">SMS Instant Exam Notifications</p>
-                    <p class="text-[10px] text-slate-400">Receive SMS for published mark sheets</p>
-                  </div>
-                  <input type="checkbox" checked class="rounded text-brand-600 w-4 h-4" />
-                </label>
-
-                <label class="flex items-center justify-between p-3 rounded-2xl bg-white border border-slate-100 cursor-pointer">
-                  <div>
-                    <p class="font-bold text-slate-800">12-Hour Clock Display (AM/PM)</p>
-                    <p class="text-[10px] text-slate-400">Format system clock in 12-hour format</p>
-                  </div>
-                  <input type="checkbox" checked disabled class="rounded text-brand-600 w-4 h-4" />
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
 
     // --- GRAPH CONTENT RENDERER ---
     function renderGraphContent(student, fin) {
@@ -1908,6 +1842,109 @@
             </div>
           </div>
         `;
+      }
+
+      // EDIT STUDENT PROFILE & SETTINGS MODAL
+      if (state.modals.editStudent) {
+        const student = state.students.find(s => s.id === state.editingStudentId);
+        if (student) {
+          // Initialize boolean preferences if undefined
+          if (student.smsNotifications === undefined) student.smsNotifications = true;
+          if (student.clock12Hour === undefined) student.clock12Hour = true;
+
+          html += `
+            <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+              <div class="glass-card w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-anti-gravity-lg border border-white max-h-[90vh] overflow-y-auto scrollbar-none">
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <span class="bg-brand-50 text-brand-600 text-[10px] px-2.5 py-0.5 rounded-full font-bold border border-brand-100">
+                      EDIT STUDENT PROFILE & SETTINGS
+                    </span>
+                    <h3 class="text-lg font-bold text-slate-900 mt-1">Manage ${student.name}</h3>
+                  </div>
+                  <button onclick="toggleModal('editStudent', false)" class="text-slate-400 hover:text-slate-600 p-1">
+                    ${icon('x', 'w-5 h-5')}
+                  </button>
+                </div>
+
+                <form onsubmit="handleAdminUpdateStudentSettings(event, '${student.id}')" class="space-y-4 text-xs">
+                  <!-- Account Identity Settings -->
+                  <div class="space-y-3">
+                    <h4 class="text-slate-900 font-extrabold border-b border-slate-100 pb-1 uppercase tracking-wider text-[10px]">Account Identity Settings</h4>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                      <div>
+                        <label class="block font-bold text-slate-700 mb-1">Student Name</label>
+                        <input type="text" id="editStudName" required value="${student.name}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-800" />
+                      </div>
+                      <div>
+                        <label class="block font-bold text-slate-700 mb-1">School / University</label>
+                        <input type="text" id="editStudSchool" required value="${student.school || ''}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-800" />
+                      </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                      <div>
+                        <label class="block font-bold text-slate-700 mb-1">Class / Grade Name</label>
+                        <input type="text" id="editStudClass" required value="${student.class || ''}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-800" />
+                      </div>
+                      <div>
+                        <label class="block font-bold text-slate-700 mb-1">Phone Number</label>
+                        <input type="text" id="editStudPhone" required value="${student.phone || ''}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-800" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label class="block font-bold text-slate-700 mb-1">Email Address</label>
+                      <input type="email" id="editStudEmail" required value="${student.email || ''}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-800" />
+                    </div>
+                  </div>
+
+                  <!-- Credentials -->
+                  <div class="space-y-3">
+                    <h4 class="text-slate-900 font-extrabold border-b border-slate-100 pb-1 uppercase tracking-wider text-[10px]">Portal Login Credentials</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                      <div>
+                        <label class="block font-bold text-slate-700 mb-1">Username</label>
+                        <input type="text" id="editStudUser" required value="${student.username}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-800" />
+                      </div>
+                      <div>
+                        <label class="block font-bold text-slate-700 mb-1">Password</label>
+                        <input type="text" id="editStudPass" required value="${student.password}" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-800" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Notification & Theme Preferences -->
+                  <div class="space-y-3">
+                    <h4 class="text-slate-900 font-extrabold border-b border-slate-100 pb-1 uppercase tracking-wider text-[10px]">Notification & Theme Preferences</h4>
+                    
+                    <label class="flex items-center justify-between p-3 rounded-2xl bg-white border border-slate-100 cursor-pointer">
+                      <div>
+                        <p class="font-bold text-slate-800">SMS Instant Exam Notifications</p>
+                        <p class="text-[10px] text-slate-400">Receive SMS for published mark sheets</p>
+                      </div>
+                      <input type="checkbox" id="editStudSmsPref" ${student.smsNotifications ? 'checked' : ''} class="rounded text-brand-600 w-4 h-4" />
+                    </label>
+
+                    <label class="flex items-center justify-between p-3 rounded-2xl bg-white border border-slate-100 cursor-pointer">
+                      <div>
+                        <p class="font-bold text-slate-800">12-Hour Clock Display (AM/PM)</p>
+                        <p class="text-[10px] text-slate-400">Format system clock in 12-hour format</p>
+                      </div>
+                      <input type="checkbox" id="editStudClockPref" ${student.clock12Hour ? 'checked' : ''} class="rounded text-brand-600 w-4 h-4" />
+                    </label>
+                  </div>
+
+                  <div class="flex space-x-2 pt-3">
+                    <button type="button" onclick="toggleModal('editStudent', false)" class="flex-1 py-2.5 rounded-xl font-bold text-slate-600 bg-slate-100">Cancel</button>
+                    <button type="submit" class="flex-1 py-2.5 rounded-xl font-bold text-white bg-brand-600 shadow-md shadow-brand-500/20">Save Profile Settings</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          `;
+        }
       }
 
       if (state.modals.notification) {
@@ -2281,24 +2318,51 @@
       }
     }
 
-    function promptEditStudentCredentials(studentId) {
+    function openEditStudentModal(studentId) {
+      state.editingStudentId = studentId;
+      toggleModal('editStudent', true);
+    }
+
+    function handleAdminUpdateStudentSettings(e, studentId) {
+      e.preventDefault();
       const student = state.students.find(s => s.id === studentId);
       if (!student) return;
 
-      const newU = prompt(`Edit Username for ${student.name}:`, student.username);
-      if (newU === null) return;
-      const newP = prompt(`Edit Password for ${student.name}:`, student.password);
-      if (newP === null) return;
+      const name = document.getElementById("editStudName").value.trim();
+      const school = document.getElementById("editStudSchool").value.trim();
+      const className = document.getElementById("editStudClass").value.trim();
+      const phone = document.getElementById("editStudPhone").value.trim();
+      const email = document.getElementById("editStudEmail").value.trim();
+      const username = document.getElementById("editStudUser").value.trim();
+      const password = document.getElementById("editStudPass").value.trim();
+      const smsPref = document.getElementById("editStudSmsPref").checked;
+      const clockPref = document.getElementById("editStudClockPref").checked;
 
-      if (!newU.trim() || !newP.trim()) {
-        alert("Username and Password cannot be empty.");
-        return;
+      // Validate username uniqueness
+      if (username !== student.username) {
+        const exists = state.students.some(s => s.username === username);
+        if (exists) {
+          alert(`Username "${username}" is already taken by another student.`);
+          return;
+        }
       }
 
-      student.username = newU.trim();
-      student.password = newP.trim();
+      student.name = name;
+      student.school = school;
+      student.class = className;
+      student.phone = phone;
+      student.email = email;
+      student.username = username;
+      student.password = password;
+      student.smsNotifications = smsPref;
+      student.clock12Hour = clockPref;
       student.lastUpdated = Date.now();
-      alert(`Updated credentials for ${student.name}!\nUsername: ${student.username}\nPassword: ${student.password}`);
+
+      // Recalculate initials
+      student.avatarInitials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || "ST";
+
+      toggleModal('editStudent', false);
+      alert(`Successfully saved profile settings for ${student.name}!`);
       renderApp();
     }
 
