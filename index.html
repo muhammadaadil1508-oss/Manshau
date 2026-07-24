@@ -2274,8 +2274,8 @@
         }
 
         try {
-          if (db) {
-            await db.collection('users').doc(studentId).delete();
+          if (db && fsDoc && fsDeleteDoc) {
+            await fsDeleteDoc(fsDoc(db, 'users', studentId));
           }
         } catch(e) {
           console.error("Failed to delete student from Firebase:", e);
