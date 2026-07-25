@@ -1688,6 +1688,10 @@
           </div>
         `;
       }
+      if (state.activeGraphTag === "leave") {
+        return renderLeaveTakenView(student);
+      }
+      return "";
     }
 
     // --- ACADEMIC UPDATES TICKER ---
