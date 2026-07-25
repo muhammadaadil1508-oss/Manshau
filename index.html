@@ -2478,12 +2478,8 @@
         avatarInitials: initials,
         avatarBg: bg,
         lastUpdated: Date.now(),
-        transactions: [
-          { id: `TXN-${Math.floor(100+Math.random()*900)}`, date: new Date().toISOString().split('T')[0], description: "Initial Enrollment Fee Credit", type: "Credit", amount: 40000, category: "Tuition" }
-        ],
-        exams: [
-          { subject: "Introductory Computer Science", code: "CS-101", score: 90, grade: "A+", credits: 4, sem: "Sem 5" }
-        ],
+        transactions: [],
+        exams: [],
         leaves: []
       };
 
