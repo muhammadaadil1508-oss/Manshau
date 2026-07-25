@@ -214,7 +214,7 @@
       role: "student",
       activeTab: "dashboard",
       adminActiveTab: "overview",
-      activeGraphTag: "attendance",
+      activeGraphTag: "analytics",
       selectedSem: "Sem 5",
       
       currentStudentId: "MSH-2026-0001",
@@ -1375,9 +1375,7 @@
         <div class="glass-card rounded-3xl p-6 shadow-anti-gravity anti-gravity-card border border-white mb-6">
           <div class="flex items-center space-x-2 overflow-x-auto pb-3 mb-6 scrollbar-none">
             ${[
-              { id: "attendance", label: "Attendance Analytics", iconName: "activity" },
-              { id: "bank", label: "Bank Credits & Ledger", iconName: "landmark" },
-              { id: "exams", label: "Exam & Co-Factors", iconName: "award" },
+              { id: "analytics", label: "Analytics & Graphs", iconName: "activity" },
               { id: "leave", label: "Leave Manager", iconName: "calendar" },
             ].map(tag => `
               <button
@@ -1616,167 +1614,76 @@
 
     // --- GRAPH CONTENT RENDERER ---
     function renderGraphContent(student, fin) {
-      if (state.activeGraphTag === "attendance") {
+      if (state.activeGraphTag === "analytics") {
         return `
-          <div>
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h3 class="text-lg font-bold text-slate-900">Attendance vs Leave Interval Graph</h3>
-                <p class="text-xs text-slate-500">Real-time correlation tracking attendance stability and leave days for ${student.name}</p>
-              </div>
-              <span class="text-xs font-bold text-brand-600 bg-brand-50 px-3 py-1 rounded-full border border-brand-100">
-                Target: 90%+
-              </span>
-            </div>
-            <div class="h-72 w-full relative">
-              <canvas id="attendanceCanvas"></canvas>
-            </div>
-          </div>
-        `;
-      }
-
-      if (state.activeGraphTag === "bank") {
-        return `
-          <div>
-            <div class="mb-6">
-              <h3 class="text-lg font-bold text-slate-900">Bank-Style Credit & Debit Ledger Graph (INR)</h3>
-              <p class="text-xs text-slate-500">Visual breakdown of all account credit injections and debit fees in Indian Rupee (₹)</p>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-              <div class="p-4 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm">
-                <p class="text-xs font-semibold opacity-90">Total Bank Credits</p>
-                <p class="text-2xl font-black mt-1">${formatINR(fin.totalCredits)}</p>
-              </div>
-              <div class="p-4 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-sm">
-                <p class="text-xs font-semibold opacity-90">Total Debits</p>
-                <p class="text-2xl font-black mt-1">${formatINR(fin.totalDebits)}</p>
-              </div>
-              <div class="p-4 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 text-white shadow-sm">
-                <p class="text-xs font-semibold opacity-90">Pending Dues Balance</p>
-                <p class="text-2xl font-black mt-1">${formatINR(fin.pendingDues)}</p>
-              </div>
-            </div>
-
-            <div class="h-64 w-full mb-6">
-              <canvas id="bankCanvas"></canvas>
-            </div>
-
-            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Recent Ledger Transactions (₹)</h4>
-            <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
-              ${student.transactions.map(t => `
-                <div class="flex items-center justify-between p-3 rounded-xl bg-white border border-slate-100 hover:border-slate-200 transition-all text-xs">
-                  <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold ${
-                      t.type === "Credit" ? "bg-emerald-100 text-emerald-600" : "bg-rose-100 text-rose-600"
-                    }">
-                      ${t.type === "Credit" ? "+" : "-"}
-                    </div>
-                    <div>
-                      <p class="font-bold text-slate-800">${t.description}</p>
-                      <p class="text-[10px] text-slate-400">${t.date} • ${t.category}</p>
-                    </div>
-                  </div>
-                  <span class="font-black text-sm ${t.type === "Credit" ? "text-emerald-600" : "text-rose-600"}">
-                    ${t.type === "Credit" ? `+${formatINR(t.amount)}` : `-${formatINR(t.amount)}`}
-                  </span>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        `;
-      }
-
-      if (state.activeGraphTag === "exams") {
-        return `
-          <div>
-            <div class="mb-6">
-              <h3 class="text-lg font-bold text-slate-900">Academic Marks & Behavioral Co-Factors</h3>
-              <p class="text-xs text-slate-500">Evaluation of subject performance alongside holistic non-academic metrics</p>
-            </div>
-
+          <div class="space-y-6">
+            <!-- 2x2 Grid of Minimal Graphs -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div>
-                <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Subject Performance</h4>
-                <div class="h-64 w-full">
+              <!-- 1. Attendance Graph Card -->
+              <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <h4 class="font-extrabold text-slate-900 text-sm">Attendance vs Leave Days</h4>
+                    <p class="text-[10px] text-slate-500">Correlation tracking of attendance stability</p>
+                  </div>
+                  <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Target: 90%+</span>
+                </div>
+                <div class="h-56 w-full relative">
+                  <canvas id="attendanceCanvas"></canvas>
+                </div>
+              </div>
+
+              <!-- 2. Exams Metric Card -->
+              <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60 flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <h4 class="font-extrabold text-slate-900 text-sm">Academic Performance</h4>
+                    <p class="text-[10px] text-slate-500">Holistically evaluated subject scores</p>
+                  </div>
+                </div>
+                <div class="h-44 w-full relative">
                   <canvas id="examCanvas"></canvas>
                 </div>
               </div>
 
-              <div>
-                <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">Behavioral Co-Factors Metrics</h4>
-                <div class="space-y-4">
-                  ${state.coFactors.map((item, idx) => `
-                    <div class="p-3 rounded-2xl bg-white border border-slate-100 shadow-sm">
-                      <div class="flex items-center justify-between text-xs mb-1.5">
-                        <span class="font-bold text-slate-800">${item.metric}</span>
-                        <span class="font-bold text-brand-600">${item.score}% (${item.status})</span>
-                      </div>
-                      <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                        <div class="bg-gradient-to-r from-brand-500 to-sky-400 h-2.5 rounded-full" style="width: ${item.score}%"></div>
-                      </div>
-                    </div>
-                  `).join('')}
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-      }
-
-      if (state.activeGraphTag === "leave") {
-        return `
-          <div>
-            <div class="flex items-center justify-between mb-6">
-              <div>
-                <h3 class="text-lg font-bold text-slate-900">Leave Management System</h3>
-                <p class="text-xs text-slate-500">Apply for official leave of absence and track approval status</p>
-              </div>
-              <button 
-                onclick="toggleModal('leave', true)"
-                class="flex items-center space-x-1.5 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105"
-              >
-                ${icon('plus', 'w-3.5 h-3.5')}
-                <span>Apply New Leave</span>
-              </button>
-            </div>
-
-            <div class="space-y-3">
-              ${student.leaves.length === 0 ? `
-                <p class="text-xs text-slate-400 text-center py-8">No leave records submitted yet.</p>
-              ` : student.leaves.map(l => `
-                <div class="p-4 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-between text-xs">
-                  <div class="flex items-center space-x-3">
-                    <span class="relative flex h-3 w-3">
-                      ${
-                        l.status === "Approved" ? `<span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 shadow-glow-emerald"></span>` :
-                        l.status === "Pending" ? `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>` :
-                        `<span class="relative inline-flex rounded-full h-3 w-3 bg-rose-500"></span>`
-                      }
-                    </span>
-                    <div>
-                      <p class="font-bold text-slate-800 text-sm">${l.reason}</p>
-                      <p class="text-[11px] text-slate-500 mt-0.5">
-                        ${l.startDate} to ${l.endDate} • <span class="font-semibold">${l.category}</span>
-                      </p>
-                    </div>
+              <!-- 3. Financial Ledger Graph Card -->
+              <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60 lg:col-span-2">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                  <div>
+                    <h4 class="font-extrabold text-slate-900 text-sm">Financial Credits & Ledger (INR)</h4>
+                    <p class="text-[10px] text-slate-500">Balance visualization and transaction summary</p>
                   </div>
-                  <div class="flex items-center space-x-3">
-                    <span class="px-3 py-1 rounded-full text-[11px] font-bold ${
-                      l.status === "Approved" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" :
-                      l.status === "Pending" ? "bg-amber-50 text-amber-700 border border-amber-200" :
-                      "bg-rose-50 text-rose-700 border border-rose-200"
-                    }">
-                      ${l.status}
-                    </span>
-                    ${l.status === "Pending" ? `
-                      <button onclick="deleteStudentLeave('${student.id}', '${l.id}')" class="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition-colors" title="Cancel Request">
-                        ${icon('trash-2', 'w-4 h-4')}
-                      </button>
-                    ` : ''}
+                  <div class="flex items-center space-x-2 text-[10px]">
+                    <span class="px-2 py-1 bg-slate-900 text-white rounded-lg font-bold">Credits: ${formatINR(fin.totalCredits)}</span>
+                    <span class="px-2 py-1 bg-slate-300 text-slate-800 rounded-lg font-bold">Debits: ${formatINR(fin.totalDebits)}</span>
+                    <span class="px-2 py-1 bg-amber-100 text-amber-800 rounded-lg font-bold">Dues: ${formatINR(fin.pendingDues)}</span>
                   </div>
                 </div>
-              `).join('')}
+                <div class="h-48 w-full relative mb-4">
+                  <canvas id="bankCanvas"></canvas>
+                </div>
+
+                <!-- Transaction list integrated minimally -->
+                <details class="group bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden transition-all duration-300">
+                  <summary class="flex items-center justify-between p-3 cursor-pointer select-none">
+                    <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-2">
+                      ${icon('landmark', 'w-3.5 h-3.5 text-slate-400')}
+                      <span>Show Recent Ledger Transactions</span>
+                    </span>
+                    ${icon('chevron-down', 'w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform')}
+                  </summary>
+                  <div class="p-3 border-t border-slate-50 space-y-2 max-h-40 overflow-y-auto pr-1">
+                    ${student.transactions.map(t => `
+                      <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 text-[11px]">
+                        <span class="font-bold text-slate-800">${t.description} (${t.date})</span>
+                        <span class="font-black ${t.type === "Credit" ? "text-emerald-600" : "text-rose-600"}">
+                          ${t.type === "Credit" ? `+${formatINR(t.amount)}` : `-${formatINR(t.amount)}`}
+                        </span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </details>
+              </div>
             </div>
           </div>
         `;
@@ -2220,23 +2127,41 @@
                 {
                   label: 'Attendance Rate (%)',
                   data: [98, 96, 92, 95, 94, 91, student.attendanceRate],
-                  borderColor: '#2563eb',
-                  backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                  borderWidth: 3,
+                  borderColor: '#0f172a',
+                  backgroundColor: 'rgba(15, 23, 42, 0.05)',
+                  borderWidth: 2,
                   fill: true,
-                  tension: 0.4,
+                  tension: 0.35,
+                  pointRadius: 3,
+                  pointBackgroundColor: '#0f172a'
                 },
                 {
                   label: 'Leaves (Days)',
                   data: [0, 1, 3, 1, 2, 4, student.totalLeaveDays],
                   borderColor: '#f59e0b',
-                  borderDash: [4, 4],
-                  borderWidth: 2,
+                  backgroundColor: 'transparent',
+                  borderWidth: 1.5,
+                  borderDash: [3, 3],
                   fill: false,
+                  pointRadius: 2
                 }
               ]
             },
-            options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 0, max: 100 } } }
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: true,
+                  position: 'bottom',
+                  labels: { boxWidth: 12, font: { family: 'Inter', size: 10 } }
+                }
+              },
+              scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 9 } } },
+                y: { min: 0, max: 100, grid: { borderDash: [2, 2], drawTicks: false }, ticks: { font: { size: 9 } } }
+              }
+            }
           });
         }
 
@@ -2249,11 +2174,37 @@
             data: {
               labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
               datasets: [
-                { label: 'Credits (₹)', data: [15000, 25000, 8000, 30000, 5000, 45000, 12000], backgroundColor: '#10b981', borderRadius: 6 },
-                { label: 'Debits (₹)', data: [5000, 8000, 2000, 3000, 12500, 1500, 4000], backgroundColor: '#ef4444', borderRadius: 6 }
+                { 
+                  label: 'Credits (₹)', 
+                  data: [15000, 25000, 8000, 30000, 5000, 45000, 12000], 
+                  backgroundColor: '#0f172a',
+                  borderRadius: 4,
+                  barPercentage: 0.6
+                },
+                { 
+                  label: 'Debits (₹)', 
+                  data: [5000, 8000, 2000, 3000, 12500, 1500, 4000], 
+                  backgroundColor: '#cbd5e1',
+                  borderRadius: 4,
+                  barPercentage: 0.6
+                }
               ]
             },
-            options: { responsive: true, maintainAspectRatio: false }
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: {
+                  display: true,
+                  position: 'bottom',
+                  labels: { boxWidth: 12, font: { family: 'Inter', size: 10 } }
+                }
+              },
+              scales: {
+                x: { grid: { display: false }, ticks: { font: { size: 9 } } },
+                y: { grid: { borderDash: [2, 2], drawTicks: false }, ticks: { font: { size: 9 } } }
+              }
+            }
           });
         }
 
@@ -2264,10 +2215,27 @@
           chartInstances.exam = new Chart(examCanvas.getContext('2d'), {
             type: 'bar',
             data: {
-              labels: student.exams.map(e => e.subject.substring(0, 15)),
-              datasets: [{ label: 'Marks (%)', data: student.exams.map(e => e.score), backgroundColor: '#2563eb', borderRadius: 6 }]
+              labels: student.exams.map(e => e.subject.substring(0, 12)),
+              datasets: [{ 
+                label: 'Marks (%)', 
+                data: student.exams.map(e => e.score), 
+                backgroundColor: '#0f172a',
+                borderRadius: 4,
+                barPercentage: 0.5
+              }]
             },
-            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false }
+            options: {
+              indexAxis: 'y',
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { display: false }
+              },
+              scales: {
+                x: { min: 0, max: 100, grid: { borderDash: [2, 2] }, ticks: { font: { size: 9 } } },
+                y: { grid: { display: false }, ticks: { font: { size: 9 } } }
+              }
+            }
           });
         }
       } catch(e) {
