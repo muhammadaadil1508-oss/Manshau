@@ -1373,7 +1373,7 @@
 
         <!-- SPECIALIZED TAGS & GRAPHS -->
         <div class="glass-card rounded-3xl p-6 shadow-anti-gravity anti-gravity-card border border-white mb-6">
-          <div class="flex items-center space-x-2 overflow-x-auto pb-3 mb-6 scrollbar-none">
+          <div class="flex items-center space-x-2 overflow-x-auto p-1 pb-3 mb-6 scrollbar-none">
             ${[
               { id: "analytics", label: "Analytics & Graphs", iconName: "activity" },
               { id: "leave", label: "Leave Manager", iconName: "calendar" },
@@ -1382,7 +1382,7 @@
                 onclick="setActiveGraphTag('${tag.id}')"
                 class="flex items-center space-x-2 px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all duration-300 shadow-sm ${
                   state.activeGraphTag === tag.id
-                    ? "bg-slate-900 text-white shadow-md scale-105"
+                    ? "bg-slate-900 text-white shadow-md"
                     : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/70"
                 }"
               >
