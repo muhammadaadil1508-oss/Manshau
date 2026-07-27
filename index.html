@@ -1340,21 +1340,19 @@
       return `
         <!-- DEDICATED PROFILE SWITCHER HERO SECTION -->
         <div class="glass-card rounded-3xl p-4 shadow-anti-gravity border border-white bg-gradient-to-r from-brand-50/40 via-white to-slate-50/50 mb-6">
-          <div class="flex items-center justify-between gap-4">
-            <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
-                ${icon('users', 'w-5 h-5')}
-              </div>
+          <div class="flex items-center space-x-3 w-full">
+            <div class="w-10 h-10 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold flex-shrink-0">
+              ${icon('users', 'w-5 h-5')}
             </div>
             
-            <div class="relative w-full sm:w-64">
+            <div class="relative w-full">
               <select 
                 onchange="switchStudentAccount(this.value)"
                 class="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer shadow-sm"
               >
                 ${state.students.map(s => `
                   <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>
-                    Switch to: ${s.name} (${s.username})
+                    Switch Profile: ${s.name} (${s.username})
                   </option>
                 `).join('')}
               </select>
