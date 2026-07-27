@@ -1332,9 +1332,9 @@
         <!-- HERO BANNER -->
         <div class="relative overflow-hidden glass-card rounded-3xl p-6 sm:p-8 shadow-anti-gravity anti-gravity-card border border-white bg-gradient-to-r from-white via-slate-50/60 to-brand-50/50 mb-6">
           <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div class="flex items-center space-x-4 sm:space-x-6">
+            <div onclick="toggleModal('profile', true)" class="flex items-center space-x-4 sm:space-x-6 cursor-pointer hover:opacity-85 transition-opacity" title="Click to view details">
               <!-- Square Avatar Detail Trigger Block -->
-              <div onclick="toggleModal('profile', true)" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border border-slate-200/60 shadow-sm cursor-pointer hover:shadow-md hover:scale-105 transition-all flex-shrink-0 flex items-center justify-center overflow-hidden" title="Click to view details">
+              <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border border-slate-200/60 shadow-sm flex-shrink-0 flex items-center justify-center overflow-hidden">
                 ${getStudentAvatarHtml(student, "w-full h-full object-cover", "text-xl")}
               </div>
               <div>
@@ -1366,11 +1366,11 @@
             </div>
 
             <div class="flex items-center space-x-3 self-start md:self-auto">
-              <div onclick="toggleModal('profile', true)" class="bg-white/95 p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all cursor-pointer text-center min-w-[115px]">
+              <div onclick="showAttendanceGraph()" class="bg-white/95 p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-brand-200 hover:scale-105 transition-all cursor-pointer text-center min-w-[115px]" title="Click to view Attendance Analytics Graph">
                 <p class="text-[10px] uppercase font-extrabold tracking-wider text-slate-500">Attendance</p>
                 <p class="text-2xl font-black text-brand-600 mt-0.5">${student.attendanceRate}%</p>
               </div>
-              <div onclick="toggleModal('profile', true)" class="bg-white/95 p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all cursor-pointer text-center min-w-[115px]">
+              <div onclick="toggleModal('profile', true)" class="bg-white/95 p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-brand-200 hover:scale-105 transition-all cursor-pointer text-center min-w-[115px]" title="Click to view details">
                 <p class="text-[10px] uppercase font-extrabold tracking-wider text-slate-500">Leaves Taken</p>
                 <p class="text-2xl font-black text-slate-800 mt-0.5">${student.totalLeaveDays} Days</p>
               </div>
@@ -2331,6 +2331,18 @@
     function setAdminActiveTab(tab) {
       state.adminActiveTab = tab;
       renderApp();
+    }
+
+    function showAttendanceGraph() {
+      state.activeTab = "dashboard";
+      state.activeGraphTag = "analytics";
+      renderApp();
+      setTimeout(() => {
+        const element = document.getElementById("attendanceCanvas");
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
     }
 
     function setActiveGraphTag(tag) {
