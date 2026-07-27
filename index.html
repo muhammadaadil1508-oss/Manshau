@@ -576,7 +576,7 @@
                   ${icon('users', 'w-3.5 h-3.5 text-brand-600')}
                   <select 
                     onchange="switchStudentAccount(this.value)"
-                    class="bg-transparent border-none text-[11px] font-extrabold text-slate-700 focus:outline-none cursor-pointer py-0.5"
+                    class="bg-transparent border-none text-[11px] font-extrabold text-slate-700 focus:outline-none cursor-pointer py-0.5 max-w-[110px] sm:max-w-none"
                   >
                     ${state.students.map(s => `
                       <option value="${s.id}" ${s.id === currentStudent.id ? 'selected' : ''}>
