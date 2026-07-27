@@ -1429,8 +1429,8 @@
               <span class="text-xs font-bold text-brand-600">Sem 5 • CGPA: ${calculateStudentCGPA(student)}</span>
             </div>
 
-            <div class="overflow-x-auto">
-              <table class="w-full text-left border-collapse text-xs min-w-[500px]">
+            <div class="w-full overflow-hidden">
+              <table class="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr class="border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
                     <th class="py-2.5 px-3">Subject</th>
@@ -1443,7 +1443,7 @@
                   ${student.exams.map(item => `
                     <tr class="hover:bg-slate-50/80 transition-colors">
                       <td class="py-3 px-3 font-bold text-slate-800">
-                        <p>${item.subject}</p>
+                        <p class="break-words line-clamp-2">${item.subject}</p>
                         <span class="text-[10px] text-slate-400 font-normal">${item.code}</span>
                       </td>
                       <td class="py-3 px-3 text-center font-extrabold text-slate-900">${item.score}%</td>
