@@ -47,6 +47,8 @@
 
   <!-- Optional Chart.js for canvas rendering -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- Client-side HTML-to-PDF Conversion Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
   <style>
     body {
@@ -1414,7 +1416,7 @@
             </div>
 
             <div class="flex items-center space-x-3">
-              <button onclick="alert('Downloading Official Marksheet PDF...')" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105">
+              <button onclick="downloadMarksheetPDF('${student.id}')" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105">
                 ${icon('download', 'w-4 h-4')}
                 <span>Download Marksheet PDF</span>
               </button>
@@ -2562,6 +2564,163 @@
       });
       
       return totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "0.00";
+    }
+
+    function downloadMarksheetPDF(studentId) {
+      const student = state.students.find(s => s.id === studentId) || getCurrentStudent();
+      if (!student) {
+        alert("Student data not found.");
+        return;
+      }
+
+      if (typeof html2pdf === "undefined") {
+        alert("PDF generator library is still loading. Please try again in a few seconds.");
+        return;
+      }
+
+      const cgpa = calculateStudentCGPA(student);
+
+      const printDiv = document.createElement("div");
+      printDiv.className = "p-8 bg-white text-slate-900 border-8 border-brand-900 rounded-3xl relative";
+      printDiv.style.fontFamily = "'Plus Jakarta Sans', sans-serif";
+      printDiv.style.maxWidth = "800px";
+      printDiv.style.margin = "0 auto";
+
+      const watermark = document.createElement("div");
+      watermark.innerText = "MANSHAU";
+      watermark.style.position = "absolute";
+      watermark.style.top = "50%";
+      watermark.style.left = "50%";
+      watermark.style.transform = "translate(-50%, -50%) rotate(-45deg)";
+      watermark.style.fontSize = "7.5rem";
+      watermark.style.fontWeight = "900";
+      watermark.style.color = "rgba(15, 23, 42, 0.03)";
+      watermark.style.zIndex = "0";
+      watermark.style.pointerEvents = "none";
+      printDiv.appendChild(watermark);
+
+      const header = `
+        <div class="relative z-10 text-center border-b-2 border-slate-200 pb-6 mb-6">
+          <h1 class="text-3xl font-extrabold tracking-tight text-brand-900 uppercase">Manshau Alfaris Educational Institute</h1>
+          <p class="text-xs uppercase tracking-widest text-slate-500 font-extrabold mt-1">Official Academic Examination Registry</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">Central Campus Office • Registry Code: MAEI-2026-X1</p>
+        </div>
+      `;
+
+      const bio = `
+        <div class="relative z-10 grid grid-cols-2 gap-4 text-xs mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+          <div>
+            <p class="text-[10px] uppercase font-bold text-slate-400">Student Identity Name</p>
+            <p class="text-sm font-black text-slate-800 mt-0.5">${student.name}</p>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase font-bold text-slate-400">Registry System ID</p>
+            <p class="text-sm font-bold text-slate-700 mt-0.5">${student.id}</p>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase font-bold text-slate-400">Enrolled School/Branch</p>
+            <p class="text-xs font-semibold text-slate-600 mt-0.5">${student.school}</p>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase font-bold text-slate-400">Grade / Academic Class</p>
+            <p class="text-xs font-black text-slate-800 mt-0.5">${student.class}</p>
+          </div>
+        </div>
+      `;
+
+      let tableRows = '';
+      if (!student.exams || student.exams.length === 0) {
+        tableRows = `
+          <tr>
+            <td colspan="4" class="py-4 text-center text-slate-400 italic">No course exams registered for this student.</td>
+          </tr>
+        `;
+      } else {
+        student.exams.forEach(exam => {
+          tableRows += `
+            <tr class="border-b border-slate-100 text-xs">
+              <td class="py-3 px-4 font-bold text-slate-800">
+                <p>${exam.subject}</p>
+                <span class="text-[9px] text-slate-400 font-normal">${exam.code}</span>
+              </td>
+              <td class="py-3 px-4 text-center font-extrabold text-slate-900">${exam.score}%</td>
+              <td class="py-3 px-4 text-center">
+                <span class="px-2 py-0.5 rounded font-black bg-emerald-100 text-emerald-800 text-[10px]">
+                  ${exam.grade}
+                </span>
+              </td>
+              <td class="py-3 px-4 text-right font-semibold text-slate-600">${exam.credits}</td>
+            </tr>
+          `;
+        });
+      }
+
+      const table = `
+        <div class="relative z-10 mb-6">
+          <table class="w-full text-left border-collapse border border-slate-200">
+            <thead>
+              <tr class="bg-slate-100 text-slate-500 font-bold uppercase text-[9px] border-b border-slate-200">
+                <th class="py-3 px-4">Subject & Course Code</th>
+                <th class="py-3 px-4 text-center">Score Percentage</th>
+                <th class="py-3 px-4 text-center">Letter Grade</th>
+                <th class="py-3 px-4 text-right">Credits Earned</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      const summary = `
+        <div class="relative z-10 grid grid-cols-3 gap-4 text-center mb-10">
+          <div class="bg-brand-50 p-4 rounded-xl border border-brand-100">
+            <p class="text-[9px] uppercase font-bold text-slate-500">Cumulative GPA (CGPA)</p>
+            <p class="text-xl font-black text-brand-900 mt-1">${cgpa}</p>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+            <p class="text-[9px] uppercase font-bold text-slate-500">Attendance Percentage</p>
+            <p class="text-xl font-black text-slate-800 mt-1">${student.attendanceRate}%</p>
+          </div>
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+            <p class="text-[9px] uppercase font-bold text-slate-500">Total Leaves Registered</p>
+            <p class="text-xl font-black text-slate-800 mt-1">${student.totalLeaveDays} Days</p>
+          </div>
+        </div>
+      `;
+
+      const footer = `
+        <div class="relative z-10 grid grid-cols-2 gap-8 pt-8 border-t border-slate-200 text-xs">
+          <div>
+            <p class="text-[10px] text-slate-400">Issued On: ${new Date().toLocaleDateString()}</p>
+            <p class="text-[9px] text-slate-400 mt-1">This document is electronically generated and holds legal administrative seal validity.</p>
+          </div>
+          <div class="flex flex-col items-end">
+            <div class="w-40 border-b border-slate-800 text-center pb-1">
+              <span class="font-extrabold text-[11px] text-slate-700">Director of Examinations</span>
+            </div>
+            <p class="text-[9px] text-slate-400 mt-1">Manshau Registrar Office</p>
+          </div>
+        </div>
+      `;
+
+      const contentWrapper = document.createElement("div");
+      contentWrapper.innerHTML = header + bio + table + summary + footer;
+      printDiv.appendChild(contentWrapper);
+
+      const opt = {
+        margin: 10,
+        filename: `${student.name.replace(/\s+/g, '_')}_Academic_Marksheet.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().from(printDiv).set(opt).save().catch(err => {
+        console.error("PDF generation error: ", err);
+        alert("Failed to compile marksheet PDF.");
+      });
     }
 
     function editExamScoreForStudent(studentId, index) {
