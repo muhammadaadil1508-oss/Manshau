@@ -1378,23 +1378,14 @@
 
         <!-- SPECIALIZED TAGS & GRAPHS -->
         <div class="glass-card rounded-3xl p-6 shadow-anti-gravity anti-gravity-card border border-white mb-6">
-          <div class="grid grid-cols-2 gap-2 mb-6">
-            ${[
-              { id: "analytics", label: "Analytics & Graphs", iconName: "activity" },
-              { id: "leave", label: "Leave Manager", iconName: "calendar" },
-            ].map(tag => `
-              <button
-                onclick="setActiveGraphTag('${tag.id}')"
-                class="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all duration-300 shadow-sm ${
-                  state.activeGraphTag === tag.id
-                    ? "bg-slate-900 text-white shadow-md"
-                    : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/70"
-                }"
-              >
-                ${icon(tag.iconName, `w-4 h-4 ${state.activeGraphTag === tag.id ? "text-sky-400" : "text-slate-400"}`)}
-                <span>${tag.label}</span>
-              </button>
-            `).join('')}
+          <div class="flex items-center space-x-3 mb-6">
+            <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
+              ${icon('activity', 'w-4 h-4')}
+            </div>
+            <div>
+              <h3 class="text-sm font-extrabold text-slate-900">Analytics & Graphs</h3>
+              <p class="text-[11px] text-slate-500">Live correlation charts for attendance metrics, exams, and financials</p>
+            </div>
           </div>
 
           ${renderGraphContent(student, fin)}
