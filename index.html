@@ -541,7 +541,6 @@
                     <span class="font-extrabold text-slate-900 text-lg tracking-tight">MANSHAU</span>
                     ${state.role === 'admin' ? '<span class="bg-brand-50 text-brand-600 text-[11px] px-2.5 py-0.5 rounded-full font-bold border border-brand-100">ERP 2.0</span>' : ''}
                   </div>
-                  <p class="text-[10px] text-slate-600 font-semibold">Educational Institute Platform</p>
                 </div>
               </div>
 
@@ -549,6 +548,7 @@
               <div class="flex items-center space-x-3 sm:space-x-4">
                 
                 <!-- DATABASE PERSISTENCE STATUS BADGE -->
+                ${state.role === 'admin' ? `
                 <div id="dbStatusBadge" class="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-[10px] font-extrabold border shadow-sm ${
                   isBackendActive 
                     ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
@@ -562,6 +562,7 @@
                   </span>
                   <span>${isBackendActive ? "Firebase Synced" : "Local Storage Mode"}</span>
                 </div>
+                ` : ''}
                 
                 <!-- LIVE 12-HOUR CLOCK PILL -->
                 <div class="hidden sm:flex items-center space-x-2 bg-slate-100/90 px-3.5 py-1.5 rounded-full text-xs font-extrabold text-slate-700 border border-slate-200/80 shadow-inner">
@@ -1612,7 +1613,6 @@
                 <div class="flex items-center justify-between mb-3">
                   <div>
                     <h4 class="font-extrabold text-slate-900 text-sm">Academic Performance</h4>
-                    <p class="text-[10px] text-slate-500">Holistically evaluated subject scores</p>
                   </div>
                 </div>
                 <div class="h-44 w-full relative">
