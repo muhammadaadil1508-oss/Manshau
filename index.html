@@ -763,7 +763,7 @@
     // --- MAIN STUDENT PORTAL ---
     function renderStudentPortal(student, fin) {
       return `
-        <div class="flex flex-col lg:flex-row gap-8 pb-24 lg:pb-0">
+        <div class="flex flex-col lg:flex-row gap-8 pb-32 lg:pb-0">
           <!-- Floating Sidebar -->
           <aside class="w-full lg:w-64 flex-shrink-0">
             <div class="lg:glass-card lg:rounded-3xl lg:p-4 lg:shadow-anti-gravity lg:anti-gravity-card lg:border lg:border-white sticky lg:top-20">
@@ -774,7 +774,7 @@
                 Student Navigation
               </div>
 
-              <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 p-2 shadow-2xl flex justify-around items-center lg:static lg:bg-transparent lg:border-none lg:p-0 lg:shadow-none lg:flex lg:flex-col lg:space-y-1.5">
+              <nav style="z-index: 1000;" class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-2.5 shadow-2xl flex justify-around items-center lg:static lg:bg-transparent lg:border-none lg:p-0 lg:shadow-none lg:flex lg:flex-col lg:space-y-1.5">
                 ${[
                   { id: "dashboard", label: "Dashboard", iconName: "layout-dashboard" },
                   { id: "examination", label: "Examination", iconName: "file-spreadsheet" },
