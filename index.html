@@ -790,25 +790,28 @@
                 Student Navigation
               </div>
 
-              <nav class="mobile-sticky-footer fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-2.5 shadow-2xl flex justify-around items-center lg:static lg:bg-transparent lg:border-none lg:p-0 lg:shadow-none lg:flex lg:flex-col lg:space-y-1.5">
+              <nav class="mobile-sticky-footer fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-2 shadow-2xl flex justify-around items-center lg:static lg:bg-transparent lg:border-none lg:p-0 lg:shadow-none lg:flex lg:flex-col lg:space-y-1.5">
                 ${[
-                  { id: "dashboard", label: "Dashboard", iconName: "layout-dashboard" },
-                  { id: "examination", label: "Examination", iconName: "file-spreadsheet" },
-                  { id: "leaves", label: "Leave Taken", iconName: "plane-landing" },
-                  { id: "bank", label: "Bank Credits", iconName: "wallet" }
+                  { id: "dashboard", label: "Dashboard", labelMobile: "Dashboard", iconName: "layout-dashboard" },
+                  { id: "examination", label: "Examination", labelMobile: "Exams", iconName: "file-spreadsheet" },
+                  { id: "leaves", label: "Leave Taken", labelMobile: "Leaves", iconName: "plane-landing" },
+                  { id: "bank", label: "Bank Credits", labelMobile: "Credits", iconName: "wallet" }
                 ].map(item => {
                   const isActive = state.activeTab === item.id;
                   return `
                     <button
                       onclick="setActiveTab('${item.id}')"
-                      class="flex flex-row items-center justify-center space-x-1.5 px-3 py-2 rounded-xl font-bold text-[11px] lg:text-sm lg:flex-row lg:justify-start lg:space-x-3 lg:w-full lg:px-3.5 lg:py-2.5 transition-all duration-300 nav-item-lift ${
+                      class="flex flex-row items-center justify-center space-x-1 px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl font-extrabold text-[10px] sm:text-xs lg:text-sm lg:flex-row lg:justify-start lg:space-x-3 lg:w-full lg:px-3.5 lg:py-2.5 transition-all duration-300 nav-item-lift ${
                         isActive
-                          ? "bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-md shadow-brand-500/25 font-bold"
+                          ? "bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-md shadow-brand-500/25"
                           : "text-slate-600 hover:bg-brand-50/70 hover:text-brand-600 border border-transparent lg:border-slate-100"
                       }"
                     >
                       ${icon(item.iconName, `w-3.5 h-3.5 lg:w-4 lg:h-4 ${isActive ? "text-white" : "text-slate-400"}`)}
-                      <span>${item.label}</span>
+                      <span>
+                        <span class="hidden sm:inline">${item.label}</span>
+                        <span class="inline sm:hidden">${item.labelMobile}</span>
+                      </span>
                     </button>
                   `;
                 }).join('')}
