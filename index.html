@@ -767,7 +767,7 @@
                 Student Navigation
               </div>
 
-              <nav class="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:space-y-1.5 mt-1 pb-2 lg:pb-0 scrollbar-none">
+              <nav class="grid grid-cols-2 lg:flex lg:flex-col gap-2 mt-1 pb-2 lg:pb-0">
                 ${[
                   { id: "dashboard", label: "Dashboard", iconName: "layout-dashboard" },
                   { id: "examination", label: "Examination", iconName: "file-spreadsheet" },
@@ -778,10 +778,10 @@
                   return `
                     <button
                       onclick="setActiveTab('${item.id}')"
-                      class="whitespace-nowrap flex-shrink-0 flex items-center space-x-2 px-3.5 py-2 lg:w-full lg:space-x-3 lg:px-3.5 lg:py-2.5 rounded-xl font-semibold text-xs lg:text-sm transition-all duration-300 nav-item-lift ${
+                      class="flex items-center justify-center lg:justify-start space-x-2 px-3 py-2.5 lg:w-full lg:space-x-3 lg:px-3.5 rounded-xl font-semibold text-[11px] lg:text-sm transition-all duration-300 nav-item-lift ${
                         isActive
                           ? "bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-md shadow-brand-500/25 font-bold"
-                          : "text-slate-600 hover:bg-brand-50/70 hover:text-brand-600"
+                          : "text-slate-600 hover:bg-brand-50/70 hover:text-brand-600 border border-slate-100"
                       }"
                     >
                       ${icon(item.iconName, `w-3.5 h-3.5 lg:w-4 lg:h-4 ${isActive ? "text-white" : "text-slate-400"}`)}
@@ -1378,14 +1378,14 @@
 
         <!-- SPECIALIZED TAGS & GRAPHS -->
         <div class="glass-card rounded-3xl p-6 shadow-anti-gravity anti-gravity-card border border-white mb-6">
-          <div class="flex items-center space-x-2 overflow-x-auto p-1 pb-3 mb-6 scrollbar-none">
+          <div class="grid grid-cols-2 gap-2 mb-6">
             ${[
               { id: "analytics", label: "Analytics & Graphs", iconName: "activity" },
               { id: "leave", label: "Leave Manager", iconName: "calendar" },
             ].map(tag => `
               <button
                 onclick="setActiveGraphTag('${tag.id}')"
-                class="flex items-center space-x-2 px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all duration-300 shadow-sm ${
+                class="flex items-center justify-center space-x-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all duration-300 shadow-sm ${
                   state.activeGraphTag === tag.id
                     ? "bg-slate-900 text-white shadow-md"
                     : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/70"
