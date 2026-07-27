@@ -586,23 +586,7 @@
                   <span id="liveClockPill">${get12HourTimeString()}</span>
                 </div>
 
-                <!-- Student Account Switcher Dropdown (Header Upper Portion) -->
-                ${state.role === 'student' ? `
-                <div class="flex items-center space-x-1.5 bg-slate-100/90 px-3 py-1 rounded-xl border border-slate-200/80 shadow-inner">
-                  ${icon('users', 'w-3.5 h-3.5 text-brand-600')}
-                  <select 
-                    onchange="switchStudentAccount(this.value)"
-                    class="bg-transparent border-none text-[11px] font-extrabold text-slate-700 focus:outline-none cursor-pointer py-0.5 max-w-[110px] sm:max-w-none"
-                  >
-                    ${state.students.map(s => `
-                      <option value="${s.id}" ${s.id === currentStudent.id ? 'selected' : ''}>
-                        Switch: ${s.name}
-                      </option>
-                    `).join('')}
-                  </select>
-                </div>
-                ` : ''}
-                
+
                 <!-- Role Switcher Toggle -->
                 <div class="bg-slate-100 p-1 rounded-xl flex items-center space-x-1 border border-slate-200/80 shadow-inner">
                   <button
@@ -2108,7 +2092,7 @@
                 <p class="font-extrabold text-slate-900 text-lg">${student.name}</p>
                 <p class="text-xs text-slate-400 mb-4">${student.id} • ${student.program || 'Genesis Program'}</p>
                 
-                <div class="space-y-3 text-left text-xs bg-slate-50/70 p-4 rounded-2xl border border-slate-100">
+                <div class="space-y-3 text-left text-xs bg-slate-50/70 p-4 rounded-2xl border border-slate-100 mb-4">
                   <div class="flex justify-between border-b border-slate-200/50 pb-2">
                     <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">School</span>
                     <span class="font-extrabold text-slate-800">${student.school}</span>
@@ -2125,6 +2109,24 @@
                     <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Phone Number</span>
                     <span class="font-extrabold text-slate-800">${student.phone || 'N/A'}</span>
                   </div>
+                </div>
+
+                <!-- SWITCH STUDENT PROFILE ACCOUNT -->
+                <div class="text-left bg-slate-50/70 p-4 rounded-2xl border border-slate-100">
+                  <label class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1.5 flex items-center space-x-1">
+                    ${icon('users', 'w-3 h-3 text-brand-500')}
+                    <span>Switch Student Profile</span>
+                  </label>
+                  <select 
+                    onchange="switchStudentAccount(this.value); toggleModal('profile', false);"
+                    class="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer"
+                  >
+                    ${state.students.map(s => `
+                      <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>
+                        ${s.name} (${s.username})
+                      </option>
+                    `).join('')}
+                  </select>
                 </div>
               </div>
 
