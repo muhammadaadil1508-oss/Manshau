@@ -1371,6 +1371,9 @@
           </div>
         </div>
 
+        <!-- ACADEMIC UPDATES TICKER -->
+        ${renderAcademicUpdatesTicker()}
+
         <!-- SPECIALIZED TAGS & GRAPHS -->
         <div class="glass-card rounded-3xl p-6 shadow-anti-gravity anti-gravity-card border border-white mb-6">
           <div class="flex items-center space-x-2 overflow-x-auto p-1 pb-3 mb-6 scrollbar-none">
@@ -1394,9 +1397,6 @@
 
           ${renderGraphContent(student, fin)}
         </div>
-
-        <!-- ACADEMIC UPDATES TICKER -->
-        ${renderAcademicUpdatesTicker()}
       `;
     }
 
@@ -1697,7 +1697,7 @@
     // --- ACADEMIC UPDATES TICKER ---
     function renderAcademicUpdatesTicker() {
       return `
-        <div id="academic-ticker" class="glass-card rounded-3xl p-6 shadow-anti-gravity anti-gravity-card border border-white">
+        <div id="academic-ticker" class="glass-card rounded-3xl p-6 shadow-anti-gravity anti-gravity-card border border-white mb-6">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center space-x-3">
               <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
