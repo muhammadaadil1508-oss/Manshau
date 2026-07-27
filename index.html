@@ -80,6 +80,22 @@
       transform: translateX(5px);
     }
 
+    /* Mobile Sticky Footer styles */
+    .mobile-sticky-footer {
+      position: fixed !important;
+      bottom: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      z-index: 9999 !important;
+      background-color: #ffffff !important;
+    }
+
+    @media (max-width: 1023px) {
+      body {
+        padding-bottom: 80px !important;
+      }
+    }
+
     @keyframes shimmerGradient {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
@@ -774,7 +790,7 @@
                 Student Navigation
               </div>
 
-              <nav style="z-index: 1000;" class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-2.5 shadow-2xl flex justify-around items-center lg:static lg:bg-transparent lg:border-none lg:p-0 lg:shadow-none lg:flex lg:flex-col lg:space-y-1.5">
+              <nav class="mobile-sticky-footer fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 p-2.5 shadow-2xl flex justify-around items-center lg:static lg:bg-transparent lg:border-none lg:p-0 lg:shadow-none lg:flex lg:flex-col lg:space-y-1.5">
                 ${[
                   { id: "dashboard", label: "Dashboard", iconName: "layout-dashboard" },
                   { id: "examination", label: "Examination", iconName: "file-spreadsheet" },
