@@ -568,7 +568,26 @@
                 <div class="hidden sm:flex items-center space-x-2 bg-slate-100/90 px-3.5 py-1.5 rounded-full text-xs font-extrabold text-slate-700 border border-slate-200/80 shadow-inner">
                   ${icon('clock', 'w-4 h-4 text-brand-600 animate-pulse')}
                   <span id="liveClockPill">${get12HourTimeString()}</span>
-                </div>                 <!-- Role Switcher Toggle -->
+                </div>
+
+                <!-- Student Account Switcher Dropdown (Header Upper Portion) -->
+                ${state.role === 'student' ? `
+                <div class="flex items-center space-x-1.5 bg-slate-100/90 px-3 py-1 rounded-xl border border-slate-200/80 shadow-inner">
+                  ${icon('users', 'w-3.5 h-3.5 text-brand-600')}
+                  <select 
+                    onchange="switchStudentAccount(this.value)"
+                    class="bg-transparent border-none text-[11px] font-extrabold text-slate-700 focus:outline-none cursor-pointer py-0.5"
+                  >
+                    ${state.students.map(s => `
+                      <option value="${s.id}" ${s.id === currentStudent.id ? 'selected' : ''}>
+                        Switch: ${s.name}
+                      </option>
+                    `).join('')}
+                  </select>
+                </div>
+                ` : ''}
+                
+                <!-- Role Switcher Toggle -->
                 <div class="bg-slate-100 p-1 rounded-xl flex items-center space-x-1 border border-slate-200/80 shadow-inner">
                   <button
                     onclick="setRole('student')"
@@ -749,20 +768,7 @@
           <aside class="w-full lg:w-64 flex-shrink-0">
             <div class="glass-card rounded-3xl p-4 shadow-anti-gravity anti-gravity-card border border-white sticky lg:top-20">
               
-              <!-- Student Switcher Dropdown in Student View -->
-              <div class="mb-4">
-                <label class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">Switch Student Account</label>
-                <select 
-                  onchange="switchStudentAccount(this.value)"
-                  class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
-                >
-                  ${state.students.map(s => `
-                    <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>
-                      ${s.name} (${s.username})
-                    </option>
-                  `).join('')}
-                </select>
-              </div>
+              <!-- Student switcher moved to top header -->
 
               <div class="px-3 py-1.5 text-[11px] font-extrabold tracking-wider text-slate-600 uppercase hidden lg:block">
                 Student Navigation
