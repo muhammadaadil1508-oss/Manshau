@@ -744,7 +744,7 @@
     // --- MAIN STUDENT PORTAL ---
     function renderStudentPortal(student, fin) {
       return `
-        <div class="flex flex-col lg:flex-row gap-8">
+        <div class="flex flex-col lg:flex-row gap-8 pb-24 lg:pb-0">
           <!-- Floating Sidebar -->
           <aside class="w-full lg:w-64 flex-shrink-0">
             <div class="glass-card rounded-3xl p-4 shadow-anti-gravity anti-gravity-card border border-white sticky lg:top-20">
@@ -768,7 +768,7 @@
                 Student Navigation
               </div>
 
-              <nav class="grid grid-cols-2 lg:flex lg:flex-col gap-2 mt-1 pb-2 lg:pb-0">
+              <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 p-2 shadow-2xl grid grid-cols-4 gap-1 lg:static lg:bg-transparent lg:border-none lg:p-0 lg:shadow-none lg:flex lg:flex-col lg:space-y-1.5">
                 ${[
                   { id: "dashboard", label: "Dashboard", iconName: "layout-dashboard" },
                   { id: "examination", label: "Examination", iconName: "file-spreadsheet" },
@@ -779,13 +779,13 @@
                   return `
                     <button
                       onclick="setActiveTab('${item.id}')"
-                      class="flex items-center justify-center lg:justify-start space-x-2 px-3 py-2.5 lg:w-full lg:space-x-3 lg:px-3.5 rounded-xl font-semibold text-[11px] lg:text-sm transition-all duration-300 nav-item-lift ${
+                      class="flex flex-col lg:flex-row items-center justify-center lg:justify-start gap-1 lg:space-x-3 px-1 py-2 lg:w-full lg:px-3.5 lg:py-2.5 rounded-xl font-semibold text-[10px] lg:text-sm transition-all duration-300 nav-item-lift ${
                         isActive
                           ? "bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-md shadow-brand-500/25 font-bold"
-                          : "text-slate-600 hover:bg-brand-50/70 hover:text-brand-600 border border-slate-100"
+                          : "text-slate-600 hover:bg-brand-50/70 hover:text-brand-600 border border-transparent lg:border-slate-100"
                       }"
                     >
-                      ${icon(item.iconName, `w-3.5 h-3.5 lg:w-4 lg:h-4 ${isActive ? "text-white" : "text-slate-400"}`)}
+                      ${icon(item.iconName, `w-4 h-4 ${isActive ? "text-white" : "text-slate-400"}`)}
                       <span>${item.label}</span>
                     </button>
                   `;
