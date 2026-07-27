@@ -1330,33 +1330,39 @@
     function renderDashboardView(student, fin) {
       return `
         <!-- HERO BANNER -->
-        <div class="relative overflow-hidden glass-card rounded-3xl p-6 sm:p-10 shadow-anti-gravity anti-gravity-card border border-white bg-gradient-to-r from-white via-slate-50/60 to-brand-50/50 mb-6">
+        <div class="relative overflow-hidden glass-card rounded-3xl p-6 sm:p-8 shadow-anti-gravity anti-gravity-card border border-white bg-gradient-to-r from-white via-slate-50/60 to-brand-50/50 mb-6">
           <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div>
-              <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide border shadow-sm mb-4 ${
-                student.status === "Present"
-                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                  : "bg-amber-50 text-amber-700 border-amber-200"
-              }">
-                <span class="relative flex h-2.5 w-2.5">
-                  ${student.status === "Present"
-                    ? `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>`
-                    : `<span class="animate-pulse absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>`
-                  }
-                </span>
-                <span>${student.status}</span>
+            <div class="flex items-center space-x-4 sm:space-x-6">
+              <!-- Square Avatar Detail Trigger Block -->
+              <div onclick="toggleModal('profile', true)" class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border border-slate-200/60 shadow-sm cursor-pointer hover:shadow-md hover:scale-105 transition-all flex-shrink-0 flex items-center justify-center overflow-hidden" title="Click to view details">
+                ${getStudentAvatarHtml(student, "w-full h-full object-cover", "text-xl")}
               </div>
+              <div>
+                <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide border shadow-sm mb-3 ${
+                  student.status === "Present"
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                    : "bg-amber-50 text-amber-700 border-amber-200"
+                }">
+                  <span class="relative flex h-2 w-2">
+                    ${student.status === "Present"
+                      ? `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>`
+                      : `<span class="animate-pulse absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>`
+                    }
+                  </span>
+                  <span>${student.status}</span>
+                </div>
 
-              <h1 onclick="toggleModal('profile', true)" class="text-4xl sm:text-6xl md:text-7xl font-black text-slate-900 tracking-tight leading-tight mb-3 cursor-pointer hover:opacity-85 transition-opacity" title="Click to view details & profile picture">
-                Hi <span class="animated-student-name inline-block border-b-4 border-dashed border-brand-500/60">${student.name}</span>
-              </h1>
+                <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-2">
+                  Hi <span class="animated-student-name inline-block">${student.name}</span>
+                </h1>
 
-              <p class="text-sm sm:text-base font-semibold text-slate-600 flex items-center space-x-2">
-                ${icon('graduation-cap', 'w-5 h-5 text-brand-500')}
-                <span>${student.school}</span>
-                <span class="text-slate-300">|</span>
-                <span class="font-extrabold text-slate-800">${student.class}</span>
-              </p>
+                <p class="text-xs sm:text-sm font-semibold text-slate-600 flex items-center space-x-2">
+                  ${icon('graduation-cap', 'w-4 h-4 text-brand-500')}
+                  <span>${student.school}</span>
+                  <span class="text-slate-300">|</span>
+                  <span class="font-extrabold text-slate-800">${student.class}</span>
+                </p>
+              </div>
             </div>
 
             <div class="flex items-center space-x-3 self-start md:self-auto">
@@ -1364,7 +1370,7 @@
                 <p class="text-[10px] uppercase font-extrabold tracking-wider text-slate-500">Attendance</p>
                 <p class="text-2xl font-black text-brand-600 mt-0.5">${student.attendanceRate}%</p>
               </div>
-              <div class="bg-white/95 p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all text-center min-w-[115px]">
+              <div onclick="toggleModal('profile', true)" class="bg-white/95 p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all cursor-pointer text-center min-w-[115px]">
                 <p class="text-[10px] uppercase font-extrabold tracking-wider text-slate-500">Leaves Taken</p>
                 <p class="text-2xl font-black text-slate-800 mt-0.5">${student.totalLeaveDays} Days</p>
               </div>
