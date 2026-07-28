@@ -1629,6 +1629,32 @@
               `).join('')}
             </div>
           </div>
+
+          <!-- MY ATTENDANCE CALENDAR -->
+          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+              <div>
+                <h3 class="text-base font-extrabold text-slate-900">My Daily Attendance Calendar</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Academic Year 2026-2027 • Track your presence/absence records month-by-month.</p>
+              </div>
+              
+              <!-- Month Selector Dropdown -->
+              <select onchange="changeAttendanceFilterMonth(this.value)" class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+                ${[
+                  "August 2026", "September 2026", "October 2026", "November 2026", "December 2026",
+                  "January 2027", "February 2027", "March 2027", "April 2027", "May 2027", "June 2027", "July 2027"
+                ].map(m => `
+                  <option value="${m}" ${state.attendanceFilterMonth === m ? 'selected' : ''}>${m}</option>
+                `).join('')}
+              </select>
+            </div>
+
+            <!-- Calendar grid of dates for the selected month -->
+            <div class="grid grid-cols-3 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 gap-3 max-h-[350px] overflow-y-auto pr-1">
+              ${generateStudentAttendanceDaysGrid(student, state.attendanceFilterMonth || "August 2026")}
+            </div>
+          </div>
+
         </div>
       `;
     }
@@ -2495,6 +2521,43 @@
             <span class="text-[9px] uppercase font-bold opacity-80">${shortDateLabel}</span>
             <span class="text-xs font-black mt-1">${status || "—"}</span>
           </button>
+        `;
+      }
+      return html;
+    }
+
+    function generateStudentAttendanceDaysGrid(student, filterMonth) {
+      const daysCount = getDaysInMonthString(filterMonth);
+      const parts = filterMonth.split(' ');
+      const mName = parts[0];
+      const year = parts[1];
+      const mIdx = MONTH_MAP[mName];
+      
+      student.attendanceRecords = student.attendanceRecords || {};
+      
+      let html = '';
+      for (let d = 1; d <= daysCount; d++) {
+        const dStr = d < 10 ? `0${d}` : `${d}`;
+        const dateKey = `${year}-${mIdx}-${dStr}`;
+        const status = student.attendanceRecords[dateKey];
+        
+        let statusClass = "bg-white border-slate-200 text-slate-700";
+        if (status === "Present") {
+          statusClass = "bg-emerald-500 text-white border-emerald-500 shadow-sm";
+        } else if (status === "Absent") {
+          statusClass = "bg-rose-500 text-white border-rose-500 shadow-sm";
+        }
+        
+        const shortDateLabel = `${mName.substring(0, 3)} ${dStr}`;
+        
+        html += `
+          <div
+            class="flex flex-col items-center justify-center p-2.5 rounded-2xl border text-center cursor-default min-h-[64px] ${statusClass}"
+            title="Date: ${dateKey} - Status: ${status || 'Unmarked'}"
+          >
+            <span class="text-[9px] uppercase font-bold opacity-80">${shortDateLabel}</span>
+            <span class="text-xs font-black mt-1">${status || "—"}</span>
+          </div>
         `;
       }
       return html;
