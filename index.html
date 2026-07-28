@@ -1660,6 +1660,34 @@
                 <canvas id="attendanceCanvas"></canvas>
               </div>
             </div>
+
+            <!-- 2. Academic Performance Graph Card -->
+            <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60">
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <h4 class="font-extrabold text-slate-900 text-sm">Academic Performance</h4>
+                </div>
+              </div>
+              <div class="h-56 w-full relative">
+                <canvas id="examCanvas"></canvas>
+              </div>
+            </div>
+
+            <!-- 3. Fund Graph Card -->
+            <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <div>
+                  <h4 class="font-extrabold text-slate-900 text-sm">Students' Fund Flow</h4>
+                </div>
+                <div class="flex items-center space-x-2 text-[10px]">
+                  <span class="px-2 py-1 bg-slate-900 text-white rounded-lg font-bold">Credits: ${formatINR(fin.totalCredits)}</span>
+                  <span class="px-2 py-1 bg-slate-300 text-slate-800 rounded-lg font-bold">Debits: ${formatINR(fin.totalDebits)}</span>
+                </div>
+              </div>
+              <div class="h-56 w-full relative">
+                <canvas id="bankCanvas"></canvas>
+              </div>
+            </div>
           </div>
         `;
       }
