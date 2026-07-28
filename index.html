@@ -425,7 +425,7 @@
           const dbIds = dbStudents.map(s => s.id);
           state.students = state.students.filter(s => dbIds.includes(s.id));
 
-          // Force all user attendance rates to 0 and rename class Geenesis to genesis
+          // Force all user attendance rates to 0, rename class Geenesis to genesis, and empty transactions
           let needsRemoteUpdate = false;
           state.students.forEach(s => {
             let updated = false;
@@ -435,6 +435,10 @@
             }
             if (s.class && s.class.toLowerCase().includes('geenesis')) {
               s.class = s.class.replace(/geenesis/gi, 'genesis');
+              updated = true;
+            }
+            if (s.transactions && s.transactions.length > 0) {
+              s.transactions = [];
               updated = true;
             }
             if (updated) {
@@ -487,6 +491,10 @@
               }
               if (s.class && s.class.toLowerCase().includes('geenesis')) {
                 s.class = s.class.replace(/geenesis/gi, 'genesis');
+                updated = true;
+              }
+              if (s.transactions && s.transactions.length > 0) {
+                s.transactions = [];
                 updated = true;
               }
               if (updated) {
