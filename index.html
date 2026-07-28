@@ -970,7 +970,7 @@
       if (state.adminActiveTab === "overview") return renderAdminOverviewView(fin);
       if (state.adminActiveTab === "students") return renderAdminStudentsView();
       if (state.adminActiveTab === "academics") return renderAdminAcademicsView(student);
-      if (state.adminActiveTab === "leaves") return renderAdminLeavesView();
+      if (state.adminActiveTab === "leaves") return renderAdminLeavesView(student);
       if (state.adminActiveTab === "finance") return renderAdminFinanceView(student, fin);
       if (state.adminActiveTab === "broadcast") return renderAdminBroadcastView();
       return renderAdminOverviewView(fin);
@@ -1201,37 +1201,13 @@
             </div>
           </div>
 
-          <!-- ATTENDANCE REGISTER CARD -->
-          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-              <div>
-                <h3 class="text-base font-extrabold text-slate-900">Daily Attendance Register for ${student.name}</h3>
-                <p class="text-xs text-slate-500 mt-0.5">Select a month starting from August 2026 to mark presence/absence. Click days to cycle states (Present ➔ Absent ➔ Unmarked).</p>
-              </div>
-              
-              <!-- Month Selector Dropdown -->
-              <select onchange="changeAttendanceFilterMonth(this.value)" class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
-                ${[
-                  "August 2026", "September 2026", "October 2026", "November 2026", "December 2026",
-                  "January 2027", "February 2027", "March 2027", "April 2027", "May 2027", "June 2027", "July 2027"
-                ].map(m => `
-                  <option value="${m}" ${state.attendanceFilterMonth === m ? 'selected' : ''}>${m}</option>
-                `).join('')}
-              </select>
-            </div>
-
-            <!-- Calendar grid of dates for the selected month -->
-            <div class="grid grid-cols-3 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 gap-3 max-h-[350px] overflow-y-auto pr-1">
-              ${generateAttendanceDaysGrid(student, state.attendanceFilterMonth || "August 2026")}
-            </div>
-          </div>
 
         </div>
       `;
     }
 
     // --- ADMIN MODULE 4: LEAVE APPROVAL QUEUE ---
-    function renderAdminLeavesView() {
+    function renderAdminLeavesView(student) {
       const allLeaves = [];
       state.students.forEach(s => {
         s.leaves.forEach(l => {
@@ -1276,6 +1252,41 @@
               `).join('')}
             </div>
           </div>
+
+          <!-- ATTENDANCE REGISTER CARD -->
+          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
+              <div>
+                <h3 class="text-base font-extrabold text-slate-900">Daily Attendance Register for ${student.name}</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Select a student and month starting from August 2026 to mark presence/absence. Click days to cycle states (Present ➔ Absent ➔ Unmarked).</p>
+              </div>
+              
+              <div class="flex flex-wrap gap-2.5 items-center">
+                <!-- Student Switcher -->
+                <select onchange="switchStudentAccount(this.value)" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+                  ${state.students.map(s => `
+                    <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name} (${s.id})</option>
+                  `).join('')}
+                </select>
+
+                <!-- Month Selector Dropdown -->
+                <select onchange="changeAttendanceFilterMonth(this.value)" class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+                  ${[
+                    "August 2026", "September 2026", "October 2026", "November 2026", "December 2026",
+                    "January 2027", "February 2027", "March 2027", "April 2027", "May 2027", "June 2027", "July 2027"
+                  ].map(m => `
+                    <option value="${m}" ${state.attendanceFilterMonth === m ? 'selected' : ''}>${m}</option>
+                  `).join('')}
+                </select>
+              </div>
+            </div>
+
+            <!-- Calendar grid of dates for the selected month -->
+            <div class="grid grid-cols-3 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 gap-3 max-h-[350px] overflow-y-auto pr-1">
+              ${generateAttendanceDaysGrid(student, state.attendanceFilterMonth || "August 2026")}
+            </div>
+          </div>
+
         </div>
       `;
     }
