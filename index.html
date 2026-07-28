@@ -268,12 +268,12 @@
           lastUpdated: Date.now(),
           transactions: [],
           exams: [
-            { id: "EXM-001", subject: "Mathematics", code: "MAT-301", score: 85, grade: "A", credits: 4 },
-            { id: "EXM-002", subject: "Physics", code: "PHY-302", score: 78, grade: "B+", credits: 4 },
-            { id: "EXM-003", subject: "English", code: "ENG-101", score: 92, grade: "A+", credits: 3 },
-            { id: "EXM-004", subject: "Moral Science", code: "ISL-201", score: 65, grade: "C", credits: 3 },
-            { id: "EXM-005", subject: "Arabic Language", code: "ARB-102", score: 88, grade: "A", credits: 3 },
-            { id: "EXM-006", subject: "Computer Science", code: "CSC-204", score: 95, grade: "A+", credits: 4 }
+            { id: "EXM-001", subject: "Mathematics", code: "MAT-301", score: 85, grade: "A", credits: 4, sem: "Sem 5" },
+            { id: "EXM-002", subject: "Physics", code: "PHY-302", score: 78, grade: "B+", credits: 4, sem: "Sem 5" },
+            { id: "EXM-003", subject: "English", code: "ENG-101", score: 92, grade: "A+", credits: 3, sem: "Sem 5" },
+            { id: "EXM-004", subject: "Moral Science", code: "ISL-201", score: 65, grade: "C", credits: 3, sem: "Sem 5" },
+            { id: "EXM-005", subject: "Arabic Language", code: "ARB-102", score: 88, grade: "A", credits: 3, sem: "Sem 5" },
+            { id: "EXM-006", subject: "Computer Science", code: "CSC-204", score: 95, grade: "A+", credits: 4, sem: "Sem 5" }
           ],
           leaves: []
         }
@@ -479,12 +479,12 @@
             }
             if (s.id === "MSH-2026-0001" && (!s.exams || s.exams.length === 0)) {
               s.exams = [
-                { id: "EXM-001", subject: "Mathematics", code: "MAT-301", score: 85, grade: "A", credits: 4 },
-                { id: "EXM-002", subject: "Physics", code: "PHY-302", score: 78, grade: "B+", credits: 4 },
-                { id: "EXM-003", subject: "English", code: "ENG-101", score: 92, grade: "A+", credits: 3 },
-                { id: "EXM-004", subject: "Moral Science", code: "ISL-201", score: 65, grade: "C", credits: 3 },
-                { id: "EXM-005", subject: "Arabic Language", code: "ARB-102", score: 88, grade: "A", credits: 3 },
-                { id: "EXM-006", subject: "Computer Science", code: "CSC-204", score: 95, grade: "A+", credits: 4 }
+                { id: "EXM-001", subject: "Mathematics", code: "MAT-301", score: 85, grade: "A", credits: 4, sem: "Sem 5" },
+                { id: "EXM-002", subject: "Physics", code: "PHY-302", score: 78, grade: "B+", credits: 4, sem: "Sem 5" },
+                { id: "EXM-003", subject: "English", code: "ENG-101", score: 92, grade: "A+", credits: 3, sem: "Sem 5" },
+                { id: "EXM-004", subject: "Moral Science", code: "ISL-201", score: 65, grade: "C", credits: 3, sem: "Sem 5" },
+                { id: "EXM-005", subject: "Arabic Language", code: "ARB-102", score: 88, grade: "A", credits: 3, sem: "Sem 5" },
+                { id: "EXM-006", subject: "Computer Science", code: "CSC-204", score: 95, grade: "A+", credits: 4, sem: "Sem 5" }
               ];
               updated = true;
             }
@@ -565,12 +565,12 @@
               }
               if (s.id === "MSH-2026-0001" && (!s.exams || s.exams.length === 0)) {
                 s.exams = [
-                  { id: "EXM-001", subject: "Mathematics", code: "MAT-301", score: 85, grade: "A", credits: 4 },
-                  { id: "EXM-002", subject: "Physics", code: "PHY-302", score: 78, grade: "B+", credits: 4 },
-                  { id: "EXM-003", subject: "English", code: "ENG-101", score: 92, grade: "A+", credits: 3 },
-                  { id: "EXM-004", subject: "Moral Science", code: "ISL-201", score: 65, grade: "C", credits: 3 },
-                  { id: "EXM-005", subject: "Arabic Language", code: "ARB-102", score: 88, grade: "A", credits: 3 },
-                  { id: "EXM-006", subject: "Computer Science", code: "CSC-204", score: 95, grade: "A+", credits: 4 }
+                  { id: "EXM-001", subject: "Mathematics", code: "MAT-301", score: 85, grade: "A", credits: 4, sem: "Sem 5" },
+                  { id: "EXM-002", subject: "Physics", code: "PHY-302", score: 78, grade: "B+", credits: 4, sem: "Sem 5" },
+                  { id: "EXM-003", subject: "English", code: "ENG-101", score: 92, grade: "A+", credits: 3, sem: "Sem 5" },
+                  { id: "EXM-004", subject: "Moral Science", code: "ISL-201", score: 65, grade: "C", credits: 3, sem: "Sem 5" },
+                  { id: "EXM-005", subject: "Arabic Language", code: "ARB-102", score: 88, grade: "A", credits: 3, sem: "Sem 5" },
+                  { id: "EXM-006", subject: "Computer Science", code: "CSC-204", score: 95, grade: "A+", credits: 4, sem: "Sem 5" }
                 ];
                 updated = true;
               }
@@ -1170,10 +1170,18 @@
           <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-base font-extrabold text-slate-900">Course Grades & Marks Sheet for ${student.name}</h3>
-              <button onclick="promptAddCourseForStudent('${student.id}')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-600 font-bold text-xs border border-brand-100/60 shadow-sm transition-all hover:scale-105">
-                ${icon('plus', 'w-3.5 h-3.5')}
-                <span>Add Subject</span>
-              </button>
+              <div class="flex items-center space-x-3">
+                <!-- Semester Selector Dropdown Option -->
+                <select onchange="changeSelectedSemester(this.value)" class="p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+                  ${["Sem 1", "Sem 2", "Sem 3", "Sem 4", "Sem 5", "Sem 6", "Sem 7", "Sem 8"].map(sem => `
+                    <option value="${sem}" ${state.selectedSem === sem ? 'selected' : ''}>${sem}</option>
+                  `).join('')}
+                </select>
+                <button onclick="promptAddCourseForStudent('${student.id}')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-600 font-bold text-xs border border-brand-100/60 shadow-sm transition-all hover:scale-105">
+                  ${icon('plus', 'w-3.5 h-3.5')}
+                  <span>Add Subject</span>
+                </button>
+              </div>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse text-xs min-w-[500px]">
@@ -1186,7 +1194,9 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
-                  ${student.exams.map((item, idx) => `
+                  ${student.exams.map((item, idx) => ({ item, idx }))
+                    .filter(entry => (entry.item.sem || "Sem 5") === state.selectedSem)
+                    .map(({ item, idx }) => `
                     <tr class="hover:bg-slate-50/80 transition-colors">
                       <td class="py-3 px-3 font-bold text-slate-800">
                         <p>${item.subject}</p>
@@ -1547,7 +1557,15 @@
           <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-base font-extrabold text-slate-900">Semester Course Scores</h3>
-              <span class="text-xs font-bold text-brand-600">Sem 5 • CGPA: ${calculateStudentCGPA(student)}</span>
+              <div class="flex items-center space-x-3">
+                <!-- Semester Selector Dropdown Option -->
+                <select onchange="changeSelectedSemester(this.value)" class="p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+                  ${["Sem 1", "Sem 2", "Sem 3", "Sem 4", "Sem 5", "Sem 6", "Sem 7", "Sem 8"].map(sem => `
+                    <option value="${sem}" ${state.selectedSem === sem ? 'selected' : ''}>${sem}</option>
+                  `).join('')}
+                </select>
+                <span class="text-xs font-bold text-brand-600">CGPA: ${calculateStudentCGPA(student)}</span>
+              </div>
             </div>
 
             <div class="w-full overflow-hidden">
@@ -1560,7 +1578,7 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
-                  ${student.exams.map(item => `
+                  ${student.exams.filter(item => (item.sem || "Sem 5") === state.selectedSem).map(item => `
                     <tr class="hover:bg-slate-50/80 transition-colors">
                       <td class="py-3 px-3 font-bold text-slate-800">
                         <p class="break-words line-clamp-2">${item.subject}</p>
@@ -2490,6 +2508,11 @@
       renderApp();
     }
 
+    function changeSelectedSemester(val) {
+      state.selectedSem = val;
+      renderApp();
+    }
+
     const MONTH_MAP = {
       "August": "08", "September": "09", "October": "10", "November": "11", "December": "12",
       "January": "01", "February": "02", "March": "03", "April": "04", "May": "05", "June": "06", "July": "07"
@@ -3139,7 +3162,7 @@
         score,
         grade,
         credits,
-        sem: "Sem 5"
+        sem: state.selectedSem || "Sem 5"
       });
       
       alert(`Successfully added ${subject} (Grade: ${grade}) to ${student.name}'s records!`);
