@@ -1648,45 +1648,50 @@
       if (state.activeGraphTag === "analytics") {
         return `
           <div class="space-y-6">
-            <!-- 1. Attendance Graph Card -->
-            <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60">
-              <div class="flex items-center justify-between mb-3">
+            <!-- Responsive Grid of all three graphs -->
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              
+              <!-- 1. Attendance Graph Card -->
+              <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60 flex flex-col justify-between">
                 <div>
-                  <h4 class="font-extrabold text-slate-900 text-sm">Attendance vs Leave Days</h4>
+                  <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-extrabold text-slate-900 text-sm">Attendance vs Leaves</h4>
+                    <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Target: 90%+</span>
+                  </div>
+                  <div class="h-56 w-full relative">
+                    <canvas id="attendanceCanvas"></canvas>
+                  </div>
                 </div>
-                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Target: 90%+</span>
               </div>
-              <div class="h-56 w-full relative">
-                <canvas id="attendanceCanvas"></canvas>
-              </div>
-            </div>
 
-            <!-- 2. Academic Performance Graph Card -->
-            <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60">
-              <div class="flex items-center justify-between mb-3">
+              <!-- 2. Academic Performance Graph Card -->
+              <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60 flex flex-col justify-between">
                 <div>
-                  <h4 class="font-extrabold text-slate-900 text-sm">Academic Performance</h4>
+                  <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-extrabold text-slate-900 text-sm">Academic Performance</h4>
+                  </div>
+                  <div class="h-56 w-full relative">
+                    <canvas id="examCanvas"></canvas>
+                  </div>
                 </div>
               </div>
-              <div class="h-56 w-full relative">
-                <canvas id="examCanvas"></canvas>
-              </div>
-            </div>
 
-            <!-- 3. Fund Graph Card -->
-            <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60">
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+              <!-- 3. Fund Graph Card -->
+              <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60 flex flex-col justify-between md:col-span-2 xl:col-span-1">
                 <div>
-                  <h4 class="font-extrabold text-slate-900 text-sm">Students' Fund Flow</h4>
-                </div>
-                <div class="flex items-center space-x-2 text-[10px]">
-                  <span class="px-2 py-1 bg-slate-900 text-white rounded-lg font-bold">Credits: ${formatINR(fin.totalCredits)}</span>
-                  <span class="px-2 py-1 bg-slate-300 text-slate-800 rounded-lg font-bold">Debits: ${formatINR(fin.totalDebits)}</span>
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                    <h4 class="font-extrabold text-slate-900 text-sm">Students' Fund Flow</h4>
+                    <div class="flex items-center space-x-2 text-[10px]">
+                      <span class="px-2 py-1 bg-slate-900 text-white rounded-lg font-bold">Credits: ${formatINR(fin.totalCredits)}</span>
+                      <span class="px-2 py-1 bg-slate-300 text-slate-800 rounded-lg font-bold">Debits: ${formatINR(fin.totalDebits)}</span>
+                    </div>
+                  </div>
+                  <div class="h-56 w-full relative">
+                    <canvas id="bankCanvas"></canvas>
+                  </div>
                 </div>
               </div>
-              <div class="h-56 w-full relative">
-                <canvas id="bankCanvas"></canvas>
-              </div>
+
             </div>
           </div>
         `;
