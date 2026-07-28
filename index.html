@@ -238,6 +238,7 @@
       adminActiveTab: "overview",
       activeGraphTag: "analytics",
       selectedSem: "Sem 5",
+      attendanceFilterMonth: "August 2026",
       
       currentStudentId: "MSH-2026-0001",
 
@@ -445,10 +446,25 @@
           let needsRemoteUpdate = false;
           state.students.forEach(s => {
             let updated = false;
-            if (s.attendanceRate !== 0) {
-              s.attendanceRate = 0;
-              updated = true;
+            
+            // Re-calculate or default attendance rate
+            s.attendanceRecords = s.attendanceRecords || {};
+            const recordCount = Object.keys(s.attendanceRecords).length;
+            if (recordCount === 0) {
+              if (s.attendanceRate !== 0.0) {
+                s.attendanceRate = 0.0;
+                updated = true;
+              }
+            } else {
+              const vals = Object.values(s.attendanceRecords);
+              const presents = vals.filter(v => v === "Present").length;
+              const rate = parseFloat(((presents / recordCount) * 100).toFixed(1));
+              if (s.attendanceRate !== rate) {
+                s.attendanceRate = rate;
+                updated = true;
+              }
             }
+
             if (s.class && s.class.toLowerCase().includes('geenesis')) {
               s.class = s.class.replace(/geenesis/gi, 'genesis');
               updated = true;
@@ -512,10 +528,25 @@
           if (parsed.students) {
             state.students = parsed.students.map(s => {
               let updated = false;
-              if (s.attendanceRate !== 0) {
-                s.attendanceRate = 0;
-                updated = true;
+              
+              // Re-calculate or default attendance rate
+              s.attendanceRecords = s.attendanceRecords || {};
+              const recordCount = Object.keys(s.attendanceRecords).length;
+              if (recordCount === 0) {
+                if (s.attendanceRate !== 0.0) {
+                  s.attendanceRate = 0.0;
+                  updated = true;
+                }
+              } else {
+                const vals = Object.values(s.attendanceRecords);
+                const presents = vals.filter(v => v === "Present").length;
+                const rate = parseFloat(((presents / recordCount) * 100).toFixed(1));
+                if (s.attendanceRate !== rate) {
+                  s.attendanceRate = rate;
+                  updated = true;
+                }
               }
+
               if (s.class && s.class.toLowerCase().includes('geenesis')) {
                 s.class = s.class.replace(/geenesis/gi, 'genesis');
                 updated = true;
@@ -1169,6 +1200,32 @@
               </table>
             </div>
           </div>
+
+          <!-- ATTENDANCE REGISTER CARD -->
+          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+              <div>
+                <h3 class="text-base font-extrabold text-slate-900">Daily Attendance Register for ${student.name}</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Select a month starting from August 2026 to mark presence/absence. Click days to cycle states (Present ➔ Absent ➔ Unmarked).</p>
+              </div>
+              
+              <!-- Month Selector Dropdown -->
+              <select onchange="changeAttendanceFilterMonth(this.value)" class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+                ${[
+                  "August 2026", "September 2026", "October 2026", "November 2026", "December 2026",
+                  "January 2027", "February 2027", "March 2027", "April 2027", "May 2027", "June 2027", "July 2027"
+                ].map(m => `
+                  <option value="${m}" ${state.attendanceFilterMonth === m ? 'selected' : ''}>${m}</option>
+                `).join('')}
+              </select>
+            </div>
+
+            <!-- Calendar grid of dates for the selected month -->
+            <div class="grid grid-cols-3 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 gap-3 max-h-[350px] overflow-y-auto pr-1">
+              ${generateAttendanceDaysGrid(student, state.attendanceFilterMonth || "August 2026")}
+            </div>
+          </div>
+
         </div>
       `;
     }
@@ -2145,6 +2202,25 @@
         // Attendance Chart
         const attCanvas = document.getElementById("attendanceCanvas");
         if (attCanvas) {
+          const monthPrefixes = [
+            "2026-08", "2026-09", "2026-10", "2026-11", "2026-12",
+            "2027-01", "2027-02"
+          ];
+          
+          student.attendanceRecords = student.attendanceRecords || {};
+          const attendanceData = monthPrefixes.map(prefix => {
+            const keys = Object.keys(student.attendanceRecords).filter(k => k.startsWith(prefix));
+            if (keys.length === 0) return 0;
+            const presents = keys.filter(k => student.attendanceRecords[k] === "Present").length;
+            return parseFloat(((presents / keys.length) * 100).toFixed(1));
+          });
+
+          const leavesData = monthPrefixes.map(prefix => {
+            student.leaves = student.leaves || [];
+            const approved = student.leaves.filter(l => l.status === "Approved" && l.startDate && l.startDate.startsWith(prefix));
+            return approved.reduce((acc, l) => acc + (Number(l.days) || 0), 0);
+          });
+
           if (chartInstances.attendance) chartInstances.attendance.destroy();
           chartInstances.attendance = new Chart(attCanvas.getContext('2d'), {
             type: 'line',
@@ -2153,7 +2229,7 @@
               datasets: [
                 {
                   label: 'Attendance Rate (%)',
-                  data: [student.attendanceRate, 0, 0, 0, 0, 0, 0],
+                  data: attendanceData,
                   borderColor: '#2563eb',
                   backgroundColor: 'rgba(37, 99, 235, 0.05)',
                   borderWidth: 2,
@@ -2164,7 +2240,7 @@
                 },
                 {
                   label: 'Leaves (Days)',
-                  data: [student.totalLeaveDays, 0, 0, 0, 0, 0, 0],
+                  data: leavesData,
                   borderColor: '#f59e0b',
                   backgroundColor: 'transparent',
                   borderWidth: 1.5,
@@ -2321,6 +2397,96 @@
     function switchStudentAccount(studentId) {
       state.currentStudentId = studentId;
       renderApp();
+    }
+
+    function changeAttendanceFilterMonth(val) {
+      state.attendanceFilterMonth = val;
+      renderApp();
+    }
+
+    const MONTH_MAP = {
+      "August": "08", "September": "09", "October": "10", "November": "11", "December": "12",
+      "January": "01", "February": "02", "March": "03", "April": "04", "May": "05", "June": "06", "July": "07"
+    };
+
+    function getDaysInMonthString(monthStr) {
+      const parts = monthStr.split(' ');
+      const month = parts[0];
+      
+      const dayCounts = {
+        "August": 31, "September": 30, "October": 31, "November": 30, "December": 31,
+        "January": 31, "February": 28, "March": 31, "April": 30, "May": 31, "June": 30, "July": 31
+      };
+      
+      return dayCounts[month] || 30;
+    }
+
+    function toggleAttendanceStatus(studentId, dateKey) {
+      const student = state.students.find(s => s.id === studentId);
+      if (!student) return;
+      
+      student.attendanceRecords = student.attendanceRecords || {};
+      const current = student.attendanceRecords[dateKey];
+      
+      if (!current) {
+        student.attendanceRecords[dateKey] = "Present";
+      } else if (current === "Present") {
+        student.attendanceRecords[dateKey] = "Absent";
+      } else {
+        delete student.attendanceRecords[dateKey];
+      }
+      
+      // Recalculate attendanceRate
+      const vals = Object.values(student.attendanceRecords);
+      const recordCount = vals.length;
+      if (recordCount === 0) {
+        student.attendanceRate = 0.0;
+      } else {
+        const presents = vals.filter(v => v === "Present").length;
+        student.attendanceRate = parseFloat(((presents / recordCount) * 100).toFixed(1));
+      }
+      
+      student.lastUpdated = Date.now();
+      saveState();
+      renderApp();
+    }
+
+    function generateAttendanceDaysGrid(student, filterMonth) {
+      const daysCount = getDaysInMonthString(filterMonth);
+      const parts = filterMonth.split(' ');
+      const mName = parts[0];
+      const year = parts[1];
+      const mIdx = MONTH_MAP[mName];
+      
+      student.attendanceRecords = student.attendanceRecords || {};
+      
+      let html = '';
+      for (let d = 1; d <= daysCount; d++) {
+        const dStr = d < 10 ? `0${d}` : `${d}`;
+        const dateKey = `${year}-${mIdx}-${dStr}`;
+        const status = student.attendanceRecords[dateKey];
+        
+        let statusClass = "bg-white border-slate-200 hover:bg-slate-50 text-slate-700";
+        if (status === "Present") {
+          statusClass = "bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500 shadow-sm";
+        } else if (status === "Absent") {
+          statusClass = "bg-rose-500 hover:bg-rose-600 text-white border-rose-500 shadow-sm";
+        }
+        
+        const shortDateLabel = `${mName.substring(0, 3)} ${dStr}`;
+        
+        html += `
+          <button
+            onclick="toggleAttendanceStatus('${student.id}', '${dateKey}')"
+            class="flex flex-col items-center justify-center p-2.5 rounded-2xl border text-center transition-all hover:scale-105 active:scale-95 cursor-pointer min-h-[64px] ${statusClass}"
+            title="Date: ${dateKey} - Click to toggle status"
+          >
+            <span class="text-[9px] uppercase font-bold opacity-80">${shortDateLabel}</span>
+            <span class="text-xs font-black mt-1">${status || "—"}</span>
+          </button>
+        `;
+      }
+      return html;
     }
 
     function quickLogin(role) {
