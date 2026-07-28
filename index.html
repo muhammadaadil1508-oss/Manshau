@@ -1443,6 +1443,19 @@
             </div>
           </div>
 
+          <!-- Performance Analytics Graph Card -->
+          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+            <div class="flex items-center space-x-3 mb-4">
+              <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
+                ${icon('activity', 'w-4 h-4')}
+              </div>
+              <h3 class="text-sm font-extrabold text-slate-900">Academic Score Analytics</h3>
+            </div>
+            <div class="h-56 w-full relative">
+              <canvas id="examCanvas"></canvas>
+            </div>
+          </div>
+
           <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-base font-extrabold text-slate-900">Semester Course Scores</h3>
@@ -1583,6 +1596,25 @@
             </div>
           </div>
 
+          <!-- Fund Analytics Graph Card -->
+          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+                  ${icon('activity', 'w-4 h-4')}
+                </div>
+                <h3 class="text-sm font-extrabold text-slate-900">Wallet Credits & Debits Flow</h3>
+              </div>
+              <div class="flex items-center space-x-2 text-[10px]">
+                <span class="px-2 py-1 bg-slate-900 text-white rounded-lg font-bold">Credits: ${formatINR(fin.totalCredits)}</span>
+                <span class="px-2 py-1 bg-slate-300 text-slate-800 rounded-lg font-bold">Debits: ${formatINR(fin.totalDebits)}</span>
+              </div>
+            </div>
+            <div class="h-56 w-full relative">
+              <canvas id="bankCanvas"></canvas>
+            </div>
+          </div>
+
           <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
             <h3 class="text-base font-extrabold text-slate-900 mb-4">Transaction History & Payment Ledger</h3>
             <div class="space-y-2">
@@ -1616,68 +1648,16 @@
       if (state.activeGraphTag === "analytics") {
         return `
           <div class="space-y-6">
-            <!-- 2x2 Grid of Minimal Graphs -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <!-- 1. Attendance Graph Card -->
-              <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60">
-                <div class="flex items-center justify-between mb-3">
-                  <div>
-                    <h4 class="font-extrabold text-slate-900 text-sm">Attendance vs Leave Days</h4>
-                  </div>
-                  <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Target: 90%+</span>
+            <!-- 1. Attendance Graph Card -->
+            <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60">
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <h4 class="font-extrabold text-slate-900 text-sm">Attendance vs Leave Days</h4>
                 </div>
-                <div class="h-56 w-full relative">
-                  <canvas id="attendanceCanvas"></canvas>
-                </div>
+                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Target: 90%+</span>
               </div>
-
-              <!-- 2. Exams Metric Card -->
-              <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60 flex flex-col justify-between">
-                <div class="flex items-center justify-between mb-3">
-                  <div>
-                    <h4 class="font-extrabold text-slate-900 text-sm">Academic Performance</h4>
-                  </div>
-                </div>
-                <div class="h-44 w-full relative">
-                  <canvas id="examCanvas"></canvas>
-                </div>
-              </div>
-
-              <!-- 3. Financial Ledger Graph Card -->
-              <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60 lg:col-span-2">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                  <div>
-                    <h4 class="font-extrabold text-slate-900 text-sm">Students' Fund</h4>
-                  </div>
-                  <div class="flex items-center space-x-2 text-[10px]">
-                    <span class="px-2 py-1 bg-slate-900 text-white rounded-lg font-bold">Credits: ${formatINR(fin.totalCredits)}</span>
-                    <span class="px-2 py-1 bg-slate-300 text-slate-800 rounded-lg font-bold">Debits: ${formatINR(fin.totalDebits)}</span>
-                  </div>
-                </div>
-                <div class="h-48 w-full relative mb-4">
-                  <canvas id="bankCanvas"></canvas>
-                </div>
-
-                <!-- Transaction list integrated minimally -->
-                <details class="group bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden transition-all duration-300">
-                  <summary class="flex items-center justify-between p-3 cursor-pointer select-none">
-                    <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-2">
-                      ${icon('landmark', 'w-3.5 h-3.5 text-slate-400')}
-                      <span>Show Recent Ledger Transactions</span>
-                    </span>
-                    ${icon('chevron-down', 'w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform')}
-                  </summary>
-                  <div class="p-3 border-t border-slate-50 space-y-2 max-h-40 overflow-y-auto pr-1">
-                    ${student.transactions.map(t => `
-                      <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 text-[11px]">
-                        <span class="font-bold text-slate-800">${t.description} (${t.date})</span>
-                        <span class="font-black ${t.type === "Credit" ? "text-emerald-600" : "text-rose-600"}">
-                          ${t.type === "Credit" ? `+${formatINR(t.amount)}` : `-${formatINR(t.amount)}`}
-                        </span>
-                      </div>
-                    `).join('')}
-                  </div>
-                </details>
+              <div class="h-56 w-full relative">
+                <canvas id="attendanceCanvas"></canvas>
               </div>
             </div>
           </div>
