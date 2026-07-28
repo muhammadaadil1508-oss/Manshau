@@ -266,7 +266,14 @@
           avatarBg: "from-brand-600 to-sky-400",
           lastUpdated: Date.now(),
           transactions: [],
-          exams: [],
+          exams: [
+            { id: "EXM-001", subject: "Mathematics", code: "MAT-301", score: 85, grade: "A", credits: 4 },
+            { id: "EXM-002", subject: "Physics", code: "PHY-302", score: 78, grade: "B+", credits: 4 },
+            { id: "EXM-003", subject: "English", code: "ENG-101", score: 92, grade: "A+", credits: 3 },
+            { id: "EXM-004", subject: "Moral Science", code: "ISL-201", score: 65, grade: "C", credits: 3 },
+            { id: "EXM-005", subject: "Arabic Language", code: "ARB-102", score: 88, grade: "A", credits: 3 },
+            { id: "EXM-006", subject: "Computer Science", code: "CSC-204", score: 95, grade: "A+", credits: 4 }
+          ],
           leaves: []
         }
       ],
@@ -450,6 +457,17 @@
               s.transactions = [];
               updated = true;
             }
+            if (s.id === "MSH-2026-0001" && (!s.exams || s.exams.length === 0)) {
+              s.exams = [
+                { id: "EXM-001", subject: "Mathematics", code: "MAT-301", score: 85, grade: "A", credits: 4 },
+                { id: "EXM-002", subject: "Physics", code: "PHY-302", score: 78, grade: "B+", credits: 4 },
+                { id: "EXM-003", subject: "English", code: "ENG-101", score: 92, grade: "A+", credits: 3 },
+                { id: "EXM-004", subject: "Moral Science", code: "ISL-201", score: 65, grade: "C", credits: 3 },
+                { id: "EXM-005", subject: "Arabic Language", code: "ARB-102", score: 88, grade: "A", credits: 3 },
+                { id: "EXM-006", subject: "Computer Science", code: "CSC-204", score: 95, grade: "A+", credits: 4 }
+              ];
+              updated = true;
+            }
             if (updated) {
               s.lastUpdated = Date.now();
               needsRemoteUpdate = true;
@@ -504,6 +522,17 @@
               }
               if (s.transactions && s.transactions.length > 0) {
                 s.transactions = [];
+                updated = true;
+              }
+              if (s.id === "MSH-2026-0001" && (!s.exams || s.exams.length === 0)) {
+                s.exams = [
+                  { id: "EXM-001", subject: "Mathematics", code: "MAT-301", score: 85, grade: "A", credits: 4 },
+                  { id: "EXM-002", subject: "Physics", code: "PHY-302", score: 78, grade: "B+", credits: 4 },
+                  { id: "EXM-003", subject: "English", code: "ENG-101", score: 92, grade: "A+", credits: 3 },
+                  { id: "EXM-004", subject: "Moral Science", code: "ISL-201", score: 65, grade: "C", credits: 3 },
+                  { id: "EXM-005", subject: "Arabic Language", code: "ARB-102", score: 88, grade: "A", credits: 3 },
+                  { id: "EXM-006", subject: "Computer Science", code: "CSC-204", score: 95, grade: "A+", credits: 4 }
+                ];
                 updated = true;
               }
               if (updated) {
