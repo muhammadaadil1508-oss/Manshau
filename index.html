@@ -1281,10 +1281,6 @@
                   <span>Total Debits:</span>
                   <span>${formatINR(fin.totalDebits)}</span>
                 </div>
-                <div class="p-3.5 rounded-2xl bg-slate-900 text-white font-bold flex justify-between">
-                  <span>Pending Dues Balance:</span>
-                  <span>${formatINR(fin.pendingDues)}</span>
-                </div>
               </div>
             </div>
           </div>
@@ -1572,11 +1568,11 @@
                 STUDENTS' FUND (INR ₹)
               </span>
               <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">${student.name}'s Fund Manager</h2>
-              <p class="text-xs text-slate-500">Track paid fees, credits, scholarships, and pending institution dues in Indian Rupees (₹)</p>
+              <p class="text-xs text-slate-500">Track paid fees, credits, scholarships, and funds in Indian Rupees (₹)</p>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="p-5 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md">
               <p class="text-xs font-semibold opacity-90">Total Bank Credits</p>
               <p class="text-3xl font-black mt-1">${formatINR(fin.totalCredits)}</p>
@@ -1584,10 +1580,6 @@
             <div class="p-5 rounded-3xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-md">
               <p class="text-xs font-semibold opacity-90">Total Debits</p>
               <p class="text-3xl font-black mt-1">${formatINR(fin.totalDebits)}</p>
-            </div>
-            <div class="p-5 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-md">
-              <p class="text-xs font-semibold opacity-90">Pending Dues Balance</p>
-              <p class="text-3xl font-black mt-1">${formatINR(fin.pendingDues)}</p>
             </div>
           </div>
 
@@ -1660,7 +1652,6 @@
                   <div class="flex items-center space-x-2 text-[10px]">
                     <span class="px-2 py-1 bg-slate-900 text-white rounded-lg font-bold">Credits: ${formatINR(fin.totalCredits)}</span>
                     <span class="px-2 py-1 bg-slate-300 text-slate-800 rounded-lg font-bold">Debits: ${formatINR(fin.totalDebits)}</span>
-                    <span class="px-2 py-1 bg-amber-100 text-amber-800 rounded-lg font-bold">Dues: ${formatINR(fin.pendingDues)}</span>
                   </div>
                 </div>
                 <div class="h-48 w-full relative mb-4">
