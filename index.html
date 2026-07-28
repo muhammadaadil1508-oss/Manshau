@@ -2540,6 +2540,9 @@
         }, 0);
         student.attendanceRate = parseFloat(((presents / recordCount) * 100).toFixed(1));
       }
+
+      // Recalculate totalLeaveDays
+      recalculateStudentLeaves(student);
       
       student.lastUpdated = Date.now();
       saveState();
@@ -2623,6 +2626,23 @@
         `;
       }
       return html;
+    }
+
+    function recalculateStudentLeaves(student) {
+      student.leaves = student.leaves || [];
+      const approvedDays = student.leaves
+        .filter(l => l.status === "Approved")
+        .reduce((acc, l) => acc + (Number(l.days) || 0), 0);
+      
+      student.attendanceRecords = student.attendanceRecords || {};
+      const attendanceAbsences = Object.values(student.attendanceRecords)
+        .reduce((acc, v) => {
+          if (v === "Absent") return acc + 1.0;
+          if (v === "Half Day") return acc + 0.5;
+          return acc;
+        }, 0);
+        
+      student.totalLeaveDays = approvedDays + attendanceAbsences;
     }
 
     function quickLogin(role) {
@@ -2870,7 +2890,11 @@
       if (student) {
         const leave = student.leaves.find(l => l.id === leaveId);
         if (leave) leave.status = newStatus;
+        
+        recalculateStudentLeaves(student);
+        
         student.lastUpdated = Date.now();
+        saveState();
         renderApp();
       }
     }
@@ -2879,7 +2903,11 @@
       const student = state.students.find(s => s.id === studentId);
       if (student) {
         student.leaves = student.leaves.filter(l => l.id !== leaveId);
+        
+        recalculateStudentLeaves(student);
+        
         student.lastUpdated = Date.now();
+        saveState();
         renderApp();
       }
     }
