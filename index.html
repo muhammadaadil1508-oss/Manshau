@@ -425,10 +425,24 @@
           const dbIds = dbStudents.map(s => s.id);
           state.students = state.students.filter(s => dbIds.includes(s.id));
 
+          // Force all user attendance rates to 0
+          let needsRemoteUpdate = false;
+          state.students.forEach(s => {
+            if (s.attendanceRate !== 0) {
+              s.attendanceRate = 0;
+              s.lastUpdated = Date.now();
+              needsRemoteUpdate = true;
+            }
+          });
+
           state.announcements = announcements;
           lastFetchedStateStr = remoteStr;
           isBackendActive = true;
           saveStateLocalOnly();
+
+          if (needsRemoteUpdate) {
+            saveState(); // Propagate zeroed attendance back to Firestore
+          }
 
           if (!isUserActivelyEditing()) {
             renderApp();
@@ -456,7 +470,15 @@
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          if (parsed.students) state.students = parsed.students;
+          if (parsed.students) {
+            state.students = parsed.students.map(s => {
+              if (s.attendanceRate !== 0) {
+                s.attendanceRate = 0;
+                s.lastUpdated = Date.now();
+              }
+              return s;
+            });
+          }
           if (parsed.announcements) state.announcements = parsed.announcements;
           if (parsed.currentStudentId) state.currentStudentId = parsed.currentStudentId;
           if (parsed.role) state.role = parsed.role;
