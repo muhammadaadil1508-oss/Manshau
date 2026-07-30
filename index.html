@@ -1153,10 +1153,9 @@
             <div class="max-w-4xl mx-auto w-full flex justify-start sm:justify-around items-center overflow-x-auto scrollbar-none gap-2 px-2 py-0.5">
               ${[
                 { id: "overview", label: "Overview", labelMobile: "Overview", iconName: "layout-dashboard" },
-                { id: "students", label: "Student Roster & Auth", labelMobile: "Roster", iconName: "users" },
                 { id: "academics", label: "Academics & Exams", labelMobile: "Academic", iconName: "bookOpen" },
                 { id: "leaves", label: "Leave Approvals", labelMobile: "Leaves", iconName: "check-square" },
-                { id: "finance", label: "Bank Ledger (â‚¹)", labelMobile: "Ledger", iconName: "landmark" },
+                { id: "finance", label: "Bank Ledger (₹)", labelMobile: "Ledger", iconName: "landmark" },
                 { id: "broadcast", label: "Broadcaster", labelMobile: "Broadcast", iconName: "radio" },
               ].map(item => {
                 const isActive = state.adminActiveTab === item.id;
@@ -1195,7 +1194,6 @@
     // --- ADMIN NAVIGATION VIEW ROUTER ---
     function renderActiveAdminNavView(student, fin) {
       if (state.adminActiveTab === "overview") return renderAdminOverviewView(fin);
-      if (state.adminActiveTab === "students") return renderAdminStudentsView();
       if (state.adminActiveTab === "academics") return renderAdminAcademicsView(student);
       if (state.adminActiveTab === "leaves") return renderAdminLeavesView(student);
       if (state.adminActiveTab === "finance") return renderAdminFinanceView(student, fin);
@@ -1508,8 +1506,19 @@
               </div>
             </div>
 
+            <!-- 7 ROUNDED RECTANGULAR DAY HEADERS (BRIGHT BLUE WITH WHITE TEXT) -->
+            <div class="grid grid-cols-7 gap-2 mb-3 mt-4">
+              <div class="py-2.5 rounded-xl bg-blue-600 text-white font-extrabold text-xs text-center shadow-sm tracking-wider">SUN</div>
+              <div class="py-2.5 rounded-xl bg-blue-600 text-white font-extrabold text-xs text-center shadow-sm tracking-wider">MON</div>
+              <div class="py-2.5 rounded-xl bg-blue-600 text-white font-extrabold text-xs text-center shadow-sm tracking-wider">TUE</div>
+              <div class="py-2.5 rounded-xl bg-blue-600 text-white font-extrabold text-xs text-center shadow-sm tracking-wider">WED</div>
+              <div class="py-2.5 rounded-xl bg-blue-600 text-white font-extrabold text-xs text-center shadow-sm tracking-wider">THU</div>
+              <div class="py-2.5 rounded-xl bg-blue-600 text-white font-extrabold text-xs text-center shadow-sm tracking-wider">FRI</div>
+              <div class="py-2.5 rounded-xl bg-blue-600 text-white font-extrabold text-xs text-center shadow-sm tracking-wider">SAT</div>
+            </div>
+
             <!-- Calendar grid of dates for the selected month -->
-            <div class="grid grid-cols-5 sm:grid-cols-7 md:grid-cols-8 lg:grid-cols-10 gap-2">
+            <div class="grid grid-cols-7 gap-2">
               ${generateAttendanceDaysGrid(student, state.attendanceFilterMonth || "August 2026")}
             </div>
           </div>
@@ -2074,8 +2083,19 @@
               </select>
             </div>
 
+            <!-- 7 ROUNDED RECTANGULAR DAY HEADERS (BRIGHT BLUE WITH WHITE TEXT) -->
+            <div class="grid grid-cols-7 gap-2 mb-3 mt-4">
+              <div class="py-2.5 rounded-xl bg-blue-600 text-white font-extrabold text-xs text-center shadow-sm tracking-wider">SUN</div>
+              <div class="py-2.5 rounded-xl bg-blue-600 text-white font-extrabold text-xs text-center shadow-sm tracking-wider">MON</div>
+              <div class="py-2.5 rounded-xl bg-blue-600 text-white font-extrabold text-xs text-center shadow-sm tracking-wider">TUE</div>
+              <div class="py-2.5 rounded-xl bg-blue-600 text-white font-extrabold text-xs text-center shadow-sm tracking-wider">WED</div>
+              <div class="py-2.5 rounded-xl bg-blue-600 text-white font-extrabold text-xs text-center shadow-sm tracking-wider">THU</div>
+              <div class="py-2.5 rounded-xl bg-blue-600 text-white font-extrabold text-xs text-center shadow-sm tracking-wider">FRI</div>
+              <div class="py-2.5 rounded-xl bg-blue-600 text-white font-extrabold text-xs text-center shadow-sm tracking-wider">SAT</div>
+            </div>
+
             <!-- Calendar grid of dates for the selected month (No inner scrolling) -->
-            <div class="grid grid-cols-5 sm:grid-cols-7 md:grid-cols-8 lg:grid-cols-10 gap-2">
+            <div class="grid grid-cols-7 gap-2">
               ${generateAttendanceDaysGrid(student, state.attendanceFilterMonth || "August 2026")}
             </div>
           </div>
@@ -3347,9 +3367,19 @@
       const year = parts[1];
       const mIdx = MONTH_MAP[mName];
       
+      // Calculate first day of month (0: Sun, 1: Mon, ..., 6: Sat)
+      const firstDayDate = new Date(`${mName} 1, ${year}`);
+      const firstDayOfWeek = firstDayDate.getDay();
+
       student.attendanceRecords = student.attendanceRecords || {};
       
       let html = '';
+
+      // Render empty offset cells before Day 1
+      for (let i = 0; i < firstDayOfWeek; i++) {
+        html += `<div class="h-10 w-full rounded-xl bg-slate-50/50 border border-slate-100/50"></div>`;
+      }
+
       for (let d = 1; d <= daysCount; d++) {
         const dStr = d < 10 ? `0${d}` : `${d}`;
         const dateKey = `${year}-${mIdx}-${dStr}`;
