@@ -2109,17 +2109,8 @@
                 <h3 class="text-base font-extrabold text-slate-900">Transaction History</h3>
               </div>
 
-              <!-- Filter Controls (Category & Date) -->
+              <!-- Filter Controls (Date Filter) -->
               <div class="flex items-center space-x-2.5 flex-wrap gap-y-2">
-                <!-- Category Filter -->
-                <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
-                  <span class="text-[10px] font-bold text-slate-400 px-2">Category:</span>
-                  <select onchange="changeFundCategoryFilter(this.value)" class="p-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 focus:outline-none">
-                    <option value="All" ${catFilter === 'All' ? 'selected' : ''}>All Categories</option>
-                    ${categories.map(c => `<option value="${c}" ${catFilter === c ? 'selected' : ''}>${c}</option>`).join('')}
-                  </select>
-                </div>
-
                 <!-- Date Filter -->
                 <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
                   <span class="text-[10px] font-bold text-slate-400 px-2">Date:</span>
