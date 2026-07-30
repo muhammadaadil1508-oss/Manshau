@@ -825,10 +825,13 @@
                   class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white hover:bg-slate-50 border border-slate-200/80 shadow-sm transition-all hover:scale-105 flex flex-shrink-0 items-center justify-center text-slate-600"
                   title="Academic Notifications & Alerts"
                 >
-                  ${icon('bell', 'w-4.5 h-4.5 text-slate-600')}
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+                  </svg>
                   ${unreadCount > 0 ? `
-                    <span class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center animate-bounce shadow-sm">
-                      ${String(unreadCount).padStart(2, '0')}
+                    <span class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+                      ${unreadCount > 9 ? '9+' : unreadCount}
                     </span>
                   ` : ''}
                 </button>
