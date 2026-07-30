@@ -1823,7 +1823,7 @@
               </div>
             </div>
 
-            <!-- DYNAMIC SEMESTER HERO STAT CARDS (RANK WITH MEDAL COLORS, GRADE & TOTAL MARKS) -->
+            <!-- DYNAMIC SEMESTER HERO STAT CARDS (RANK WITH MEDAL COLORS, COLORED GRADE & COLORED TOTAL MARKS) -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
               <!-- Class Rank Card -->
               <div class="rounded-2xl ${rankCardStyle} p-5 text-center flex flex-col items-center justify-center transition-all duration-300">
@@ -1831,18 +1831,18 @@
                 <p class="text-3xl ${rankValueStyle} mt-1">#${rank}</p>
               </div>
 
-              <!-- Grade Card (Normal Clean Styling) -->
-              <div class="rounded-2xl bg-white border border-slate-200 p-5 text-center shadow-sm flex flex-col items-center justify-center">
-                <p class="text-[11px] uppercase font-extrabold text-slate-400 tracking-wider">Grade</p>
-                <p class="text-3xl font-black text-slate-900 mt-1">${pct}%</p>
-                <p class="text-[10px] text-slate-500 font-extrabold mt-0.5">${grade} Grade</p>
+              <!-- Grade Card (Vibrant Emerald Gradient Styling) -->
+              <div class="rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-5 text-center shadow-md border border-emerald-400/40 flex flex-col items-center justify-center">
+                <p class="text-[11px] uppercase font-extrabold text-emerald-100 tracking-wider">Grade</p>
+                <p class="text-3xl font-black text-white mt-1">${pct}%</p>
+                <p class="text-[10px] text-emerald-100 font-extrabold mt-0.5">${grade} Grade</p>
               </div>
 
-              <!-- Total Marks Card (Normal Clean Styling) -->
-              <div class="rounded-2xl bg-white border border-slate-200 p-5 text-center shadow-sm flex flex-col items-center justify-center">
-                <p class="text-[11px] uppercase font-extrabold text-slate-400 tracking-wider">Total Marks</p>
-                <p class="text-3xl font-black text-slate-900 mt-1">${totalScore}</p>
-                <p class="text-[10px] text-slate-400 font-bold mt-0.5">out of ${maxScore}</p>
+              <!-- Total Marks Card (Vibrant Brand Blue Gradient Styling) -->
+              <div class="rounded-2xl bg-gradient-to-br from-brand-600 to-indigo-700 text-white p-5 text-center shadow-md border border-brand-400/40 flex flex-col items-center justify-center">
+                <p class="text-[11px] uppercase font-extrabold text-blue-100 tracking-wider">Total Marks</p>
+                <p class="text-3xl font-black text-white mt-1">${totalScore}</p>
+                <p class="text-[10px] text-blue-100 font-bold mt-0.5">out of ${maxScore}</p>
               </div>
             </div>
           </div>
@@ -1904,6 +1904,25 @@
                     </tr>
                   `).join('')}
                 </tbody>
+
+                <!-- GRAND TOTAL FOOTER ROW UNDER ALL SUBJECTS -->
+                ${semExams.length > 0 ? `
+                  <tfoot class="border-t-2 border-slate-200 bg-slate-50/90 font-black">
+                    <tr class="text-slate-900">
+                      <td class="py-3 px-3 uppercase font-extrabold tracking-wider text-xs">
+                        Grand Total (${state.selectedSem})
+                      </td>
+                      <td class="py-3 px-3 text-center font-black text-sm text-slate-900">
+                        ${totalScore} / ${maxScore}
+                      </td>
+                      <td class="py-3 px-3 text-center">
+                        <span class="px-3 py-1 rounded-lg text-xs font-black bg-brand-600 text-white shadow-sm">
+                          ${pct}% (${grade})
+                        </span>
+                      </td>
+                    </tr>
+                  </tfoot>
+                ` : ''}
               </table>
             </div>
           </div>
