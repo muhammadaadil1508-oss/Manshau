@@ -2051,7 +2051,8 @@
           const dashPct   = dashMax > 0 ? ((dashTotal / dashMax) * 100).toFixed(1) : '0.0';
           const dashGrade = dashExams.length > 0 ? getGradeFromScore(parseFloat(dashPct)) : 'N/A';
 
-          const allAvgs = state.students.map(st => {
+          const sameClassStudents = state.students.filter(st => (st.class || '') === (student.class || 'Genesis 01'));
+          const allAvgs = sameClassStudents.map(st => {
             const exs = (st.exams || []).filter(e => (e.sem || 'Sem 4') === state.selectedSem);
             return exs.length ? exs.reduce((s, e) => s + (e.score || 0), 0) / exs.length : 0;
           }).sort((a, b) => b - a);
@@ -2131,12 +2132,8 @@
       const pct        = maxScore > 0 ? ((totalScore / maxScore) * 100).toFixed(1) : '0.0';
       const grade      = semExams.length > 0 ? getGradeFromScore(parseFloat(pct)) : 'N/A';
       
-      const selectedBatch = state.selectedBatchFilter || "All";
-      const batchStudents = selectedBatch === "All" 
-        ? state.students 
-        : state.students.filter(st => (st.class || '').toLowerCase().includes(selectedBatch.toLowerCase().replace('genesis ', '')));
-        
-      const allAvgs    = batchStudents.map(st => {
+      const sameClassStudents = state.students.filter(st => (st.class || '') === (student.class || 'Genesis 01'));
+      const allAvgs = sameClassStudents.map(st => {
         const exs = (st.exams || []).filter(e => (e.sem || 'Sem 4') === state.selectedSem);
         return exs.length ? exs.reduce((s, e) => s + (e.score || 0), 0) / exs.length : 0;
       }).sort((a, b) => b - a);
