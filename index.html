@@ -1805,57 +1805,60 @@
             </div>
           </div>
 
-          <!-- TRANSACTION INJECTION & HISTORY -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-              <h3 class="text-base font-extrabold text-slate-900 mb-4 flex items-center space-x-2">
-                ${icon('landmark', 'w-5 h-5 text-emerald-600')}
-                <span>Add Transaction for ${student.name}</span>
-              </h3>
+          <!-- TRANSACTION INJECTION -->
+          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+            <h3 class="text-base font-extrabold text-slate-900 mb-4 flex items-center space-x-2">
+              ${icon('landmark', 'w-5 h-5 text-emerald-600')}
+              <span>Add Transaction for ${student.name}</span>
+            </h3>
 
-              <form onsubmit="handleAdminInjectTxnForStudent(event, '${student.id}')" class="space-y-3 text-xs">
-                <div>
-                  <label class="block font-bold text-slate-700 mb-1">Transaction Type</label>
-                  <select id="adminTxnType" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-bold">
-                    <option value="Credit">+ Credit Transaction (INR)</option>
-                    <option value="Debit">- Debit Charge (INR)</option>
-                  </select>
-                </div>
+            <form onsubmit="handleAdminInjectTxnForStudent(event, '${student.id}')" class="space-y-3 text-xs">
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Transaction Type</label>
+                <select id="adminTxnType" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-bold">
+                  <option value="Credit">+ Cash In (INR)</option>
+                  <option value="Debit">- Cash Out (INR)</option>
+                </select>
+              </div>
 
-                <div>
-                  <label class="block font-bold text-slate-700 mb-1">Transaction Description</label>
-                  <input type="text" id="adminTxnDesc" required placeholder="e.g. Tuition Fee Payment" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
-                </div>
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Amount (₹)</label>
+                <input type="number" id="adminTxnAmount" required placeholder="2500" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
+              </div>
 
-                <div>
-                  <label class="block font-bold text-slate-700 mb-1">Amount (₹)</label>
-                  <input type="number" id="adminTxnAmount" required placeholder="2500" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
-                </div>
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Description <span class="text-slate-400 font-normal">(optional)</span></label>
+                <input type="text" id="adminTxnDesc" placeholder="e.g. Tuition Fee Payment" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
+              </div>
 
-                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 rounded-xl transition-all shadow-md shadow-emerald-500/20">
-                  Add Transaction to Fund (₹)
-                </button>
-              </form>
-            </div>
+              <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 rounded-xl transition-all shadow-md shadow-emerald-500/20">
+                Add Transaction to Fund (₹)
+              </button>
+            </form>
+          </div>
 
-            <!-- TRANSACTION LIST -->
-            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-              <h3 class="text-base font-extrabold text-slate-900 mb-4">${student.name}'s Fund Ledger</h3>
-              <div class="space-y-3 text-xs max-h-[350px] overflow-y-auto pr-1">
-                ${(!student.transactions || student.transactions.length === 0) ? `
-                  <p class="text-slate-400 font-bold text-center py-8">No transactions recorded for ${student.name}.</p>
-                ` : student.transactions.map(t => `
-                  <div class="p-3.5 rounded-2xl bg-white border border-slate-100 flex items-center justify-between shadow-xs">
-                    <div>
-                      <p class="font-bold text-slate-800">${t.description}</p>
-                      <p class="text-[10px] text-slate-400 font-semibold mt-0.5">${t.date} &bull; <span class="text-brand-600">${t.category || 'General'}</span></p>
-                    </div>
+          <!-- TRANSACTION HISTORY -->
+          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+            <h3 class="text-base font-extrabold text-slate-900 mb-4">${student.name}'s Fund History</h3>
+            <div class="space-y-3 text-xs max-h-[400px] overflow-y-auto pr-1">
+              ${(!student.transactions || student.transactions.length === 0) ? `
+                <p class="text-slate-400 font-bold text-center py-8">No transactions recorded for ${student.name}.</p>
+              ` : student.transactions.map((t, tIdx) => `
+                <div class="p-3.5 rounded-2xl bg-white border border-slate-100 flex items-center justify-between shadow-xs gap-2">
+                  <div class="flex-1 min-w-0">
+                    <p class="font-bold text-slate-800 truncate">${t.description || (t.type === 'Credit' ? 'Cash In' : 'Cash Out')}</p>
+                    <p class="text-[10px] text-slate-400 font-semibold mt-0.5">${t.date} &bull; <span class="${t.type === 'Credit' ? 'text-emerald-600' : 'text-rose-600'}">${t.type === 'Credit' ? 'Cash In' : 'Cash Out'}</span></p>
+                  </div>
+                  <div class="flex items-center space-x-2 flex-shrink-0">
                     <span class="font-black text-sm ${t.type === 'Credit' ? 'text-emerald-600' : 'text-rose-600'}">
                       ${t.type === 'Credit' ? '+' : '-'}${formatINR(t.amount)}
                     </span>
+                    <button onclick="deleteTxnForStudent('${student.id}', ${tIdx})" class="p-1.5 rounded-lg hover:bg-rose-50 text-rose-400 hover:text-rose-600 transition-colors" title="Delete">
+                      ${icon('trash-2', 'w-3.5 h-3.5')}
+                    </button>
                   </div>
-                `).join('')}
-              </div>
+                </div>
+              `).join('')}
             </div>
           </div>
         </div>
@@ -4592,24 +4595,32 @@
       renderApp();
     }
 
-
-
     function handleAdminInjectTxnForStudent(e, studentId) {
       e.preventDefault();
       const student = state.students.find(s => s.id === studentId) || getCurrentStudent();
       const type = document.getElementById("adminTxnType").value;
-      const desc = document.getElementById("adminTxnDesc").value;
+      const desc = document.getElementById("adminTxnDesc").value.trim();
       const amount = parseFloat(document.getElementById("adminTxnAmount").value);
+      if (!amount || isNaN(amount)) return;
       student.transactions.unshift({
         id: `TXN-${Math.floor(100 + Math.random() * 900)}`,
         date: new Date().toISOString().split('T')[0],
-        description: desc,
+        description: desc || (type === 'Credit' ? 'Cash In' : 'Cash Out'),
         type: type,
         amount: amount,
-        category: "Admin Simulator"
+        category: type === 'Credit' ? 'Cash In' : 'Cash Out'
       });
       student.lastUpdated = Date.now();
-      alert(`Transaction of â‚¹${amount} injected into ${student.name}'s live ledger!`);
+      saveState();
+      renderApp();
+    }
+
+    function deleteTxnForStudent(studentId, index) {
+      const student = state.students.find(s => s.id === studentId);
+      if (!student || !student.transactions[index]) return;
+      student.transactions.splice(index, 1);
+      student.lastUpdated = Date.now();
+      saveState();
       renderApp();
     }
 
