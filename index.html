@@ -1797,22 +1797,22 @@
               </div>
             </div>
 
-            <!-- DYNAMIC SEMESTER HERO STAT CARDS (TOTAL MARKS, GRADE & RANK) -->
+            <!-- DYNAMIC SEMESTER HERO STAT CARDS (RANK, GRADE & TOTAL MARKS) -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-              <div class="rounded-2xl bg-gradient-to-br from-brand-50 to-blue-50/60 border border-brand-100 p-5 text-center shadow-sm">
-                <p class="text-[11px] uppercase font-extrabold text-brand-500 tracking-wider">Total Marks (${state.selectedSem})</p>
-                <p class="text-3xl font-black text-brand-700 mt-1">${totalScore}</p>
-                <p class="text-[10px] text-brand-400 font-bold mt-0.5">out of ${maxScore}</p>
+              <div class="rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/60 border border-amber-100 p-5 text-center shadow-sm">
+                <p class="text-[11px] uppercase font-extrabold text-amber-600 tracking-wider">Class Rank (${selectedBatch})</p>
+                <p class="text-3xl font-black text-amber-700 mt-1">#${rank}</p>
+                <p class="text-[10px] text-amber-500 font-bold mt-0.5">out of ${batchStudents.length} in ${selectedBatch === 'All' ? 'Institute' : selectedBatch}</p>
               </div>
               <div class="rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50/60 border border-emerald-100 p-5 text-center shadow-sm">
                 <p class="text-[11px] uppercase font-extrabold text-emerald-600 tracking-wider">Grade & Percentage (${state.selectedSem})</p>
                 <p class="text-3xl font-black text-emerald-700 mt-1">${pct}%</p>
                 <p class="text-[10px] text-emerald-500 font-bold mt-0.5">${grade} Grade</p>
               </div>
-              <div class="rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/60 border border-amber-100 p-5 text-center shadow-sm">
-                <p class="text-[11px] uppercase font-extrabold text-amber-600 tracking-wider">Class Rank (${selectedBatch})</p>
-                <p class="text-3xl font-black text-amber-700 mt-1">#${rank}</p>
-                <p class="text-[10px] text-amber-500 font-bold mt-0.5">out of ${batchStudents.length} in ${selectedBatch === 'All' ? 'Institute' : selectedBatch}</p>
+              <div class="rounded-2xl bg-gradient-to-br from-brand-50 to-blue-50/60 border border-brand-100 p-5 text-center shadow-sm">
+                <p class="text-[11px] uppercase font-extrabold text-brand-500 tracking-wider">Total Marks (${state.selectedSem})</p>
+                <p class="text-3xl font-black text-brand-700 mt-1">${totalScore}</p>
+                <p class="text-[10px] text-brand-400 font-bold mt-0.5">out of ${maxScore}</p>
               </div>
             </div>
           </div>
