@@ -47,18 +47,12 @@
 
   <!-- Optional Chart.js for canvas rendering -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <!-- Client-side HTML-to-PDF Conversion Library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <!-- Cropper.js CDN for 1:1 Square Profile Photo Cropping -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
   <style>
     body {
       background: radial-gradient(circle at 50% 0%, #f1f5f9 0%, #f8fafc 50%, #eff6ff 100%);
       min-height: 100vh;
       font-family: 'Plus Jakarta Sans', sans-serif;
-      padding-bottom: 80px !important; /* Permanent bottom padding for sticky footer */
     }
 
     .glass-card {
@@ -82,26 +76,6 @@
     }
     .nav-item-lift:hover {
       transform: translateX(5px);
-    }
-
-    /* Mobile Sticky Footer styles - Rectangular Alignment */
-    .mobile-sticky-footer {
-      position: fixed !important;
-      bottom: 0.75rem !important;
-      left: 50% !important;
-      transform: translateX(-50%) !important;
-      width: min(40rem, 94%) !important;
-      z-index: 9999 !important;
-      background: transparent !important;
-    }
-
-    .admin-sticky-footer {
-      position: fixed !important;
-      bottom: 0 !important;
-      left: 0 !important;
-      width: 100% !important;
-      z-index: 9999 !important;
-      background-color: #0f172a !important;
     }
 
     @keyframes shimmerGradient {
@@ -191,20 +165,14 @@
     }
 
     function formatINR(amount) {
-      return 'â‚¹' + Number(amount).toLocaleString('en-IN');
+      return '₹' + Number(amount).toLocaleString('en-IN');
     }
 
     function getStudentAvatarHtml(student, sizeClass = "w-10 h-10 text-sm ring-2 ring-brand-400 shadow-sm", initialsSizeClass = "text-sm") {
-      if (student && student.photoUrl) {
-        return `<img src="${student.photoUrl}" class="${sizeClass} rounded-full object-cover" alt="${student.name || 'User'}" />`;
+      if (student.photoUrl) {
+        return `<img src="${student.photoUrl}" class="${sizeClass} rounded-full object-cover" alt="${student.name}" />`;
       } else {
-        const cleanSizeClass = sizeClass.replace('object-cover', '').replace('rounded-xl', 'rounded-full');
-        return `<div class="${cleanSizeClass} rounded-full bg-slate-50 border border-slate-200/80 text-slate-400 flex items-center justify-center shadow-inner transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-1/2 h-1/2 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-            <circle cx="12" cy="7" r="4" />
-          </svg>
-        </div>`;
+        return `<div class="${sizeClass} rounded-full bg-gradient-to-tr ${student.avatarBg || 'from-brand-600 to-sky-400'} text-white flex items-center justify-center font-black ${initialsSizeClass}">${student.avatarInitials}</div>`;
       }
     }
 
@@ -246,11 +214,11 @@
       role: "student",
       activeTab: "dashboard",
       adminActiveTab: "overview",
-      activeGraphTag: "analytics",      selectedSem: "Sem 4",
-      attendanceFilterMonth: "August 2026",
+      activeGraphTag: "analytics",
+      selectedSem: "Sem 5",
       
       currentStudentId: "MSH-2026-0001",
- 
+
       coFactors: [
         { metric: "Behavioral Rating & Character", score: 94, status: "Excellent" },
         { metric: "Islamic Studies & Moral Conduct", score: 96, status: "Outstanding" },
@@ -276,21 +244,14 @@
           avatarBg: "from-brand-600 to-sky-400",
           lastUpdated: Date.now(),
           transactions: [],
-          exams: [
-            { id: "EXM-001", subject: "Mathematics", code: "MAT-301", score: 85, grade: "A", credits: 4, sem: "Sem 4" },
-            { id: "EXM-002", subject: "Physics", code: "PHY-302", score: 78, grade: "B+", credits: 4, sem: "Sem 4" },
-            { id: "EXM-003", subject: "English", code: "ENG-101", score: 92, grade: "A+", credits: 3, sem: "Sem 4" },
-            { id: "EXM-004", subject: "Moral Science", code: "ISL-201", score: 65, grade: "C", credits: 3, sem: "Sem 4" },
-            { id: "EXM-005", subject: "Arabic Language", code: "ARB-102", score: 88, grade: "A", credits: 3, sem: "Sem 4" },
-            { id: "EXM-006", subject: "Computer Science", code: "CSC-204", score: 95, grade: "A+", credits: 4, sem: "Sem 4" }
-          ],
+          exams: [],
           leaves: []
         }
       ],
 
       announcements: [
         { id: 1, title: "Final Semester Examination Timetable Released", date: "Today, 02:30 PM", category: "Academic", urgency: "High", read: false, content: "The schedule for Mid-Term Assessment & Final Papers has been published on the student portal. Download your hall ticket by Friday." },
-        { id: 2, title: "Annual Science & Tech Fest 'Antigravity 2026' Registrations Open", date: "Yesterday, 11:15 AM", category: "Event", urgency: "Normal", read: false, content: "Participate in AI coding hackathons, robotics challenges, and paper presentations. Cash prizes worth â‚¹50,000." },
+        { id: 2, title: "Annual Science & Tech Fest 'Antigravity 2026' Registrations Open", date: "Yesterday, 11:15 AM", category: "Event", urgency: "Normal", read: false, content: "Participate in AI coding hackathons, robotics challenges, and paper presentations. Cash prizes worth ₹50,000." },
         { id: 3, title: "Campus Central Library Timings Extended", date: "July 03, 09:00 AM", category: "Facility", urgency: "Normal", read: true, content: "During examination weeks, the library will remain open 24/7 with tea & study pod facilities available." }
       ],
 
@@ -300,18 +261,13 @@
         notification: false,
         addStudent: false,
         editStudent: false,
-        addSubject: false,
-        editSubject: false,
       },
-      addSubjectStudentId: "",
-      editSubjectStudentId: "",
-      editSubjectIndex: -1,
       editingStudentId: ""
     };
 
     const STORAGE_KEY = "manshau_erp_state_v8";
 
-    // Firebase à´•àµà´²à´¯à´¨àµà´±àµ à´†à´°à´‚à´­à´¿à´•àµà´•àµà´¨àµà´¨àµ
+    // Firebase ക്ലയന്റ് ആരംഭിക്കുന്നു
     const firebaseConfig = {
       apiKey: "AIzaSyAErR-u6nKGhele8Re9rrH7oKpZi98mBz0",
       authDomain: "manshau-408d3.firebaseapp.com",
@@ -456,66 +412,10 @@
           const dbIds = dbStudents.map(s => s.id);
           state.students = state.students.filter(s => dbIds.includes(s.id));
 
-          // Force all user attendance rates to 0, rename class Geenesis to genesis, and empty transactions
-          let needsRemoteUpdate = false;
-          state.students.forEach(s => {
-            let updated = false;
-            
-            // Re-calculate or default attendance rate
-            s.attendanceRecords = s.attendanceRecords || {};
-            const recordCount = Object.keys(s.attendanceRecords).length;
-            if (recordCount === 0) {
-              if (s.attendanceRate !== 0.0) {
-                s.attendanceRate = 0.0;
-                updated = true;
-              }
-            } else {
-              const vals = Object.values(s.attendanceRecords);
-              const presents = vals.reduce((acc, v) => {
-                if (v === "Present") return acc + 1.0;
-                if (v === "Half Day") return acc + 0.5;
-                return acc;
-              }, 0);
-              const rate = parseFloat(((presents / recordCount) * 100).toFixed(1));
-              if (s.attendanceRate !== rate) {
-                s.attendanceRate = rate;
-                updated = true;
-              }
-            }
-
-            if (s.class && s.class.toLowerCase().includes('geenesis')) {
-              s.class = s.class.replace(/geenesis/gi, 'genesis');
-              updated = true;
-            }
-            if (s.transactions && s.transactions.length > 0) {
-              s.transactions = [];
-              updated = true;
-            }
-            if (s.id === "MSH-2026-0001" && (!s.exams || s.exams.length === 0)) {
-              s.exams = [
-                { id: "EXM-001", subject: "Mathematics", code: "MAT-301", score: 85, grade: "A", credits: 4, sem: "Sem 4" },
-                { id: "EXM-002", subject: "Physics", code: "PHY-302", score: 78, grade: "B+", credits: 4, sem: "Sem 4" },
-                { id: "EXM-003", subject: "English", code: "ENG-101", score: 92, grade: "A+", credits: 3, sem: "Sem 4" },
-                { id: "EXM-004", subject: "Moral Science", code: "ISL-201", score: 65, grade: "C", credits: 3, sem: "Sem 4" },
-                { id: "EXM-005", subject: "Arabic Language", code: "ARB-102", score: 88, grade: "A", credits: 3, sem: "Sem 4" },
-                { id: "EXM-006", subject: "Computer Science", code: "CSC-204", score: 95, grade: "A+", credits: 4, sem: "Sem 4" }
-              ];
-              updated = true;
-            }
-            if (updated) {
-              s.lastUpdated = Date.now();
-              needsRemoteUpdate = true;
-            }
-          });
-
           state.announcements = announcements;
           lastFetchedStateStr = remoteStr;
           isBackendActive = true;
           saveStateLocalOnly();
-
-          if (needsRemoteUpdate) {
-            saveState(); // Propagate zeroed attendance back to Firestore
-          }
 
           if (!isUserActivelyEditing()) {
             renderApp();
@@ -543,57 +443,7 @@
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          if (parsed.students) {
-            state.students = parsed.students.map(s => {
-              let updated = false;
-              
-              // Re-calculate or default attendance rate
-              s.attendanceRecords = s.attendanceRecords || {};
-              const recordCount = Object.keys(s.attendanceRecords).length;
-              if (recordCount === 0) {
-                if (s.attendanceRate !== 0.0) {
-                  s.attendanceRate = 0.0;
-                  updated = true;
-                }
-              } else {
-                const vals = Object.values(s.attendanceRecords);
-                const presents = vals.reduce((acc, v) => {
-                  if (v === "Present") return acc + 1.0;
-                  if (v === "Half Day") return acc + 0.5;
-                  return acc;
-                }, 0);
-                const rate = parseFloat(((presents / recordCount) * 100).toFixed(1));
-                if (s.attendanceRate !== rate) {
-                  s.attendanceRate = rate;
-                  updated = true;
-                }
-              }
-
-              if (s.class && s.class.toLowerCase().includes('geenesis')) {
-                s.class = s.class.replace(/geenesis/gi, 'genesis');
-                updated = true;
-              }
-              if (s.transactions && s.transactions.length > 0) {
-                s.transactions = [];
-                updated = true;
-              }
-              if (s.id === "MSH-2026-0001" && (!s.exams || s.exams.length === 0)) {
-                s.exams = [
-                  { id: "EXM-001", subject: "Mathematics", code: "MAT-301", score: 85, grade: "A", credits: 4, sem: "Sem 4" },
-                  { id: "EXM-002", subject: "Physics", code: "PHY-302", score: 78, grade: "B+", credits: 4, sem: "Sem 4" },
-                  { id: "EXM-003", subject: "English", code: "ENG-101", score: 92, grade: "A+", credits: 3, sem: "Sem 4" },
-                  { id: "EXM-004", subject: "Moral Science", code: "ISL-201", score: 65, grade: "C", credits: 3, sem: "Sem 4" },
-                  { id: "EXM-005", subject: "Arabic Language", code: "ARB-102", score: 88, grade: "A", credits: 3, sem: "Sem 4" },
-                  { id: "EXM-006", subject: "Computer Science", code: "CSC-204", score: 95, grade: "A+", credits: 4, sem: "Sem 4" }
-                ];
-                updated = true;
-              }
-              if (updated) {
-                s.lastUpdated = Date.now();
-              }
-              return s;
-            });
-          }
+          if (parsed.students) state.students = parsed.students;
           if (parsed.announcements) state.announcements = parsed.announcements;
           if (parsed.currentStudentId) state.currentStudentId = parsed.currentStudentId;
           if (parsed.role) state.role = parsed.role;
@@ -689,6 +539,7 @@
                     <span class="font-extrabold text-slate-900 text-lg tracking-tight">MANSHAU</span>
                     ${state.role === 'admin' ? '<span class="bg-brand-50 text-brand-600 text-[11px] px-2.5 py-0.5 rounded-full font-bold border border-brand-100">ERP 2.0</span>' : ''}
                   </div>
+                  <p class="text-[10px] text-slate-600 font-semibold">Educational Institute Platform</p>
                 </div>
               </div>
 
@@ -696,7 +547,6 @@
               <div class="flex items-center space-x-3 sm:space-x-4">
                 
                 <!-- DATABASE PERSISTENCE STATUS BADGE -->
-                ${state.role === 'admin' ? `
                 <div id="dbStatusBadge" class="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-[10px] font-extrabold border shadow-sm ${
                   isBackendActive 
                     ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
@@ -710,14 +560,36 @@
                   </span>
                   <span>${isBackendActive ? "Firebase Synced" : "Local Storage Mode"}</span>
                 </div>
-                ` : ''}
                 
                 <!-- LIVE 12-HOUR CLOCK PILL -->
                 <div class="hidden sm:flex items-center space-x-2 bg-slate-100/90 px-3.5 py-1.5 rounded-full text-xs font-extrabold text-slate-700 border border-slate-200/80 shadow-inner">
                   ${icon('clock', 'w-4 h-4 text-brand-600 animate-pulse')}
                   <span id="liveClockPill">${get12HourTimeString()}</span>
+                </div>                 <!-- Role Switcher Toggle -->
+                <div class="bg-slate-100 p-1 rounded-xl flex items-center space-x-1 border border-slate-200/80 shadow-inner">
+                  <button
+                    onclick="setRole('student')"
+                    class="flex items-center space-x-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-lg text-xs font-bold transition-all duration-300 ${
+                      state.role === "student"
+                        ? "bg-white text-brand-600 shadow-sm"
+                        : "text-slate-500 hover:text-slate-800"
+                    }"
+                  >
+                    ${icon('user', 'w-3.5 h-3.5')}
+                    <span class="hidden sm:inline">Student View</span>
+                  </button>
+                  <button
+                    onclick="setRole('admin')"
+                    class="flex items-center space-x-1.5 px-2.5 py-1.5 sm:px-3 sm:py-1.5 rounded-lg text-xs font-bold transition-all duration-300 ${
+                      state.role === "admin"
+                        ? "bg-slate-900 text-white shadow-sm"
+                        : "text-slate-500 hover:text-slate-800"
+                    }"
+                  >
+                    ${icon('shield', 'w-3.5 h-3.5')}
+                    <span class="hidden sm:inline">Admin Panel</span>
+                  </button>
                 </div>
-
 
                 <!-- NOTIFICATION BELL ICON -->
                 <button 
@@ -733,72 +605,21 @@
                   ` : ''}
                 </button>
 
-                <!-- PROFILE MENU IN HEADER TOP RIGHT -->
-                <div class="relative">
-                  <button
-                    id="headerProfileBtn"
-                    onclick="toggleHeaderProfileMenu()"
-                    class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white hover:bg-slate-50 border-2 border-brand-500/80 shadow-sm transition-all hover:scale-105 p-0.5 flex flex-shrink-0 items-center justify-center group"
-                    title="User Profile & Settings"
-                  >
-                    ${getStudentAvatarHtml(currentStudent, "w-full h-full rounded-full object-cover", "text-xs")}
-                    <span class="absolute -bottom-0.5 -right-0.5 bg-white rounded-full p-0.5 border border-slate-200 shadow-sm text-slate-400 group-hover:text-slate-600 flex items-center justify-center">
-                      ${icon('chevron-down', 'w-2.5 h-2.5')}
-                    </span>
-                  </button>
-
-                  <!-- PROFILE DROPDOWN MENU -->
-                  <div id="headerProfileMenu" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-anti-gravity-lg border border-slate-100 overflow-hidden z-50 animate-fade-in-up">
-                    <div class="p-3 bg-gradient-to-r from-brand-50/60 to-slate-50 border-b border-slate-100">
-                      <div class="flex items-center space-x-3">
-                        ${getStudentAvatarHtml(currentStudent, "w-10 h-10 rounded-full object-cover ring-2 ring-brand-400 shadow-sm", "text-sm")}
-                        <div class="overflow-hidden">
-                          <p class="font-extrabold text-slate-900 text-xs truncate">${currentStudent.name}</p>
-                          <p class="text-[10px] text-slate-500 font-semibold truncate">${currentStudent.id} &bull; ${state.role === 'admin' ? 'Admin' : 'Student'}</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="p-1.5 space-y-0.5 text-xs">
-                      <button onclick="toggleModal('profile', true); closeHeaderProfileMenu()" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl font-bold text-slate-700 hover:bg-brand-50 hover:text-brand-600 transition-colors text-left">
-                        ${icon('user', 'w-4 h-4 text-brand-500')}
-                        <span>View Profile Details</span>
-                      </button>
-
-                      <div class="border-t border-slate-100 my-1"></div>
-                      <p class="px-3 pt-1 pb-0.5 text-[9px] uppercase font-extrabold text-slate-400 tracking-wider">Switch View</p>
-
-                      <button onclick="setRole('student'); closeHeaderProfileMenu()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl font-bold ${state.role === 'student' ? 'bg-brand-50 text-brand-600' : 'text-slate-700 hover:bg-slate-50'} transition-colors text-left">
-                        <div class="flex items-center space-x-2.5">
-                          ${icon('user-check', 'w-4 h-4 text-brand-500')}
-                          <span>Student View</span>
-                        </div>
-                        ${state.role === 'student' ? '<span class="w-2 h-2 rounded-full bg-brand-600"></span>' : ''}
-                      </button>
-
-                      <button onclick="setRole('admin'); closeHeaderProfileMenu()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl font-bold ${state.role === 'admin' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-50'} transition-colors text-left">
-                        <div class="flex items-center space-x-2.5">
-                          ${icon('shield', 'w-4 h-4 text-brand-500')}
-                          <span>Admin Panel</span>
-                        </div>
-                        ${state.role === 'admin' ? '<span class="w-2 h-2 rounded-full bg-emerald-400"></span>' : ''}
-                      </button>
-
-                      <div class="border-t border-slate-100 my-1"></div>
-
-                      <button onclick="logout(); closeHeaderProfileMenu()" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl font-bold text-rose-600 hover:bg-rose-50 transition-colors text-left">
-                        ${icon('log-out', 'w-4 h-4 text-rose-500')}
-                        <span>Log Out</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <!-- Logout Button -->
+                <button
+                  onclick="logout()"
+                  class="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition-all font-bold text-xs flex items-center space-x-1"
+                  title="Sign Out"
+                >
+                  ${icon('log-out', 'w-4 h-4')}
+                  <span class="hidden sm:inline">Logout</span>
+                </button>
               </div>
             </div>
           </header>
 
           <!-- Main Body Stage -->
-          <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-28">
+          <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
             ${state.role === "student" ? renderStudentPortal(currentStudent, fin) : renderAdminPortal(currentStudent, fin)}
           </main>
 
@@ -893,7 +714,7 @@
                       type="password"
                       id="loginPassword"
                       required
-                      placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                      placeholder="••••••••"
                       class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:outline-none font-medium text-slate-900 bg-white"
                     />
                   </div>
@@ -920,43 +741,94 @@
     // --- MAIN STUDENT PORTAL ---
     function renderStudentPortal(student, fin) {
       return `
-        <div class="max-w-7xl mx-auto w-full">
-          <!-- MAIN CONTENT STAGE ROUTER -->
-          <div class="w-full">
-            ${renderActiveNavView(student, fin)}
-          </div>
+        <div class="flex flex-col lg:flex-row gap-8">
+          <!-- Floating Sidebar -->
+          <aside class="w-full lg:w-64 flex-shrink-0">
+            <div class="glass-card rounded-3xl p-4 shadow-anti-gravity anti-gravity-card border border-white sticky lg:top-20">
+              
+              <!-- Student Switcher Dropdown in Student View -->
+              <div class="mb-4">
+                <label class="block text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">Switch Student Account</label>
+                <select 
+                  onchange="switchStudentAccount(this.value)"
+                  class="w-full p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                >
+                  ${state.students.map(s => `
+                    <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>
+                      ${s.name} (${s.username})
+                    </option>
+                  `).join('')}
+                </select>
+              </div>
 
-          <!-- PERMANENT STICKY RECTANGULAR NAVIGATION BAR -->
-          <nav class="mobile-sticky-footer">
-            <div class="glass-card bg-white/95 backdrop-blur-xl border border-slate-200/90 p-1.5 sm:p-2 rounded-2xl shadow-anti-gravity-lg">
-              <div class="grid grid-cols-4 gap-1 sm:gap-2 w-full">
+              <div class="px-3 py-1.5 text-[11px] font-extrabold tracking-wider text-slate-600 uppercase hidden lg:block">
+                Student Navigation
+              </div>
+
+              <nav class="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:space-y-1.5 mt-1 pb-2 lg:pb-0 scrollbar-none">
                 ${[
-                  { id: "dashboard", label: "Dashboard", labelMobile: "Dashboard", iconName: "layout-dashboard" },
-                  { id: "examination", label: "Examination", labelMobile: "Exams", iconName: "file-spreadsheet" },
-                  { id: "leaves", label: "Leaves", labelMobile: "Leaves", iconName: "plane-landing" },
-                  { id: "bank", label: "Fund", labelMobile: "Fund", iconName: "wallet" }
+                  { id: "dashboard", label: "Dashboard", iconName: "layout-dashboard" },
+                  { id: "examination", label: "Examination", iconName: "file-spreadsheet" },
+                  { id: "leaves", label: "Leave Taken", iconName: "plane-landing" },
+                  { id: "bank", label: "Bank Credits", iconName: "wallet" }
                 ].map(item => {
                   const isActive = state.activeTab === item.id;
                   return `
                     <button
                       onclick="setActiveTab('${item.id}')"
-                      class="w-full py-2.5 sm:py-3 px-1 sm:px-2 rounded-xl font-extrabold text-[11px] sm:text-xs transition-all duration-300 flex items-center justify-center space-x-1 sm:space-x-2 border text-center ${
+                      class="whitespace-nowrap flex-shrink-0 flex items-center space-x-2 px-3.5 py-2 lg:w-full lg:space-x-3 lg:px-3.5 lg:py-2.5 rounded-xl font-semibold text-xs lg:text-sm transition-all duration-300 nav-item-lift ${
                         isActive
-                          ? "bg-brand-600 text-white border-brand-600 shadow-md shadow-brand-500/25 scale-[1.02]"
-                          : "bg-slate-50/80 text-slate-600 border-slate-200/80 hover:bg-slate-100 hover:text-slate-900 hover:border-slate-300"
+                          ? "bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-md shadow-brand-500/25 font-bold"
+                          : "text-slate-600 hover:bg-brand-50/70 hover:text-brand-600"
                       }"
                     >
-                      ${icon(item.iconName, `w-4 h-4 flex-shrink-0 ${isActive ? "text-white" : "text-slate-400"}`)}
-                      <span class="truncate">
-                        <span class="hidden sm:inline">${item.label}</span>
-                        <span class="inline sm:hidden">${item.labelMobile}</span>
-                      </span>
+                      ${icon(item.iconName, `w-3.5 h-3.5 lg:w-4 lg:h-4 ${isActive ? "text-white" : "text-slate-400"}`)}
+                      <span>${item.label}</span>
                     </button>
                   `;
                 }).join('')}
+              </nav>
+
+              <div class="hidden lg:block">
+                <div class="my-4 border-t border-slate-100"></div>
+
+                <!-- Anchored Identity Board -->
+                <div 
+                  onclick="toggleModal('profile', true)"
+                  class="group p-3 rounded-2xl bg-gradient-to-b from-slate-50 to-brand-50/30 border border-slate-100 hover:border-brand-200 cursor-pointer transition-all duration-300 shadow-sm"
+                >
+                  <div class="flex items-center space-x-3">
+                    <div class="relative">
+                      ${getStudentAvatarHtml(student, "w-10 h-10 ring-2 ring-brand-400 shadow-sm", "text-sm")}
+                      <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full ring-2 ring-white ${
+                        student.status === "Present" ? "bg-emerald-500" : "bg-amber-500"
+                      }"></span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-xs font-bold text-slate-900 truncate group-hover:text-brand-600 transition-colors">
+                        ${student.name}
+                      </p>
+                      <p class="text-[11px] text-slate-500 truncate">${student.id}</p>
+                    </div>
+                    ${icon('chevron-right', 'w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform')}
+                  </div>
+                </div>
+
+                <button
+                  onclick="logout()"
+                  class="mt-3 w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-all"
+                >
+                  ${icon('log-out', 'w-3.5 h-3.5 text-slate-400')}
+                  <span>Sign Out Account</span>
+                </button>
               </div>
             </div>
-          </nav>
+          </aside>
+
+          <!-- MAIN CONTENT STAGE ROUTER -->
+          <div class="flex-1 min-w-0">
+            ${renderActiveNavView(student, fin)}
+          </div>
         </div>
       `;
     }
@@ -964,43 +836,75 @@
     // --- MAIN ADMIN PORTAL WITH NAVIGATION SIDEBAR ---
     function renderAdminPortal(student, fin) {
       return `
-        <div class="max-w-7xl mx-auto w-full">
+        <div class="flex flex-col lg:flex-row gap-8">
+          <!-- ADMIN NAVIGATION SIDEBAR -->
+          <aside class="w-full lg:w-64 flex-shrink-0">
+            <div class="glass-card rounded-3xl p-4 shadow-anti-gravity anti-gravity-card border border-white sticky lg:top-20 bg-slate-900 text-white">
+              <div class="px-3 py-2 text-[11px] font-extrabold tracking-wider text-slate-400 uppercase flex items-center justify-between hidden lg:flex">
+                <span>Admin Command</span>
+                <span class="relative flex h-2 w-2">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+              </div>
+
+              <nav class="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:space-y-1.5 mt-1 pb-2 lg:pb-0 scrollbar-none">
+                ${[
+                  { id: "overview", label: "Overview", iconName: "layout-dashboard" },
+                  { id: "students", label: "Student Roster & Auth", iconName: "users" },
+                  { id: "academics", label: "Academics & Exams", iconName: "bookOpen" },
+                  { id: "leaves", label: "Leave Approvals", iconName: "check-square" },
+                  { id: "finance", label: "Bank Ledger (₹)", iconName: "landmark" },
+                  { id: "broadcast", label: "Broadcaster", iconName: "radio" },
+                ].map(item => {
+                  const isActive = state.adminActiveTab === item.id;
+                  return `
+                    <button
+                      onclick="setAdminActiveTab('${item.id}')"
+                      class="whitespace-nowrap flex-shrink-0 flex items-center space-x-2 px-3.5 py-2 lg:w-full lg:space-x-3 lg:px-3.5 lg:py-2.5 rounded-xl font-semibold text-xs lg:text-sm transition-all duration-300 nav-item-lift ${
+                        isActive
+                          ? "bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-md font-bold"
+                          : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                      }"
+                    >
+                      ${icon(item.iconName, `w-3.5 h-3.5 lg:w-4 lg:h-4 ${isActive ? "text-white" : "text-slate-400"}`)}
+                      <span>${item.label}</span>
+                    </button>
+                  `;
+                }).join('')}
+              </nav>
+
+              <div class="hidden lg:block">
+                <div class="my-4 border-t border-slate-800"></div>
+
+                <!-- Admin Identity Card -->
+                <div class="p-3 rounded-2xl bg-slate-800/80 border border-slate-700/80">
+                  <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold">
+                      ${icon('shield', 'w-4 h-4')}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-xs font-bold text-white truncate">Administrator</p>
+                      <p class="text-[10px] text-slate-400 truncate">System Orchestrator</p>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onclick="logout()"
+                  class="mt-3 w-full flex items-center justify-center space-x-2 px-3 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
+                >
+                  ${icon('log-out', 'w-3.5 h-3.5 text-slate-400')}
+                  <span>Exit Admin Mode</span>
+                </button>
+              </div>
+            </div>
+          </aside>
+
           <!-- ADMIN CONTENT STAGE ROUTER -->
-          <div class="w-full">
+          <div class="flex-1 min-w-0">
             ${renderActiveAdminNavView(student, fin)}
           </div>
-
-          <!-- PERMANENT STICKY FOOTER NAVIGATION FOR ADMIN -->
-          <nav class="admin-sticky-footer fixed bottom-0 left-0 right-0 p-2.5 shadow-2xl flex justify-around items-center z-40 w-full">
-            <div class="max-w-4xl mx-auto w-full flex justify-start sm:justify-around items-center overflow-x-auto scrollbar-none gap-2 px-2 py-0.5">
-              ${[
-                { id: "overview", label: "Overview", labelMobile: "Overview", iconName: "layout-dashboard" },
-                { id: "students", label: "Student Roster & Auth", labelMobile: "Roster", iconName: "users" },
-                { id: "academics", label: "Academics & Exams", labelMobile: "Academic", iconName: "bookOpen" },
-                { id: "leaves", label: "Leave Approvals", labelMobile: "Leaves", iconName: "check-square" },
-                { id: "finance", label: "Bank Ledger (â‚¹)", labelMobile: "Ledger", iconName: "landmark" },
-                { id: "broadcast", label: "Broadcaster", labelMobile: "Broadcast", iconName: "radio" },
-              ].map(item => {
-                const isActive = state.adminActiveTab === item.id;
-                return `
-                  <button
-                    onclick="setAdminActiveTab('${item.id}')"
-                    class="whitespace-nowrap flex-shrink-0 flex items-center space-x-1.5 px-3 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all duration-300 nav-item-lift ${
-                      isActive
-                        ? "bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-md font-bold"
-                        : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                    }"
-                  >
-                    ${icon(item.iconName, `w-3.5 h-3.5 md:w-4 md:h-4 ${isActive ? "text-white" : "text-slate-400"}`)}
-                    <span>
-                      <span class="hidden md:inline">${item.label}</span>
-                      <span class="inline md:hidden">${item.labelMobile}</span>
-                    </span>
-                  </button>
-                `;
-              }).join('')}
-            </div>
-          </nav>
         </div>
       `;
     }
@@ -1019,7 +923,7 @@
       if (state.adminActiveTab === "overview") return renderAdminOverviewView(fin);
       if (state.adminActiveTab === "students") return renderAdminStudentsView();
       if (state.adminActiveTab === "academics") return renderAdminAcademicsView(student);
-      if (state.adminActiveTab === "leaves") return renderAdminLeavesView(student);
+      if (state.adminActiveTab === "leaves") return renderAdminLeavesView();
       if (state.adminActiveTab === "finance") return renderAdminFinanceView(student, fin);
       if (state.adminActiveTab === "broadcast") return renderAdminBroadcastView();
       return renderAdminOverviewView(fin);
@@ -1028,7 +932,7 @@
     // --- ADMIN MODULE 1: OVERVIEW ---
     function renderAdminOverviewView(fin) {
       return `
-        <div class="space-y-8">
+        <div class="space-y-6">
           <div class="p-6 rounded-3xl bg-slate-900 text-white shadow-anti-gravity">
             <div class="flex items-center justify-between">
               <div>
@@ -1078,7 +982,7 @@
                       ${getStudentAvatarHtml(s, "w-7 h-7", "text-[10px]")}
                       <div>
                         <p class="font-bold text-slate-800">${s.name}</p>
-                        <p class="text-[10px] text-slate-400">${s.id} â€¢ User: ${s.username}</p>
+                        <p class="text-[10px] text-slate-400">${s.id} • User: ${s.username}</p>
                       </div>
                     </div>
                     <button 
@@ -1119,7 +1023,7 @@
     // --- ADMIN MODULE 2: STUDENT MANAGEMENT & CREDENTIALS WITH FULL ADD/EDIT/DELETE ---
     function renderAdminStudentsView() {
       return `
-        <div class="space-y-8">
+        <div class="space-y-6">
           <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <span class="bg-brand-50 text-brand-600 text-xs px-3 py-1 rounded-full font-bold border border-brand-100">
@@ -1158,7 +1062,7 @@
                           ${getStudentAvatarHtml(s, "w-7 h-7 flex-shrink-0", "text-[10px]")}
                           <div>
                             <p>${s.name}</p>
-                            <p class="text-[10px] text-slate-400 font-normal">${s.id} â€¢ ${s.program}</p>
+                            <p class="text-[10px] text-slate-400 font-normal">${s.id} • ${s.program}</p>
                           </div>
                         </div>
                       </td>
@@ -1190,7 +1094,7 @@
     // --- ADMIN MODULE 3: ACADEMICS & EXAMINATIONS ---
     function renderAdminAcademicsView(student) {
       return `
-        <div class="space-y-8">
+        <div class="space-y-6">
           <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <span class="bg-brand-50 text-brand-600 text-xs px-3 py-1 rounded-full font-bold border border-brand-100">
@@ -1211,18 +1115,10 @@
           <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-base font-extrabold text-slate-900">Course Grades & Marks Sheet for ${student.name}</h3>
-              <div class="flex items-center space-x-3">
-                <!-- Semester Selector Dropdown Option -->
-                <select onchange="changeSelectedSemester(this.value)" class="p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
-                  ${["Sem 1", "Sem 2", "Sem 3", "Sem 4"].map(sem => `
-                    <option value="${sem}" ${state.selectedSem === sem ? 'selected' : ''}>${sem}</option>
-                  `).join('')}
-                </select>
-                <button onclick="promptAddCourseForStudent('${student.id}')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-600 font-bold text-xs border border-brand-100/60 shadow-sm transition-all hover:scale-105">
-                  ${icon('plus', 'w-3.5 h-3.5')}
-                  <span>Add Subject</span>
-                </button>
-              </div>
+              <button onclick="promptAddCourseForStudent('${student.id}')" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-600 font-bold text-xs border border-brand-100/60 shadow-sm transition-all hover:scale-105">
+                ${icon('plus', 'w-3.5 h-3.5')}
+                <span>Add Subject</span>
+              </button>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left border-collapse text-xs min-w-[500px]">
@@ -1235,15 +1131,13 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
-                  ${student.exams.map((item, idx) => ({ item, idx }))
-                    .filter(entry => (entry.item.sem || "Sem 4") === state.selectedSem)
-                    .map(({ item, idx }) => `
+                  ${student.exams.map((item, idx) => `
                     <tr class="hover:bg-slate-50/80 transition-colors">
                       <td class="py-3 px-3 font-bold text-slate-800">
                         <p>${item.subject}</p>
                         <span class="text-[10px] text-slate-400 font-normal">${item.code}</span>
                       </td>
-                      <td class="py-3 px-3 text-center font-bold text-slate-700">${item.score} / 100</td>
+                      <td class="py-3 px-3 text-center font-extrabold text-slate-900">${item.score}%</td>
                       <td class="py-3 px-3 text-center">
                         <span class="px-2.5 py-1 rounded-md text-[10px] font-black bg-emerald-100 text-emerald-700">
                           ${item.grade}
@@ -1259,14 +1153,12 @@
               </table>
             </div>
           </div>
-
-
         </div>
       `;
     }
 
     // --- ADMIN MODULE 4: LEAVE APPROVAL QUEUE ---
-    function renderAdminLeavesView(student) {
+    function renderAdminLeavesView() {
       const allLeaves = [];
       state.students.forEach(s => {
         s.leaves.forEach(l => {
@@ -1275,12 +1167,12 @@
       });
 
       return `
-        <div class="space-y-8">
+        <div class="space-y-6">
           <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white">
             <span class="bg-amber-50 text-amber-600 text-xs px-3 py-1 rounded-full font-bold border border-amber-100">
               OFFICIAL ABSENCE QUEUE
             </span>
-            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Leave & Approvals</h2>
+            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Leave Application Approval Queue</h2>
             <p class="text-xs text-slate-500">Review, approve, or reject student leave of absence requests</p>
           </div>
 
@@ -1292,7 +1184,7 @@
                 <div class="p-4 rounded-2xl bg-white border border-slate-100 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <p class="font-bold text-slate-800 text-sm">${l.reason} <span class="text-brand-600 font-semibold">(${l.studentName})</span></p>
-                    <p class="text-[11px] text-slate-500 mt-0.5">${l.startDate} to ${l.endDate} (${l.category}) â€¢ Applied On: ${l.appliedOn}</p>
+                    <p class="text-[11px] text-slate-500 mt-0.5">${l.startDate} to ${l.endDate} (${l.category}) • Applied On: ${l.appliedOn}</p>
                     <span class="inline-block mt-2 px-3 py-0.5 rounded-full text-[10px] font-bold ${
                       l.status === "Approved" ? "bg-emerald-100 text-emerald-700 border border-emerald-200" :
                       l.status === "Pending" ? "bg-amber-100 text-amber-700 border border-amber-200" : "bg-rose-100 text-rose-700 border border-rose-200"
@@ -1311,60 +1203,6 @@
               `).join('')}
             </div>
           </div>
-
-          <!-- ATTENDANCE REGISTER CARD -->
-          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
-              <div>
-                <h3 class="text-base font-extrabold text-slate-900">Daily Attendance Register for ${student.name}</h3>
-                
-                <!-- Legend / Color Guide -->
-                <div class="flex flex-wrap gap-4 mt-2 text-[10px] font-bold text-slate-500">
-                  <div class="flex items-center space-x-1.5">
-                    <div class="w-3 h-3 rounded bg-emerald-500"></div>
-                    <span>Present (1.0)</span>
-                  </div>
-                  <div class="flex items-center space-x-1.5">
-                    <div class="w-3 h-3 rounded bg-rose-500"></div>
-                    <span>Absent (0.0)</span>
-                  </div>
-                  <div class="flex items-center space-x-1.5">
-                    <div class="w-3 h-3 rounded bg-amber-500"></div>
-                    <span>Half Day (0.5)</span>
-                  </div>
-                  <div class="flex items-center space-x-1.5">
-                    <div class="w-3 h-3 rounded bg-white border border-slate-200"></div>
-                    <span>Unmarked</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="flex flex-wrap gap-2.5 items-center">
-                <!-- Student Switcher -->
-                <select onchange="switchStudentAccount(this.value)" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
-                  ${state.students.map(s => `
-                    <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name} (${s.id})</option>
-                  `).join('')}
-                </select>
-
-                <!-- Month Selector Dropdown -->
-                <select onchange="changeAttendanceFilterMonth(this.value)" class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
-                  ${[
-                    "August 2026", "September 2026", "October 2026", "November 2026", "December 2026",
-                    "January 2027", "February 2027", "March 2027", "April 2027", "May 2027", "June 2027", "July 2027"
-                  ].map(m => `
-                    <option value="${m}" ${state.attendanceFilterMonth === m ? 'selected' : ''}>${m}</option>
-                  `).join('')}
-                </select>
-              </div>
-            </div>
-
-            <!-- Calendar grid of dates for the selected month -->
-            <div class="grid grid-cols-5 sm:grid-cols-7 md:grid-cols-8 lg:grid-cols-10 gap-2">
-              ${generateAttendanceDaysGrid(student, state.attendanceFilterMonth || "August 2026")}
-            </div>
-          </div>
-
         </div>
       `;
     }
@@ -1372,11 +1210,11 @@
     // --- ADMIN MODULE 5: FINANCIAL LEDGER ---
     function renderAdminFinanceView(student, fin) {
       return `
-        <div class="space-y-8">
+        <div class="space-y-6">
           <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <span class="bg-emerald-50 text-emerald-700 text-xs px-3 py-1 rounded-full font-bold border border-emerald-100">
-                INR FINANCIAL CONTROLLER (â‚¹)
+                INR FINANCIAL CONTROLLER (₹)
               </span>
               <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Bank Simulator & Ledger Injector</h2>
               <p class="text-xs text-slate-500">Injecting Transactions for: <span class="font-bold text-brand-600">${student.name}</span></p>
@@ -1394,7 +1232,7 @@
             <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
               <h3 class="text-base font-extrabold text-slate-900 mb-4 flex items-center space-x-2">
                 ${icon('landmark', 'w-5 h-5 text-emerald-600')}
-                <span>Inject Transaction into ${student.name}'s Ledger (INR â‚¹)</span>
+                <span>Inject Transaction into ${student.name}'s Ledger (INR ₹)</span>
               </h3>
 
               <form onsubmit="handleAdminInjectTxnForStudent(event, '${student.id}')" class="space-y-3 text-xs">
@@ -1412,12 +1250,12 @@
                 </div>
 
                 <div>
-                  <label class="block font-bold text-slate-700 mb-1">Amount (â‚¹)</label>
+                  <label class="block font-bold text-slate-700 mb-1">Amount (₹)</label>
                   <input type="number" id="adminTxnAmount" required placeholder="2500" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
                 </div>
 
                 <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 rounded-xl transition-all shadow-md shadow-emerald-500/20">
-                  Inject Transaction into Live Ledger (â‚¹)
+                  Inject Transaction into Live Ledger (₹)
                 </button>
               </form>
             </div>
@@ -1433,6 +1271,10 @@
                   <span>Total Debits:</span>
                   <span>${formatINR(fin.totalDebits)}</span>
                 </div>
+                <div class="p-3.5 rounded-2xl bg-slate-900 text-white font-bold flex justify-between">
+                  <span>Pending Dues Balance:</span>
+                  <span>${formatINR(fin.pendingDues)}</span>
+                </div>
               </div>
             </div>
           </div>
@@ -1443,7 +1285,7 @@
     // --- ADMIN MODULE 6: BROADCASTER ---
     function renderAdminBroadcastView() {
       return `
-        <div class="space-y-8">
+        <div class="space-y-6">
           <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white">
             <span class="bg-rose-50 text-rose-700 text-xs px-3 py-1 rounded-full font-bold border border-rose-100">
               INSTITUTE BROADCASTER
@@ -1484,70 +1326,44 @@
     // --- VIEW 1: DASHBOARD ---
     function renderDashboardView(student, fin) {
       return `
-        <!-- DEDICATED PROFILE SWITCHER HERO SECTION -->
-        <div class="glass-card rounded-3xl p-4 shadow-anti-gravity border border-white bg-gradient-to-r from-brand-50/40 via-white to-slate-50/50 mb-6">
-          <div class="flex items-center space-x-3 w-full">
-            <div class="w-10 h-10 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold flex-shrink-0">
-              ${icon('users', 'w-5 h-5')}
-            </div>
-            
-            <div class="relative w-full">
-              <select 
-                onchange="switchStudentAccount(this.value)"
-                class="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer shadow-sm"
-              >
-                ${state.students.map(s => `
-                  <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>
-                    Switch Profile: ${s.name}
-                  </option>
-                `).join('')}
-              </select>
-            </div>
-          </div>
-        </div>
-
         <!-- HERO BANNER -->
-        <div class="relative overflow-hidden glass-card rounded-3xl p-6 sm:p-8 shadow-anti-gravity anti-gravity-card border border-white bg-gradient-to-r from-white via-slate-50/60 to-brand-50/50 mb-6">
+        <div class="relative overflow-hidden glass-card rounded-3xl p-6 sm:p-10 shadow-anti-gravity anti-gravity-card border border-white bg-gradient-to-r from-white via-slate-50/60 to-brand-50/50 mb-6">
           <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div onclick="toggleModal('profile', true)" class="flex items-center space-x-4 sm:space-x-6 cursor-pointer hover:opacity-85 transition-opacity" title="Click to view details">
-              <!-- Square Avatar Detail Trigger Block -->
-              <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white border border-slate-200/60 shadow-sm flex-shrink-0 flex items-center justify-center overflow-hidden">
-                ${getStudentAvatarHtml(student, "w-full h-full object-cover", "text-xl")}
+            <div>
+              <div class="inline-flex items-center space-x-2 px-3.5 py-1.5 rounded-full text-xs font-bold tracking-wide border shadow-sm mb-4 ${
+                student.status === "Present"
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  : "bg-amber-50 text-amber-700 border-amber-200"
+              }">
+                <span class="relative flex h-2.5 w-2.5">
+                  ${student.status === "Present"
+                    ? `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>`
+                    : `<span class="animate-pulse absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>`
+                  }
+                </span>
+                <span>${student.status}</span>
+                <span class="text-slate-300">•</span>
+                <span class="text-[11px] text-slate-500 font-semibold">Live Student Registry</span>
               </div>
-              <div>
-                <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide border shadow-sm mb-3 ${
-                  student.status === "Present"
-                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                    : "bg-amber-50 text-amber-700 border-amber-200"
-                }">
-                  <span class="relative flex h-2 w-2">
-                    ${student.status === "Present"
-                      ? `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>`
-                      : `<span class="animate-pulse absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>`
-                    }
-                  </span>
-                  <span>${student.status}</span>
-                </div>
 
-                <h1 class="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight leading-tight mb-2">
-                  Hi <span class="animated-student-name inline-block">${student.name}</span>
-                </h1>
+              <h1 class="text-4xl sm:text-6xl md:text-7xl font-black text-slate-900 tracking-tight leading-tight mb-3">
+                Hi <span class="animated-student-name inline-block">${student.name}</span>
+              </h1>
 
-                <p class="text-xs sm:text-sm font-semibold text-slate-600 flex items-center space-x-2">
-                  ${icon('graduation-cap', 'w-4 h-4 text-brand-500')}
-                  <span>${student.school}</span>
-                  <span class="text-slate-300">|</span>
-                  <span class="font-extrabold text-slate-800">${student.class}</span>
-                </p>
-              </div>
+              <p class="text-sm sm:text-base font-semibold text-slate-600 flex items-center space-x-2">
+                ${icon('graduation-cap', 'w-5 h-5 text-brand-500')}
+                <span>${student.school}</span>
+                <span class="text-slate-300">|</span>
+                <span class="font-extrabold text-slate-800">${student.class}</span>
+              </p>
             </div>
 
-            <div class="flex items-center space-x-3 self-start md:self-auto flex-wrap gap-y-2">
-              <div onclick="showAttendanceGraph()" class="bg-white/95 p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-brand-200 hover:scale-105 transition-all cursor-pointer text-center min-w-[115px]" title="Click to view Attendance Analytics Graph">
+            <div class="flex items-center space-x-3 self-start md:self-auto">
+              <div onclick="toggleModal('profile', true)" class="bg-white/95 p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all cursor-pointer text-center min-w-[115px]">
                 <p class="text-[10px] uppercase font-extrabold tracking-wider text-slate-500">Attendance</p>
                 <p class="text-2xl font-black text-brand-600 mt-0.5">${student.attendanceRate}%</p>
               </div>
-              <div onclick="toggleModal('profile', true)" class="bg-white/95 p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:border-brand-200 hover:scale-105 transition-all cursor-pointer text-center min-w-[115px]" title="Click to view details">
+              <div class="bg-white/95 p-4 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all text-center min-w-[115px]">
                 <p class="text-[10px] uppercase font-extrabold tracking-wider text-slate-500">Leaves Taken</p>
                 <p class="text-2xl font-black text-slate-800 mt-0.5">${student.totalLeaveDays} Days</p>
               </div>
@@ -1555,118 +1371,110 @@
           </div>
         </div>
 
-        <!-- ACADEMIC UPDATES TICKER -->
-        ${renderAcademicUpdatesTicker()}
-
         <!-- SPECIALIZED TAGS & GRAPHS -->
         <div class="glass-card rounded-3xl p-6 shadow-anti-gravity anti-gravity-card border border-white mb-6">
-          <div class="flex items-center space-x-3 mb-6">
-            <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
-              ${icon('activity', 'w-4 h-4')}
-            </div>
-            <div>
-              <h3 class="text-sm font-extrabold text-slate-900">Analytics & Graphs</h3>
-            </div>
+          <div class="flex items-center space-x-2 overflow-x-auto p-1 pb-3 mb-6 scrollbar-none">
+            ${[
+              { id: "analytics", label: "Analytics & Graphs", iconName: "activity" },
+              { id: "leave", label: "Leave Manager", iconName: "calendar" },
+            ].map(tag => `
+              <button
+                onclick="setActiveGraphTag('${tag.id}')"
+                class="flex items-center space-x-2 px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all duration-300 shadow-sm ${
+                  state.activeGraphTag === tag.id
+                    ? "bg-slate-900 text-white shadow-md"
+                    : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/70"
+                }"
+              >
+                ${icon(tag.iconName, `w-4 h-4 ${state.activeGraphTag === tag.id ? "text-sky-400" : "text-slate-400"}`)}
+                <span>${tag.label}</span>
+              </button>
+            `).join('')}
           </div>
 
           ${renderGraphContent(student, fin)}
         </div>
+
+        <!-- ACADEMIC UPDATES TICKER -->
+        ${renderAcademicUpdatesTicker()}
       `;
     }
 
     // --- VIEW 2: EXAMINATION HUB ---
     function renderExaminationView(student) {
       return `
-        <div class="space-y-8">
+        <div class="space-y-6">
           <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <span class="bg-brand-50 text-brand-600 text-xs px-3 py-1 rounded-full font-bold border border-brand-100">
-                ACADEMIC PERFORMANCE
+                ACADEMIC PERFORMANCE HUB
               </span>
               <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Examinations & Marksheet</h2>
+              <p class="text-xs text-slate-500">Official course grade sheets, GPA records and non-academic behavioral metrics</p>
             </div>
 
             <div class="flex items-center space-x-3">
-              <button onclick="downloadMarksheetPDF('${student.id}')" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105">
+              <button onclick="alert('Downloading Official Marksheet PDF...')" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105">
                 ${icon('download', 'w-4 h-4')}
                 <span>Download Marksheet PDF</span>
               </button>
             </div>
           </div>
 
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-base font-extrabold text-slate-900">Semester Course Scores</h3>
+                <span class="text-xs font-bold text-brand-600">Sem 5 • CGPA: ${calculateStudentCGPA(student)}</span>
+              </div>
 
-          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-base font-extrabold text-slate-900">Semester Scores</h3>
-              <div class="flex items-center space-x-3">
-                <!-- Semester Selector Dropdown Option -->
-                <select onchange="changeSelectedSemester(this.value)" class="p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
-                  ${["Sem 1", "Sem 2", "Sem 3", "Sem 4"].map(sem => `
-                    <option value="${sem}" ${state.selectedSem === sem ? 'selected' : ''}>${sem}</option>
-                  `).join('')}
-                </select>
-
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs min-w-[500px]">
+                  <thead>
+                    <tr class="border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
+                      <th class="py-2.5 px-3">Subject</th>
+                      <th class="py-2.5 px-3 text-center">Score</th>
+                      <th class="py-2.5 px-3 text-center">Grade</th>
+                      <th class="py-2.5 px-3 text-right">Credits</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-50">
+                    ${student.exams.map(item => `
+                      <tr class="hover:bg-slate-50/80 transition-colors">
+                        <td class="py-3 px-3 font-bold text-slate-800">
+                          <p>${item.subject}</p>
+                          <span class="text-[10px] text-slate-400 font-normal">${item.code}</span>
+                        </td>
+                        <td class="py-3 px-3 text-center font-extrabold text-slate-900">${item.score}%</td>
+                        <td class="py-3 px-3 text-center">
+                          <span class="px-2.5 py-1 rounded-md text-[10px] font-black bg-emerald-100 text-emerald-700">
+                            ${item.grade}
+                          </span>
+                        </td>
+                        <td class="py-3 px-3 text-right font-semibold text-slate-600">${item.credits}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
               </div>
             </div>
 
-            <div class="w-full overflow-hidden">
-              <table class="w-full text-left border-collapse text-xs">
-                <thead>
-                  <tr class="border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
-                    <th class="py-2.5 px-3">Subject</th>
-                    <th class="py-2.5 px-3 text-center">Score</th>
-                    <th class="py-2.5 px-3 text-center">Grade</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-50">
-                  ${student.exams.filter(item => (item.sem || "Sem 4") === state.selectedSem).map(item => `
-                    <tr class="hover:bg-slate-50/80 transition-colors">
-                      <td class="py-3 px-3 font-bold text-slate-800">
-                        <p class="break-words line-clamp-2">${item.subject}</p>
-                        <span class="text-[10px] text-slate-400 font-normal">${item.code}</span>
-                      </td>
-                      <td class="py-3 px-3 text-center font-bold text-slate-700">${item.score} / 100</td>
-                      <td class="py-3 px-3 text-center">
-                        <span class="px-2.5 py-1 rounded-md text-[10px] font-black bg-emerald-100 text-emerald-700">
-                          ${item.grade}
-                        </span>
-                      </td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
+            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+              <h3 class="text-base font-extrabold text-slate-900 mb-4">Behavioral & Extracurricular Co-Factors</h3>
+              <div class="space-y-4">
+                ${state.coFactors.map(item => `
+                  <div class="p-3.5 rounded-2xl bg-white border border-slate-100 shadow-sm">
+                    <div class="flex items-center justify-between text-xs mb-2">
+                      <span class="font-bold text-slate-800">${item.metric}</span>
+                      <span class="font-bold text-brand-600">${item.score}% (${item.status})</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                      <div class="bg-gradient-to-r from-brand-500 to-sky-400 h-3 rounded-full transition-all duration-500" style="width: ${item.score}%"></div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
             </div>
-
-            ${(() => {
-              const semExams = student.exams.filter(e => (e.sem || 'Sem 4') === state.selectedSem);
-              if (!semExams.length) return '';
-              const totalScore = semExams.reduce((s, e) => s + (e.score || 0), 0);
-              const maxScore   = semExams.length * 100;
-              const pct        = maxScore > 0 ? ((totalScore / maxScore) * 100).toFixed(1) : '0.0';
-              const allAvgs    = state.students.map(st => {
-                const exs = (st.exams || []).filter(e => (e.sem || 'Sem 4') === state.selectedSem);
-                return exs.length ? exs.reduce((s, e) => s + (e.score || 0), 0) / exs.length : 0;
-              }).sort((a, b) => b - a);
-              const myAvg = totalScore / semExams.length;
-              const rank  = allAvgs.findIndex(a => a <= myAvg) + 1;
-              return `<div class="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-slate-100">
-                  <div class="rounded-2xl bg-brand-50 border border-brand-100 p-4 text-center">
-                    <p class="text-[10px] uppercase font-bold text-brand-400 tracking-wider mb-1">Total Marks</p>
-                    <p class="text-2xl font-black text-brand-700">${totalScore}</p>
-                    <p class="text-[10px] text-brand-400 font-semibold mt-0.5">out of ${maxScore}</p>
-                  </div>
-                  <div class="rounded-2xl bg-emerald-50 border border-emerald-100 p-4 text-center">
-                    <p class="text-[10px] uppercase font-bold text-emerald-500 tracking-wider mb-1">Percentage</p>
-                    <p class="text-2xl font-black text-emerald-700">${pct}%</p>
-                    <p class="text-[10px] text-emerald-400 font-semibold mt-0.5">${getGradeFromScore(parseFloat(pct))} Grade</p>
-                  </div>
-                  <div class="rounded-2xl bg-amber-50 border border-amber-100 p-4 text-center">
-                    <p class="text-[10px] uppercase font-bold text-amber-500 tracking-wider mb-1">Rank</p>
-                    <p class="text-2xl font-black text-amber-700">#${rank}</p>
-                    <p class="text-[10px] text-amber-400 font-semibold mt-0.5">of ${state.students.length} students</p>
-                  </div>
-                </div>`;
-            })()}
           </div>
         </div>
       `;
@@ -1675,14 +1483,14 @@
     // --- VIEW 3: LEAVE TAKEN CENTER ---
     function renderLeaveTakenView(student) {
       return `
-        <div class="space-y-8">
+        <div class="space-y-6">
           <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <span class="bg-amber-50 text-amber-600 text-xs px-3 py-1 rounded-full font-bold border border-amber-100">
                 OFFICIAL ABSENCE MANAGEMENT
               </span>
               <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Leave Management Center</h2>
-
+              <p class="text-xs text-slate-500">View applied leave requests, medical certificates, and live status approvals</p>
             </div>
 
             <button onclick="toggleModal('leave', true)" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-3 rounded-2xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105">
@@ -1722,7 +1530,7 @@
                     <div>
                       <p class="font-bold text-slate-800 text-sm">${l.reason}</p>
                       <p class="text-[11px] text-slate-500 mt-0.5">
-                        ${l.startDate} to ${l.endDate} â€¢ <span class="font-semibold text-brand-600">${l.category}</span>
+                        ${l.startDate} to ${l.endDate} • <span class="font-semibold text-brand-600">${l.category}</span>
                       </p>
                     </div>
                   </div>
@@ -1743,51 +1551,6 @@
               `).join('')}
             </div>
           </div>
-
-          <!-- MY ATTENDANCE CALENDAR -->
-          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-              <div>
-                <h3 class="text-base font-extrabold text-slate-900">My Daily Attendance Calendar</h3>
-                
-                <!-- Legend / Color Guide -->
-                <div class="flex flex-wrap gap-4 mt-2 text-[10px] font-bold text-slate-500">
-                  <div class="flex items-center space-x-1.5">
-                    <div class="w-3 h-3 rounded bg-emerald-500"></div>
-                    <span>Present (100%)</span>
-                  </div>
-                  <div class="flex items-center space-x-1.5">
-                    <div class="w-3 h-3 rounded bg-rose-500"></div>
-                    <span>Absent (0%)</span>
-                  </div>
-                  <div class="flex items-center space-x-1.5">
-                    <div class="w-3 h-3 rounded bg-amber-500"></div>
-                    <span>Half Day (50%)</span>
-                  </div>
-                  <div class="flex items-center space-x-1.5">
-                    <div class="w-3 h-3 rounded bg-white border border-slate-200"></div>
-                    <span>Unmarked</span>
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Month Selector Dropdown -->
-              <select onchange="changeAttendanceFilterMonth(this.value)" class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
-                ${[
-                  "August 2026", "September 2026", "October 2026", "November 2026", "December 2026",
-                  "January 2027", "February 2027", "March 2027", "April 2027", "May 2027", "June 2027", "July 2027"
-                ].map(m => `
-                  <option value="${m}" ${state.attendanceFilterMonth === m ? 'selected' : ''}>${m}</option>
-                `).join('')}
-              </select>
-            </div>
-
-            <!-- Calendar grid of dates for the selected month -->
-            <div class="grid grid-cols-3 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 gap-3 max-h-[350px] overflow-y-auto pr-1">
-              ${generateStudentAttendanceDaysGrid(student, state.attendanceFilterMonth || "August 2026")}
-            </div>
-          </div>
-
         </div>
       `;
     }
@@ -1795,18 +1558,18 @@
     // --- VIEW 4: BANK CREDITS HUB ---
     function renderBankCreditsView(student, fin) {
       return `
-        <div class="space-y-8">
+        <div class="space-y-6">
           <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <span class="bg-emerald-50 text-emerald-700 text-xs px-3 py-1 rounded-full font-bold border border-emerald-100">
-                STUDENTS' FUND (INR â‚¹)
+                FINANCIAL LEDGER & BANK CREDITS (INR ₹)
               </span>
               <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">${student.name}'s Fund Manager</h2>
-              <p class="text-xs text-slate-500">Track paid fees, credits, scholarships, and funds in Indian Rupees (â‚¹)</p>
+              <p class="text-xs text-slate-500">Track paid fees, credits, scholarships, and pending institution dues in Indian Rupees (₹)</p>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="p-5 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md">
               <p class="text-xs font-semibold opacity-90">Total Bank Credits</p>
               <p class="text-3xl font-black mt-1">${formatINR(fin.totalCredits)}</p>
@@ -1815,8 +1578,11 @@
               <p class="text-xs font-semibold opacity-90">Total Debits</p>
               <p class="text-3xl font-black mt-1">${formatINR(fin.totalDebits)}</p>
             </div>
+            <div class="p-5 rounded-3xl bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-md">
+              <p class="text-xs font-semibold opacity-90">Pending Dues Balance</p>
+              <p class="text-3xl font-black mt-1">${formatINR(fin.pendingDues)}</p>
+            </div>
           </div>
-
 
           <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
             <h3 class="text-base font-extrabold text-slate-900 mb-4">Transaction History & Payment Ledger</h3>
@@ -1831,7 +1597,7 @@
                     </div>
                     <div>
                       <p class="font-bold text-slate-800 text-sm">${t.description}</p>
-                      <p class="text-[10px] text-slate-400">${t.date} â€¢ ${t.category} â€¢ ID: ${t.id}</p>
+                      <p class="text-[10px] text-slate-400">${t.date} • ${t.category} • ID: ${t.id}</p>
                     </div>
                   </div>
                   <span class="font-black text-base ${t.type === "Credit" ? "text-emerald-600" : "text-rose-600"}">
@@ -1850,59 +1616,74 @@
     function renderGraphContent(student, fin) {
       if (state.activeGraphTag === "analytics") {
         return `
-          <div class="space-y-8">
-            <!-- Responsive Grid of all three graphs -->
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-              
+          <div class="space-y-6">
+            <!-- 2x2 Grid of Minimal Graphs -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <!-- 1. Attendance Graph Card -->
-              <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60 flex flex-col justify-between">
-                <div>
-                  <div class="flex items-center justify-between mb-3">
-                    <h4 class="font-extrabold text-slate-900 text-sm">Attendance vs Leaves</h4>
-                    <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Target: 90%+</span>
+              <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <h4 class="font-extrabold text-slate-900 text-sm">Attendance vs Leave Days</h4>
+                    <p class="text-[10px] text-slate-500">Correlation tracking of attendance stability</p>
                   </div>
-                  <div class="h-56 w-full relative">
-                    <canvas id="attendanceCanvas"></canvas>
-                  </div>
+                  <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Target: 90%+</span>
+                </div>
+                <div class="h-56 w-full relative">
+                  <canvas id="attendanceCanvas"></canvas>
                 </div>
               </div>
 
-              <!-- 2. Academic Performance Graph Card -->
+              <!-- 2. Exams Metric Card -->
               <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60 flex flex-col justify-between">
-                <div>
-                  <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
                     <h4 class="font-extrabold text-slate-900 text-sm">Academic Performance</h4>
+                    <p class="text-[10px] text-slate-500">Holistically evaluated subject scores</p>
                   </div>
-                  <div class="h-56 w-full relative">
-                    <canvas id="examCanvas"></canvas>
-                  </div>
+                </div>
+                <div class="h-44 w-full relative">
+                  <canvas id="examCanvas"></canvas>
                 </div>
               </div>
 
-              <!-- 3. Fund Graph Card -->
-              <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60 flex flex-col justify-between md:col-span-2 xl:col-span-1">
-                <div>
-                  <div class="mb-4">
-                    <h4 class="font-extrabold text-slate-900 text-sm mb-3">Students' Fund Flow</h4>
-                    
-                    <!-- Grid of Total Bank Credits and Total Debits -->
-                    <div class="grid grid-cols-2 gap-3">
-                      <div class="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm flex flex-col justify-between">
-                        <p class="text-[9px] font-bold opacity-90 uppercase tracking-wider">Total Credits</p>
-                        <p class="text-xl font-black mt-1">${formatINR(fin.totalCredits)}</p>
-                      </div>
-                      <div class="p-3.5 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-sm flex flex-col justify-between">
-                        <p class="text-[9px] font-bold opacity-90 uppercase tracking-wider">Total Debits</p>
-                        <p class="text-xl font-black mt-1">${formatINR(fin.totalDebits)}</p>
-                      </div>
-                    </div>
+              <!-- 3. Financial Ledger Graph Card -->
+              <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60 lg:col-span-2">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                  <div>
+                    <h4 class="font-extrabold text-slate-900 text-sm">Financial Credits & Ledger (INR)</h4>
+                    <p class="text-[10px] text-slate-500">Balance visualization and transaction summary</p>
                   </div>
-                  <div class="h-56 w-full relative">
-                    <canvas id="bankCanvas"></canvas>
+                  <div class="flex items-center space-x-2 text-[10px]">
+                    <span class="px-2 py-1 bg-slate-900 text-white rounded-lg font-bold">Credits: ${formatINR(fin.totalCredits)}</span>
+                    <span class="px-2 py-1 bg-slate-300 text-slate-800 rounded-lg font-bold">Debits: ${formatINR(fin.totalDebits)}</span>
+                    <span class="px-2 py-1 bg-amber-100 text-amber-800 rounded-lg font-bold">Dues: ${formatINR(fin.pendingDues)}</span>
                   </div>
                 </div>
-              </div>
+                <div class="h-48 w-full relative mb-4">
+                  <canvas id="bankCanvas"></canvas>
+                </div>
 
+                <!-- Transaction list integrated minimally -->
+                <details class="group bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden transition-all duration-300">
+                  <summary class="flex items-center justify-between p-3 cursor-pointer select-none">
+                    <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-2">
+                      ${icon('landmark', 'w-3.5 h-3.5 text-slate-400')}
+                      <span>Show Recent Ledger Transactions</span>
+                    </span>
+                    ${icon('chevron-down', 'w-4 h-4 text-slate-400 group-open:rotate-180 transition-transform')}
+                  </summary>
+                  <div class="p-3 border-t border-slate-50 space-y-2 max-h-40 overflow-y-auto pr-1">
+                    ${student.transactions.map(t => `
+                      <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 text-[11px]">
+                        <span class="font-bold text-slate-800">${t.description} (${t.date})</span>
+                        <span class="font-black ${t.type === "Credit" ? "text-emerald-600" : "text-rose-600"}">
+                          ${t.type === "Credit" ? `+${formatINR(t.amount)}` : `-${formatINR(t.amount)}`}
+                        </span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </details>
+              </div>
             </div>
           </div>
         `;
@@ -1915,53 +1696,43 @@
 
     // --- ACADEMIC UPDATES TICKER ---
     function renderAcademicUpdatesTicker() {
-      let contentHtml = '';
-      if (!state.announcements || state.announcements.length === 0) {
-        contentHtml = `
-          <div class="col-span-full py-8 text-center text-slate-400 font-bold text-xs flex flex-col items-center justify-center gap-2">
-            ${icon('inbox', 'w-8 h-8 text-slate-300')}
-            <span>No Updates Yet</span>
-          </div>
-        `;
-      } else {
-        contentHtml = state.announcements.map(item => `
-          <div class="p-4 rounded-2xl border transition-all duration-300 hover:-translate-y-1 ${
-            item.urgency === "High" ? "bg-rose-50/40 border-rose-200/80" : "bg-white border-slate-100"
-          }">
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold ${
-                item.urgency === "High" ? "bg-rose-500 text-white" : "bg-brand-100 text-brand-700"
-              }">
-                ${item.category}
-              </span>
-            </div>
-            <h4 class="text-xs font-bold text-slate-900 mb-1">${item.title}</h4>
-            <p class="text-[11px] text-slate-600 line-clamp-2">${item.content}</p>
-            ${!item.read ? `
-              <button onclick="markRead(${item.id})" class="mt-2 text-[10px] font-bold text-brand-600 hover:text-brand-800 transition-colors flex items-center space-x-1">
-                <span>Mark as Read</span>
-                ${icon('check', 'w-3 h-3')}
-              </button>
-            ` : ''}
-          </div>
-        `).join('');
-      }
-
       return `
-        <div id="academic-ticker" class="glass-card rounded-3xl p-6 shadow-anti-gravity anti-gravity-card border border-white mb-6">
+        <div id="academic-ticker" class="glass-card rounded-3xl p-6 shadow-anti-gravity anti-gravity-card border border-white">
           <div class="flex items-center justify-between mb-4">
             <div class="flex items-center space-x-3">
               <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
                 ${icon('megaphone', 'w-4 h-4')}
               </div>
               <div>
-                <h3 class="text-sm font-extrabold text-slate-900">Manshau Updates</h3>
+                <h3 class="text-sm font-extrabold text-slate-900">Anchored Academic Updates Ticker</h3>
+                <p class="text-[11px] text-slate-500">Live stream for institute notices, schedules & announcements (12-Hour AM/PM)</p>
               </div>
             </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            ${contentHtml}
+            ${state.announcements.map(item => `
+              <div class="p-4 rounded-2xl border transition-all duration-300 hover:-translate-y-1 ${
+                item.urgency === "High" ? "bg-rose-50/40 border-rose-200/80" : "bg-white border-slate-100"
+              }">
+                <div class="flex items-start justify-between gap-2 mb-2">
+                  <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold ${
+                    item.urgency === "High" ? "bg-rose-500 text-white" : "bg-brand-100 text-brand-700"
+                  }">
+                    ${item.category}
+                  </span>
+                  <span class="text-[10px] text-slate-400 font-semibold">${item.date}</span>
+                </div>
+                <h4 class="text-xs font-bold text-slate-900 mb-1">${item.title}</h4>
+                <p class="text-[11px] text-slate-600 line-clamp-2">${item.content}</p>
+                ${!item.read ? `
+                  <button onclick="markRead(${item.id})" class="mt-2 text-[10px] font-bold text-brand-600 hover:text-brand-800 transition-colors flex items-center space-x-1">
+                    <span>Mark as Read</span>
+                    ${icon('check', 'w-3 h-3')}
+                  </button>
+                ` : ''}
+              </div>
+            `).join('')}
           </div>
         </div>
       `;
@@ -2022,16 +1793,11 @@
                   </div>
 
                   <div>
-                    <label class="block font-bold text-slate-700 mb-1">Profile Picture (1:1 Crop)</label>
+                    <label class="block font-bold text-slate-700 mb-1">Profile Picture (Optional)</label>
                     <div class="flex items-center space-x-3 bg-white p-2.5 rounded-xl border border-slate-200">
-                      <div id="cropPreviewImgContainer_new" class="w-9 h-9 rounded-full flex-shrink-0 border border-slate-200 overflow-hidden flex items-center justify-center bg-slate-50">
-                        ${getStudentAvatarHtml({}, "w-full h-full")}
-                      </div>
-                      <label class="flex-1 px-3 py-1.5 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-600 font-extrabold text-[11px] cursor-pointer text-center border border-brand-200 transition-all">
-                        <span>Select Photo to Crop</span>
-                        <input type="file" accept="image/*" class="hidden" onchange="openCropModal(this, 'new')" />
-                      </label>
+                      <input type="file" id="newStudPhoto" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-extrabold file:bg-brand-50 file:text-brand-600 hover:file:bg-brand-100" onchange="handleImageUpload(this, 'new')" />
                       <input type="hidden" id="newStudPhotoUrl" value="" />
+                      <button type="button" id="newStudPhotoRemove" onclick="removeUploadedImage('new')" class="hidden px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-600 font-bold hover:bg-rose-100 text-[11px]">Remove</button>
                     </div>
                   </div>
                 </div>
@@ -2138,19 +1904,11 @@
                     </div>
 
                     <div>
-                      <label class="block font-bold text-slate-700 mb-1">Profile Picture (1:1 Crop)</label>
+                      <label class="block font-bold text-slate-700 mb-1">Profile Picture (Optional)</label>
                       <div class="flex items-center space-x-3 bg-white p-2.5 rounded-xl border border-slate-200">
-                        <div id="cropPreviewImgContainer_edit" class="w-9 h-9 rounded-full flex-shrink-0 border border-slate-200 overflow-hidden flex items-center justify-center bg-slate-50">
-                          ${getStudentAvatarHtml(student, "w-full h-full")}
-                        </div>
-                        <label class="flex-1 px-3 py-1.5 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-600 font-extrabold text-[11px] cursor-pointer text-center border border-brand-200 transition-all">
-                          <span>Choose New Photo</span>
-                          <input type="file" accept="image/*" class="hidden" onchange="openCropModal(this, 'edit')" />
-                        </label>
+                        <input type="file" id="editStudPhoto" accept="image/*" class="w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-extrabold file:bg-brand-50 file:text-brand-600 hover:file:bg-brand-100" onchange="handleImageUpload(this, 'edit')" />
                         <input type="hidden" id="editStudPhotoUrl" value="${student.photoUrl || ''}" />
-                        ${student.photoUrl ? `
-                          <button type="button" onclick="removeUploadedImage('edit')" class="px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-600 font-bold hover:bg-rose-100 text-[11px]">Remove</button>
-                        ` : ''}
+                        <button type="button" id="editStudPhotoRemove" onclick="removeUploadedImage('edit')" class="${student.photoUrl ? 'block' : 'hidden'} px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-600 font-bold hover:bg-rose-100 text-[11px]">Remove</button>
                       </div>
                     </div>
                   </div>
@@ -2336,248 +2094,18 @@
               </div>
 
               <div class="text-center mb-6">
-                <div class="relative inline-block group cursor-pointer" onclick="document.getElementById('profileModalPhotoInput').click()" title="Click to upload & crop profile photo">
-                  ${getStudentAvatarHtml(student, "w-20 h-20 ring-4 ring-brand-300 shadow-md mx-auto mb-2", "text-2xl")}
-                  <div class="absolute inset-0 w-20 h-20 mx-auto rounded-full bg-slate-900/40 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    ${icon('user', 'w-6 h-6')}
-                  </div>
-                </div>
-                <input type="file" id="profileModalPhotoInput" accept="image/*" class="hidden" onchange="openCropModal(this, 'self')" />
-                <div class="mt-1 mb-3 flex items-center justify-center space-x-2">
-                  <button type="button" onclick="document.getElementById('profileModalPhotoInput').click()" class="text-[11px] font-bold text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-3 py-1 rounded-full border border-brand-200 transition-all">
-                    Upload & Crop Photo
-                  </button>
-                  ${student.photoUrl ? `
-                    <button type="button" onclick="removeStudentPhotoSelf()" class="text-[11px] font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 px-3 py-1 rounded-full border border-rose-200 transition-all">
-                      Remove
-                    </button>
-                  ` : ''}
-                </div>
+                ${getStudentAvatarHtml(student, "w-20 h-20 ring-4 ring-brand-300 shadow-md mx-auto mb-2", "text-2xl")}
                 <p class="font-extrabold text-slate-900 text-lg">${student.name}</p>
-                <p class="text-xs text-slate-400 mb-4">${student.id} â€¢ ${student.program || 'Genesis Program'}</p>
-                
-                <div class="space-y-3 text-left text-xs bg-slate-50/70 p-4 rounded-2xl border border-slate-100 mb-4">
-                  <div class="flex justify-between border-b border-slate-200/50 pb-2">
-                    <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">School</span>
-                    <span class="font-extrabold text-slate-800">${student.school}</span>
-                  </div>
-                  <div class="flex justify-between border-b border-slate-200/50 pb-2">
-                    <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Class / Grade</span>
-                    <span class="font-extrabold text-slate-800">${student.class}</span>
-                  </div>
-                  <div class="flex justify-between border-b border-slate-200/50 pb-2">
-                    <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Age</span>
-                    <span class="font-extrabold text-slate-800">${student.age} Years Old</span>
-                  </div>
-                  <div class="flex justify-between pb-1">
-                    <span class="text-slate-400 font-bold uppercase tracking-wider text-[10px]">Phone Number</span>
-                    <span class="font-extrabold text-slate-800">${student.phone || 'N/A'}</span>
-                  </div>
-                </div>
-
-
+                <p class="text-xs text-slate-500">${student.id} • ${student.program}</p>
               </div>
 
               <div class="flex space-x-2 pt-2">
-                <button type="button" onclick="toggleModal('profile', false)" class="w-full py-2.5 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200/70 transition-colors">Close</button>
+                <button type="button" onclick="toggleModal('profile', false)" class="w-full py-2.5 rounded-xl font-bold text-slate-600 bg-slate-100">Close</button>
               </div>
             </div>
           </div>
         `;
       }
-
-      // ADD SUBJECT MODAL
-      if (state.modals.addSubject) {
-        const targetStudent = state.students.find(s => s.id === state.addSubjectStudentId);
-        const studentName = targetStudent ? targetStudent.name : 'Student';
-        html += `
-          <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onclick="if(event.target===this)toggleModal('addSubject',false)">
-            <div class="glass-card w-full max-w-md rounded-3xl p-6 sm:p-8 shadow-anti-gravity-lg border border-white animate-fade-in-up">
-
-              <!-- Header -->
-              <div class="flex items-center justify-between mb-6">
-                <div>
-                  <h3 class="text-lg font-extrabold text-slate-900">Add Subject</h3>
-                  <p class="text-xs text-slate-400 mt-0.5">${studentName} &bull; ${state.selectedSem || 'Sem 1'}</p>
-                </div>
-                <button onclick="toggleModal('addSubject', false)" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 transition-all">
-                  ${icon('x', 'w-5 h-5')}
-                </button>
-              </div>
-
-              <form onsubmit="handleAddSubjectSubmit(event)" class="space-y-4 text-xs">
-
-                <!-- Subject Name -->
-                <div>
-                  <label class="block font-bold text-slate-700 mb-1.5">Subject Name <span class="text-red-400">*</span></label>
-                  <input
-                    type="text"
-                    id="newSubjName"
-                    required
-                    placeholder="e.g. Operating Systems"
-                    class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent font-medium text-slate-800 placeholder-slate-300 transition"
-                  />
-                </div>
-
-
-
-                <!-- Score input -->
-                <div>
-                  <label class="block font-bold text-slate-700 mb-1.5">Score (out of 100) <span class="text-red-400">*</span></label>
-                  <input
-                    type="number"
-                    id="newSubjScore"
-                    required
-                    min="0"
-                    max="100"
-                    placeholder="e.g. 85"
-                    oninput="updateSubjectPreview(this.value)"
-                    class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent font-bold text-slate-800 placeholder-slate-300 transition text-base"
-                  />
-                </div>
-
-                <!-- Live Preview Card -->
-                <div id="subjectPreviewCard" class="hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-slate-50 to-brand-50/40 p-4">
-                  <p class="text-[10px] uppercase font-bold text-slate-400 mb-2 tracking-wider">Auto-calculated Result</p>
-                  <div class="flex items-center justify-between">
-                    <div class="text-center flex-1">
-                      <p class="text-[10px] text-slate-400 font-semibold">Score</p>
-                      <p id="prevScore" class="text-xl font-black text-slate-800 mt-0.5">--</p>
-                    </div>
-                    <div class="w-px h-8 bg-slate-200"></div>
-                    <div class="text-center flex-1">
-                      <p class="text-[10px] text-slate-400 font-semibold">Grade</p>
-                      <p id="prevGrade" class="text-xl font-black text-brand-600 mt-0.5">--</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="flex space-x-3 pt-2">
-                  <button type="button" onclick="toggleModal('addSubject', false)" class="flex-1 py-3 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">
-                    Cancel
-                  </button>
-                  <button type="submit" class="flex-1 py-3 rounded-xl font-bold text-white bg-brand-600 hover:bg-brand-700 shadow-md shadow-brand-500/20 transition-all hover:scale-[1.02]">
-                    Add Subject
-                  </button>
-                </div>
-
-              </form>
-            </div>
-          </div>
-        `;
-      }
-
-      // EDIT SUBJECT SCORE MODAL
-      if (state.modals.editSubject) {
-        const editStudent = state.students.find(s => s.id === state.editSubjectStudentId);
-        const editExam    = editStudent && editStudent.exams[state.editSubjectIndex];
-        const editName    = editStudent ? editStudent.name : 'Student';
-        const examSubject = editExam ? editExam.subject : 'Subject';
-        const currentScore = editExam ? editExam.score : 0;
-        html += `
-          <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" onclick="if(event.target===this)toggleModal('editSubject',false)">
-            <div class="glass-card w-full max-w-md rounded-3xl p-6 sm:p-8 shadow-anti-gravity-lg border border-white animate-fade-in-up">
-
-              <!-- Header -->
-              <div class="flex items-center justify-between mb-6">
-                <div>
-                  <h3 class="text-lg font-extrabold text-slate-900">Edit Score</h3>
-                  <p class="text-xs text-slate-400 mt-0.5">${editName} &bull; ${examSubject}</p>
-                </div>
-                <button onclick="toggleModal('editSubject', false)" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 transition-all">
-                  ${icon('x', 'w-5 h-5')}
-                </button>
-              </div>
-
-              <form onsubmit="handleEditSubjectSubmit(event)" class="space-y-4 text-xs">
-
-                <!-- Current Score Badge -->
-                <div class="flex items-center space-x-2 bg-slate-50 border border-slate-100 rounded-xl px-4 py-3">
-                  <span class="text-slate-400 font-semibold">Current Score:</span>
-                  <span class="font-black text-slate-800">${currentScore} / 100</span>
-                  <span class="ml-auto px-2.5 py-1 rounded-md text-[10px] font-black bg-emerald-100 text-emerald-700">${editExam ? editExam.grade : '--'}</span>
-                </div>
-
-                <!-- New Score input -->
-                <div>
-                  <label class="block font-bold text-slate-700 mb-1.5">New Score (out of 100) <span class="text-red-400">*</span></label>
-                  <input
-                    type="number"
-                    id="editSubjScore"
-                    required
-                    min="0"
-                    max="100"
-                    value="${currentScore}"
-                    oninput="updateEditPreview(this.value)"
-                    class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-transparent font-bold text-slate-800 transition text-base"
-                  />
-                </div>
-
-                <!-- Live Preview Card -->
-                <div id="editPreviewCard" class="rounded-2xl border border-slate-100 bg-gradient-to-br from-slate-50 to-brand-50/40 p-4">
-                  <p class="text-[10px] uppercase font-bold text-slate-400 mb-2 tracking-wider">Updated Result</p>
-                  <div class="flex items-center justify-between">
-                    <div class="text-center flex-1">
-                      <p class="text-[10px] text-slate-400 font-semibold">Score</p>
-                      <p id="editPrevScore" class="text-xl font-black text-slate-800 mt-0.5">${currentScore}/100</p>
-                    </div>
-                    <div class="w-px h-8 bg-slate-200"></div>
-                    <div class="text-center flex-1">
-                      <p class="text-[10px] text-slate-400 font-semibold">Grade</p>
-                      <p id="editPrevGrade" class="text-xl font-black text-brand-600 mt-0.5">${editExam ? editExam.grade : '--'}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="flex space-x-3 pt-2">
-                  <button type="button" onclick="toggleModal('editSubject', false)" class="flex-1 py-3 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">
-                    Cancel
-                  </button>
-                  <button type="submit" class="flex-1 py-3 rounded-xl font-bold text-white bg-brand-600 hover:bg-brand-700 shadow-md shadow-brand-500/20 transition-all hover:scale-[1.02]">
-                    Save Score
-                  </button>
-                </div>
-
-              </form>
-            </div>
-          </div>
-        `;
-      }
-
-      // CROPPER POPUP MODAL
-      html += `
-        <div id="cropperModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-fade-in">
-          <div class="glass-card w-full max-w-md rounded-3xl p-6 shadow-anti-gravity-lg border border-white bg-white flex flex-col max-h-[90vh]">
-            <div class="flex items-center justify-between mb-3 border-b border-slate-100 pb-3">
-              <div>
-                <h3 class="text-base font-extrabold text-slate-900">Crop Profile Picture</h3>
-                <p class="text-[11px] text-slate-500 font-semibold">Drag & resize box to crop strictly 1:1 square ratio</p>
-              </div>
-              <button type="button" onclick="closeCropModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100 transition-colors">
-                ${icon('x', 'w-5 h-5')}
-              </button>
-            </div>
-
-            <!-- Image Container for Cropper -->
-            <div class="relative w-full h-64 sm:h-72 bg-slate-950 rounded-2xl overflow-hidden mb-4 flex items-center justify-center border border-slate-200 shadow-inner">
-              <img id="cropperTargetImage" src="" class="max-w-full max-h-full block" alt="Crop Target" />
-            </div>
-
-            <!-- Modal Action Buttons -->
-            <div class="flex items-center space-x-3 pt-1">
-              <button type="button" onclick="closeCropModal()" class="flex-1 py-2.5 px-4 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors text-xs">
-                Cancel
-              </button>
-              <button type="button" onclick="saveCroppedImage()" class="flex-1 py-2.5 px-4 rounded-xl font-bold text-white bg-brand-600 hover:bg-brand-700 shadow-md shadow-brand-500/20 transition-all text-xs flex items-center justify-center space-x-2">
-                ${icon('check', 'w-4 h-4')}
-                <span>Crop & Save</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
 
       return html;
     }
@@ -2594,50 +2122,26 @@
         // Attendance Chart
         const attCanvas = document.getElementById("attendanceCanvas");
         if (attCanvas) {
-          const monthPrefixes = [
-            "2026-08", "2026-09", "2026-10", "2026-11", "2026-12",
-            "2027-01", "2027-02"
-          ];
-          
-          student.attendanceRecords = student.attendanceRecords || {};
-          const attendanceData = monthPrefixes.map(prefix => {
-            const keys = Object.keys(student.attendanceRecords).filter(k => k.startsWith(prefix));
-            if (keys.length === 0) return 0;
-            const presents = keys.reduce((acc, k) => {
-              const status = student.attendanceRecords[k];
-              if (status === "Present") return acc + 1.0;
-              if (status === "Half Day") return acc + 0.5;
-              return acc;
-            }, 0);
-            return parseFloat(((presents / keys.length) * 100).toFixed(1));
-          });
-
-          const leavesData = monthPrefixes.map(prefix => {
-            student.leaves = student.leaves || [];
-            const approved = student.leaves.filter(l => l.status === "Approved" && l.startDate && l.startDate.startsWith(prefix));
-            return approved.reduce((acc, l) => acc + (Number(l.days) || 0), 0);
-          });
-
           if (chartInstances.attendance) chartInstances.attendance.destroy();
           chartInstances.attendance = new Chart(attCanvas.getContext('2d'), {
             type: 'line',
             data: {
-              labels: ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'],
+              labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
               datasets: [
                 {
                   label: 'Attendance Rate (%)',
-                  data: attendanceData,
-                  borderColor: '#2563eb',
-                  backgroundColor: 'rgba(37, 99, 235, 0.05)',
+                  data: [98, 96, 92, 95, 94, 91, student.attendanceRate],
+                  borderColor: '#0f172a',
+                  backgroundColor: 'rgba(15, 23, 42, 0.05)',
                   borderWidth: 2,
                   fill: true,
                   tension: 0.35,
                   pointRadius: 3,
-                  pointBackgroundColor: '#2563eb'
+                  pointBackgroundColor: '#0f172a'
                 },
                 {
                   label: 'Leaves (Days)',
-                  data: leavesData,
+                  data: [0, 1, 3, 1, 2, 4, student.totalLeaveDays],
                   borderColor: '#f59e0b',
                   backgroundColor: 'transparent',
                   borderWidth: 1.5,
@@ -2665,25 +2169,25 @@
           });
         }
 
-        // Bank Chart (INR â‚¹)
+        // Bank Chart (INR ₹)
         const bankCanvas = document.getElementById("bankCanvas");
         if (bankCanvas) {
           if (chartInstances.bank) chartInstances.bank.destroy();
           chartInstances.bank = new Chart(bankCanvas.getContext('2d'), {
             type: 'bar',
             data: {
-              labels: ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'],
+              labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
               datasets: [
                 { 
-                  label: 'Credits (â‚¹)', 
-                  data: [500, 800, 350, 900, 400, 750, fin.totalCredits], 
+                  label: 'Credits (₹)', 
+                  data: [15000, 25000, 8000, 30000, 5000, 45000, 12000], 
                   backgroundColor: '#0f172a',
                   borderRadius: 4,
                   barPercentage: 0.6
                 },
                 { 
-                  label: 'Debits (â‚¹)', 
-                  data: [200, 450, 150, 600, 300, 420, fin.totalDebits], 
+                  label: 'Debits (₹)', 
+                  data: [5000, 8000, 2000, 3000, 12500, 1500, 4000], 
                   backgroundColor: '#cbd5e1',
                   borderRadius: 4,
                   barPercentage: 0.6
@@ -2796,162 +2300,6 @@
       renderApp();
     }
 
-    function changeAttendanceFilterMonth(val) {
-      state.attendanceFilterMonth = val;
-      renderApp();
-    }
-
-    function changeSelectedSemester(val) {
-      state.selectedSem = val;
-      renderApp();
-    }
-
-    const MONTH_MAP = {
-      "August": "08", "September": "09", "October": "10", "November": "11", "December": "12",
-      "January": "01", "February": "02", "March": "03", "April": "04", "May": "05", "June": "06", "July": "07"
-    };
-
-    function getDaysInMonthString(monthStr) {
-      const parts = monthStr.split(' ');
-      const month = parts[0];
-      
-      const dayCounts = {
-        "August": 31, "September": 30, "October": 31, "November": 30, "December": 31,
-        "January": 31, "February": 28, "March": 31, "April": 30, "May": 31, "June": 30, "July": 31
-      };
-      
-      return dayCounts[month] || 30;
-    }
-
-    function toggleAttendanceStatus(studentId, dateKey) {
-      const student = state.students.find(s => s.id === studentId);
-      if (!student) return;
-      
-      student.attendanceRecords = student.attendanceRecords || {};
-      const current = student.attendanceRecords[dateKey];
-      
-      if (!current) {
-        student.attendanceRecords[dateKey] = "Present";
-      } else if (current === "Present") {
-        student.attendanceRecords[dateKey] = "Absent";
-      } else if (current === "Absent") {
-        student.attendanceRecords[dateKey] = "Half Day";
-      } else {
-        delete student.attendanceRecords[dateKey];
-      }
-      
-      // Recalculate attendanceRate
-      const vals = Object.values(student.attendanceRecords);
-      const recordCount = vals.length;
-      if (recordCount === 0) {
-        student.attendanceRate = 0.0;
-      } else {
-        const presents = vals.reduce((acc, v) => {
-          if (v === "Present") return acc + 1.0;
-          if (v === "Half Day") return acc + 0.5;
-          return acc;
-        }, 0);
-        student.attendanceRate = parseFloat(((presents / recordCount) * 100).toFixed(1));
-      }
-
-      // Recalculate totalLeaveDays
-      recalculateStudentLeaves(student);
-      
-      student.lastUpdated = Date.now();
-      saveState();
-      renderApp();
-    }
-
-    function generateAttendanceDaysGrid(student, filterMonth) {
-      const daysCount = getDaysInMonthString(filterMonth);
-      const parts = filterMonth.split(' ');
-      const mName = parts[0];
-      const year = parts[1];
-      const mIdx = MONTH_MAP[mName];
-      
-      student.attendanceRecords = student.attendanceRecords || {};
-      
-      let html = '';
-      for (let d = 1; d <= daysCount; d++) {
-        const dStr = d < 10 ? `0${d}` : `${d}`;
-        const dateKey = `${year}-${mIdx}-${dStr}`;
-        const status = student.attendanceRecords[dateKey];
-        
-        let statusClass = "bg-white border-slate-200 hover:bg-slate-50 text-slate-700";
-        if (status === "Present") {
-          statusClass = "bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500 shadow-sm";
-        } else if (status === "Absent") {
-          statusClass = "bg-rose-500 hover:bg-rose-600 text-white border-rose-500 shadow-sm";
-        } else if (status === "Half Day") {
-          statusClass = "bg-amber-500 hover:bg-amber-600 text-white border-amber-500 shadow-sm";
-        }
-        
-        html += `
-          <button
-            onclick="toggleAttendanceStatus('${student.id}', '${dateKey}')"
-            class="flex items-center justify-center rounded-xl border text-center transition-all hover:scale-105 active:scale-95 cursor-pointer h-10 w-full font-black text-sm ${statusClass}"
-            title="${dateKey}"
-          >
-            ${d}
-          </button>
-        `;
-      }
-      return html;
-    }
-
-    function generateStudentAttendanceDaysGrid(student, filterMonth) {
-      const daysCount = getDaysInMonthString(filterMonth);
-      const parts = filterMonth.split(' ');
-      const mName = parts[0];
-      const year = parts[1];
-      const mIdx = MONTH_MAP[mName];
-      
-      student.attendanceRecords = student.attendanceRecords || {};
-      
-      let html = '';
-      for (let d = 1; d <= daysCount; d++) {
-        const dStr = d < 10 ? `0${d}` : `${d}`;
-        const dateKey = `${year}-${mIdx}-${dStr}`;
-        const status = student.attendanceRecords[dateKey];
-        
-        let statusClass = "bg-white border-slate-200 text-slate-700";
-        if (status === "Present") {
-          statusClass = "bg-emerald-500 text-white border-emerald-500 shadow-sm";
-        } else if (status === "Absent") {
-          statusClass = "bg-rose-500 text-white border-rose-500 shadow-sm";
-        } else if (status === "Half Day") {
-          statusClass = "bg-amber-500 text-white border-amber-500 shadow-sm";
-        }
-        
-        html += `
-          <div
-            class="flex items-center justify-center rounded-xl border text-center cursor-default h-10 w-full font-black text-sm ${statusClass}"
-            title="${dateKey} - ${status || 'Unmarked'}"
-          >
-            ${d}
-          </div>
-        `;
-      }
-      return html;
-    }
-
-    function recalculateStudentLeaves(student) {
-      student.leaves = student.leaves || [];
-      const approvedDays = student.leaves
-        .filter(l => l.status === "Approved")
-        .reduce((acc, l) => acc + (Number(l.days) || 0), 0);
-      
-      student.attendanceRecords = student.attendanceRecords || {};
-      const attendanceAbsences = Object.values(student.attendanceRecords)
-        .reduce((acc, v) => {
-          if (v === "Absent") return acc + 1.0;
-          if (v === "Half Day") return acc + 0.5;
-          return acc;
-        }, 0);
-        
-      student.totalLeaveDays = approvedDays + attendanceAbsences;
-    }
-
     function quickLogin(role) {
       state.isAuthenticated = true;
       state.role = role;
@@ -2971,24 +2319,6 @@
       renderApp();
     }
 
-    function toggleHeaderProfileMenu() {
-      const menu = document.getElementById('headerProfileMenu');
-      if (menu) menu.classList.toggle('hidden');
-    }
-
-    function closeHeaderProfileMenu() {
-      const menu = document.getElementById('headerProfileMenu');
-      if (menu) menu.classList.add('hidden');
-    }
-
-    document.addEventListener('click', function(e) {
-      const btn = document.getElementById('headerProfileBtn');
-      const menu = document.getElementById('headerProfileMenu');
-      if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
-        menu.classList.add('hidden');
-      }
-    });
-
     function setActiveTab(tab) {
       state.activeTab = tab;
       renderApp();
@@ -2997,18 +2327,6 @@
     function setAdminActiveTab(tab) {
       state.adminActiveTab = tab;
       renderApp();
-    }
-
-    function showAttendanceGraph() {
-      state.activeTab = "dashboard";
-      state.activeGraphTag = "analytics";
-      renderApp();
-      setTimeout(() => {
-        const element = document.getElementById("attendanceCanvas");
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 100);
     }
 
     function setActiveGraphTag(tag) {
@@ -3034,40 +2352,6 @@
     function toggleModal(modalName, isOpen) {
       state.modals[modalName] = isOpen;
       renderApp();
-    }
-
-    function updateSubjectPreview(value) {
-      const card      = document.getElementById('subjectPreviewCard');
-      const prevScore = document.getElementById('prevScore');
-      const prevGrade = document.getElementById('prevGrade');
-      if (!card || !prevScore || !prevGrade) return;
-
-      const score = parseInt(value);
-      if (isNaN(score) || value === '') {
-        card.classList.add('hidden');
-        return;
-      }
-      const clamped = Math.min(100, Math.max(0, score));
-      const grade   = getGradeFromScore(clamped);
-
-      prevScore.textContent = `${clamped}/100`;
-      prevGrade.textContent = grade;
-      card.classList.remove('hidden');
-    }
-
-    function updateEditPreview(value) {
-      const prevScore = document.getElementById('editPrevScore');
-      const prevGrade = document.getElementById('editPrevGrade');
-      if (!prevScore || !prevGrade) return;
-
-      const score = parseInt(value);
-      if (isNaN(score) || value === '') return;
-
-      const clamped = Math.min(100, Math.max(0, score));
-      const grade   = getGradeFromScore(clamped);
-
-      prevScore.textContent = `${clamped}/100`;
-      prevGrade.textContent = grade;
     }
 
     function markRead(id) {
@@ -3189,7 +2473,7 @@
         phone,
         smsNotifications: smsPref,
         clock12Hour: clockPref,
-        attendanceRate: 0.0,
+        attendanceRate: 95.0,
         totalLeaveDays: 0,
         avatarInitials: initials,
         avatarBg: bg,
@@ -3237,113 +2521,11 @@
       reader.readAsDataURL(file);
     }
 
-    let currentCropper = null;
-    let currentCropMode = 'self';
-
-    function openCropModal(inputElement, mode = 'self') {
-      if (!inputElement.files || !inputElement.files[0]) return;
-      const file = inputElement.files[0];
-      currentCropMode = mode;
-
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const imgEl = document.getElementById('cropperTargetImage');
-        if (!imgEl) return;
-
-        imgEl.src = e.target.result;
-
-        const modalEl = document.getElementById('cropperModal');
-        if (modalEl) modalEl.classList.remove('hidden');
-
-        if (currentCropper) {
-          currentCropper.destroy();
-          currentCropper = null;
-        }
-
-        currentCropper = new Cropper(imgEl, {
-          aspectRatio: 1,
-          viewMode: 1,
-          autoCropArea: 0.9,
-          responsive: true,
-          restore: false,
-          guides: true,
-          center: true,
-          highlight: false,
-          cropBoxMovable: true,
-          cropBoxResizable: true,
-          toggleDragModeOnDblclick: false,
-        });
-
-        inputElement.value = '';
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function closeCropModal() {
-      const modalEl = document.getElementById('cropperModal');
-      if (modalEl) modalEl.classList.add('hidden');
-      if (currentCropper) {
-        currentCropper.destroy();
-        currentCropper = null;
-      }
-    }
-
-    function saveCroppedImage() {
-      if (!currentCropper) return;
-
-      const canvas = currentCropper.getCroppedCanvas({
-        width: 300,
-        height: 300,
-        imageSmoothingEnabled: true,
-        imageSmoothingQuality: 'high',
-      });
-
-      if (!canvas) return;
-
-      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
-
-      if (currentCropMode === 'self') {
-        const student = getCurrentStudent();
-        if (student) {
-          student.photoUrl = croppedDataUrl;
-          saveState();
-          renderApp();
-        }
-      } else if (currentCropMode === 'edit') {
-        const photoUrlInput = document.getElementById('editStudPhotoUrl');
-        if (photoUrlInput) photoUrlInput.value = croppedDataUrl;
-        const previewContainer = document.getElementById('cropPreviewImgContainer_edit');
-        if (previewContainer) {
-          previewContainer.innerHTML = `<img src="${croppedDataUrl}" class="w-full h-full rounded-full object-cover" />`;
-        }
-      } else if (currentCropMode === 'new') {
-        const photoUrlInput = document.getElementById('newStudPhotoUrl');
-        if (photoUrlInput) photoUrlInput.value = croppedDataUrl;
-        const previewContainer = document.getElementById('cropPreviewImgContainer_new');
-        if (previewContainer) {
-          previewContainer.innerHTML = `<img src="${croppedDataUrl}" class="w-full h-full rounded-full object-cover" />`;
-        }
-      }
-
-      closeCropModal();
-    }
-
-    function removeStudentPhotoSelf() {
-      const student = getCurrentStudent();
-      if (student) {
-        student.photoUrl = '';
-        saveState();
-        renderApp();
-      }
-    }
-
     function removeUploadedImage(mode) {
-      const urlEl = document.getElementById(mode === 'new' ? 'newStudPhotoUrl' : 'editStudPhotoUrl');
-      if (urlEl) urlEl.value = "";
-      const previewContainer = document.getElementById(`cropPreviewImgContainer_${mode}`);
-      if (previewContainer) {
-        previewContainer.innerHTML = getStudentAvatarHtml({}, "w-full h-full");
-      }
+      document.getElementById(mode === 'new' ? 'newStudPhoto' : 'editStudPhoto').value = "";
+      document.getElementById(mode === 'new' ? 'newStudPhotoUrl' : 'editStudPhotoUrl').value = "";
+      document.getElementById(mode === 'new' ? 'newStudPhotoRemove' : 'editStudPhotoRemove').classList.remove('block');
+      document.getElementById(mode === 'new' ? 'newStudPhotoRemove' : 'editStudPhotoRemove').classList.add('hidden');
     }
 
     function updateStudentLeaveStatus(studentId, leaveId, newStatus) {
@@ -3351,11 +2533,7 @@
       if (student) {
         const leave = student.leaves.find(l => l.id === leaveId);
         if (leave) leave.status = newStatus;
-        
-        recalculateStudentLeaves(student);
-        
         student.lastUpdated = Date.now();
-        saveState();
         renderApp();
       }
     }
@@ -3364,37 +2542,20 @@
       const student = state.students.find(s => s.id === studentId);
       if (student) {
         student.leaves = student.leaves.filter(l => l.id !== leaveId);
-        
-        recalculateStudentLeaves(student);
-        
         student.lastUpdated = Date.now();
-        saveState();
         renderApp();
       }
     }
 
     function getGradeFromScore(score) {
-      if (score >= 90) return "A+";
-      if (score >= 80) return "A";
-      if (score >= 70) return "B+";
-      if (score >= 60) return "B";
-      if (score >= 50) return "C+";
-      if (score >= 40) return "C";
-      if (score >= 30) return "D+";
-      if (score >= 20) return "D";
-      return "E";
-    }
-
-    function getPercentageFromScore(score) {
-      if (score >= 90) return 95;
-      if (score >= 80) return 85;
-      if (score >= 70) return 75;
-      if (score >= 60) return 65;
-      if (score >= 50) return 55;
-      if (score >= 40) return 45;
-      if (score >= 30) return 35;
-      if (score >= 20) return 25;
-      return 15;
+      if (score >= 95) return "A+";
+      if (score >= 90) return "A";
+      if (score >= 85) return "B+";
+      if (score >= 80) return "B";
+      if (score >= 75) return "C+";
+      if (score >= 70) return "C";
+      if (score >= 60) return "D";
+      return "F";
     }
 
     function calculateStudentCGPA(student) {
@@ -3422,224 +2583,47 @@
       return totalCredits > 0 ? (totalPoints / totalCredits).toFixed(2) : "0.00";
     }
 
-    function downloadMarksheetPDF(studentId) {
-      const student = state.students.find(s => s.id === studentId) || getCurrentStudent();
-      if (!student) {
-        alert("Student data not found.");
-        return;
-      }
-
-      if (typeof html2pdf === "undefined") {
-        alert("PDF generator library is still loading. Please try again in a few seconds.");
-        return;
-      }
-
-      const cgpa = calculateStudentCGPA(student);
-
-      const printDiv = document.createElement("div");
-      printDiv.className = "p-8 bg-white text-slate-900 border-8 border-brand-900 rounded-3xl relative";
-      printDiv.style.fontFamily = "'Plus Jakarta Sans', sans-serif";
-      printDiv.style.maxWidth = "800px";
-      printDiv.style.margin = "0 auto";
-
-      const watermark = document.createElement("div");
-      watermark.innerText = "MANSHAU";
-      watermark.style.position = "absolute";
-      watermark.style.top = "50%";
-      watermark.style.left = "50%";
-      watermark.style.transform = "translate(-50%, -50%) rotate(-45deg)";
-      watermark.style.fontSize = "7.5rem";
-      watermark.style.fontWeight = "900";
-      watermark.style.color = "rgba(15, 23, 42, 0.03)";
-      watermark.style.zIndex = "0";
-      watermark.style.pointerEvents = "none";
-      printDiv.appendChild(watermark);
-
-      const header = `
-        <div class="relative z-10 text-center border-b-2 border-slate-200 pb-6 mb-6">
-          <h1 class="text-3xl font-extrabold tracking-tight text-brand-900 uppercase">Manshau Alfaris Educational Institute</h1>
-          <p class="text-xs uppercase tracking-widest text-slate-500 font-extrabold mt-1">Official Academic Examination Registry</p>
-          <p class="text-[10px] text-slate-400 mt-0.5">Central Campus Office â€¢ Registry Code: MAEI-2026-X1</p>
-        </div>
-      `;
-
-      const bio = `
-        <div class="relative z-10 grid grid-cols-2 gap-4 text-xs mb-6 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-          <div>
-            <p class="text-[10px] uppercase font-bold text-slate-400">Student Identity Name</p>
-            <p class="text-sm font-black text-slate-800 mt-0.5">${student.name}</p>
-          </div>
-          <div>
-            <p class="text-[10px] uppercase font-bold text-slate-400">Registry System ID</p>
-            <p class="text-sm font-bold text-slate-700 mt-0.5">${student.id}</p>
-          </div>
-          <div>
-            <p class="text-[10px] uppercase font-bold text-slate-400">Enrolled School/Branch</p>
-            <p class="text-xs font-semibold text-slate-600 mt-0.5">${student.school}</p>
-          </div>
-          <div>
-            <p class="text-[10px] uppercase font-bold text-slate-400">Grade / Academic Class</p>
-            <p class="text-xs font-black text-slate-800 mt-0.5">${student.class}</p>
-          </div>
-        </div>
-      `;
-
-      let tableRows = '';
-      if (!student.exams || student.exams.length === 0) {
-        tableRows = `
-          <tr>
-            <td colspan="4" class="py-4 text-center text-slate-400 italic">No course exams registered for this student.</td>
-          </tr>
-        `;
-      } else {
-        student.exams.forEach(exam => {
-          tableRows += `
-            <tr class="border-b border-slate-100 text-xs">
-              <td class="py-3 px-4 font-bold text-slate-800">
-                <p>${exam.subject}</p>
-                <span class="text-[9px] text-slate-400 font-normal">${exam.code}</span>
-              </td>
-              <td class="py-3 px-4 text-center font-extrabold text-slate-900">${exam.score} / 100</td>
-              <td class="py-3 px-4 text-right">
-                <span class="px-2 py-0.5 rounded font-black bg-emerald-100 text-emerald-800 text-[10px]">
-                  ${exam.grade}
-                </span>
-              </td>
-            </tr>
-          `;
-        });
-      }
-
-      const table = `
-        <div class="relative z-10 mb-6">
-          <table class="w-full text-left border-collapse border border-slate-200">
-            <thead>
-              <tr class="bg-slate-100 text-slate-500 font-bold uppercase text-[9px] border-b border-slate-200">
-                <th class="py-3 px-4">Subject & Course Code</th>
-                <th class="py-3 px-4 text-center">Score</th>
-                <th class="py-3 px-4 text-right">Letter Grade</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${tableRows}
-            </tbody>
-          </table>
-        </div>
-      `;
-
-      const summary = `
-        <div class="relative z-10 grid grid-cols-2 gap-4 text-center mb-10">
-          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <p class="text-[9px] uppercase font-bold text-slate-500">Attendance Percentage</p>
-            <p class="text-xl font-black text-slate-800 mt-1">${student.attendanceRate}%</p>
-          </div>
-          <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-            <p class="text-[9px] uppercase font-bold text-slate-500">Total Leaves Registered</p>
-            <p class="text-xl font-black text-slate-800 mt-1">${student.totalLeaveDays} Days</p>
-          </div>
-        </div>
-      `;
-
-      const footer = `
-        <div class="relative z-10 grid grid-cols-2 gap-8 pt-8 border-t border-slate-200 text-xs">
-          <div>
-            <p class="text-[10px] text-slate-400">Issued On: ${new Date().toLocaleDateString()}</p>
-            <p class="text-[9px] text-slate-400 mt-1">This document is electronically generated and holds legal administrative seal validity.</p>
-          </div>
-          <div class="flex flex-col items-end">
-            <div class="w-40 border-b border-slate-800 text-center pb-1">
-              <span class="font-extrabold text-[11px] text-slate-700">Director of Examinations</span>
-            </div>
-            <p class="text-[9px] text-slate-400 mt-1">Manshau Registrar Office</p>
-          </div>
-        </div>
-      `;
-
-      const contentWrapper = document.createElement("div");
-      contentWrapper.innerHTML = header + bio + table + summary + footer;
-      printDiv.appendChild(contentWrapper);
-
-      const opt = {
-        margin: 10,
-        filename: `${student.name.replace(/\s+/g, '_')}_Academic_Marksheet.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-
-      html2pdf().from(printDiv).set(opt).save().catch(err => {
-        console.error("PDF generation error: ", err);
-        alert("Failed to compile marksheet PDF.");
-      });
-    }
-
     function editExamScoreForStudent(studentId, index) {
-      state.editSubjectStudentId = studentId;
-      state.editSubjectIndex = index;
-      state.modals.editSubject = true;
-      renderApp();
-      setTimeout(() => {
-        const scoreEl = document.getElementById('editSubjScore');
-        if (scoreEl) {
-          scoreEl.focus();
-          scoreEl.select();
-          scoreEl.dispatchEvent(new Event('input'));
+      const student = state.students.find(s => s.id === studentId);
+      if (student && student.exams[index]) {
+        const newScore = prompt(`Enter new score for ${student.name} (${student.exams[index].subject}):`, student.exams[index].score);
+        if (newScore !== null && !isNaN(newScore)) {
+          const score = parseInt(newScore);
+          student.exams[index].score = score;
+          student.exams[index].grade = getGradeFromScore(score);
+          alert(`Score updated to ${score}% (Grade: ${student.exams[index].grade})!`);
+          renderApp();
         }
-      }, 50);
-    }
-
-    function handleEditSubjectSubmit(event) {
-      event.preventDefault();
-      const student = state.students.find(s => s.id === state.editSubjectStudentId);
-      if (!student || !student.exams[state.editSubjectIndex]) return;
-
-      const scoreStr = document.getElementById('editSubjScore').value;
-      if (scoreStr === '') return;
-
-      const score = Math.min(100, Math.max(0, parseInt(scoreStr)));
-      student.exams[state.editSubjectIndex].score = score;
-      student.exams[state.editSubjectIndex].grade = getGradeFromScore(score);
-      student.exams[state.editSubjectIndex].percentage = getPercentageFromScore(score);
-
-      state.modals.editSubject = false;
-      state.editSubjectStudentId = '';
-      state.editSubjectIndex = -1;
-      student.lastUpdated = Date.now();
-      saveState();
-      renderApp();
+      }
     }
 
     function promptAddCourseForStudent(studentId) {
-      state.addSubjectStudentId = studentId;
-      state.modals.addSubject = true;
-      renderApp();
-      // Reset form fields after render
-      setTimeout(() => {
-        const scoreEl = document.getElementById('newSubjScore');
-        if (scoreEl) scoreEl.dispatchEvent(new Event('input'));
-      }, 50);
-    }
-
-    function handleAddSubjectSubmit(event) {
-      event.preventDefault();
-      const student = state.students.find(s => s.id === state.addSubjectStudentId);
+      const student = state.students.find(s => s.id === studentId);
       if (!student) return;
-
-      const subject  = document.getElementById('newSubjName').value.trim();
-      const scoreStr = document.getElementById('newSubjScore').value;
-      if (!subject || scoreStr === '') return;
-
-      const score      = Math.min(100, Math.max(0, parseInt(scoreStr)));
-      const grade      = getGradeFromScore(score);
-      const percentage = getPercentageFromScore(score);
-
+      const subject = prompt("Enter Subject Name (e.g. Operating Systems):");
+      if (!subject) return;
+      const code = prompt("Enter Subject Code (e.g. CS-304):");
+      if (!code) return;
+      const scoreStr = prompt("Enter Score Percentage (0-100):", "90");
+      if (scoreStr === null || isNaN(scoreStr)) return;
+      const creditsStr = prompt("Enter Course Credits (e.g. 4):", "4");
+      if (creditsStr === null || isNaN(creditsStr)) return;
+      
+      const score = parseInt(scoreStr);
+      const credits = parseInt(creditsStr);
+      const grade = getGradeFromScore(score);
+      
       if (!student.exams) student.exams = [];
-      student.exams.push({ subject, code: '', score, grade, percentage, sem: state.selectedSem || 'Sem 1' });
-
-      state.modals.addSubject = false;
-      state.addSubjectStudentId = '';
-      student.lastUpdated = Date.now();
-      saveState();
+      student.exams.push({
+        subject,
+        code,
+        score,
+        grade,
+        credits,
+        sem: "Sem 5"
+      });
+      
+      alert(`Successfully added ${subject} (Grade: ${grade}) to ${student.name}'s records!`);
       renderApp();
     }
 
@@ -3682,7 +2666,7 @@
         category: "Admin Simulator"
       });
       student.lastUpdated = Date.now();
-      alert(`Transaction of â‚¹${amount} injected into ${student.name}'s live ledger!`);
+      alert(`Transaction of ₹${amount} injected into ${student.name}'s live ledger!`);
       renderApp();
     }
 
