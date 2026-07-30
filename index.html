@@ -1832,8 +1832,8 @@
           <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
               <div>
-                <h3 class="text-base font-extrabold text-slate-900">Subject Breakdown for ${state.selectedSem}</h3>
-                <p class="text-xs text-slate-400 font-semibold mt-0.5">Course Marks & Grades</p>
+                <h3 class="text-base font-extrabold text-slate-900">Course Marks & Grades</h3>
+                <p class="text-xs text-slate-400 font-semibold mt-0.5">Subject Breakdown for ${state.selectedSem}</p>
               </div>
 
               <div class="flex items-center space-x-3 flex-wrap gap-y-2">
@@ -2189,25 +2189,29 @@
                 </div>
               </div>
 
-              <!-- 3. Fund Graph Card -->
+              <!-- 3. Fund Overview Graph Card -->
               <div class="p-5 rounded-3xl bg-slate-50/50 border border-slate-200/60 flex flex-col justify-between md:col-span-2 xl:col-span-1">
                 <div>
-                  <div class="mb-4">
-                    <h4 class="font-extrabold text-slate-900 text-sm mb-3">Students' Fund Flow</h4>
-                    
-                    <!-- Grid of Total Bank Credits and Total Debits -->
-                    <div class="grid grid-cols-2 gap-3">
-                      <div class="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm flex flex-col justify-between">
-                        <p class="text-[9px] font-bold opacity-90 uppercase tracking-wider">Total Credits</p>
-                        <p class="text-xl font-black mt-1">${formatINR(fin.totalCredits)}</p>
-                      </div>
-                      <div class="p-3.5 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-sm flex flex-col justify-between">
-                        <p class="text-[9px] font-bold opacity-90 uppercase tracking-wider">Total Debits</p>
-                        <p class="text-xl font-black mt-1">${formatINR(fin.totalDebits)}</p>
-                      </div>
+                  <div class="flex items-center justify-between mb-4">
+                    <h4 class="font-extrabold text-slate-900 text-sm">Institute Fund Overview</h4>
+                    <span class="text-[10px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full border border-brand-100">Financial</span>
+                  </div>
+                  <!-- Fund Stats: Cash In / Cash Out / Net -->
+                  <div class="grid grid-cols-3 gap-2 mb-4">
+                    <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-100 text-center">
+                      <p class="text-[9px] font-bold text-emerald-600 uppercase tracking-wider">Cash In</p>
+                      <p class="text-sm font-black text-emerald-800 mt-0.5">${formatINR(fin.totalCredits)}</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-rose-50 border border-rose-100 text-center">
+                      <p class="text-[9px] font-bold text-rose-600 uppercase tracking-wider">Cash Out</p>
+                      <p class="text-sm font-black text-rose-800 mt-0.5">${formatINR(fin.totalDebits)}</p>
+                    </div>
+                    <div class="p-3 rounded-xl bg-blue-50 border border-blue-100 text-center">
+                      <p class="text-[9px] font-bold text-blue-600 uppercase tracking-wider">Net Balance</p>
+                      <p class="text-sm font-black text-blue-800 mt-0.5">${formatINR(fin.totalCredits - fin.totalDebits)}</p>
                     </div>
                   </div>
-                  <div class="h-56 w-full relative">
+                  <div class="h-40 w-full relative">
                     <canvas id="bankCanvas"></canvas>
                   </div>
                 </div>
