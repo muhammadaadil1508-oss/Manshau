@@ -1766,6 +1766,32 @@
       const myAvg = semExams.length ? totalScore / semExams.length : 0;
       const rank  = semExams.length ? (allAvgs.findIndex(a => a <= myAvg) + 1) : '-';
 
+      // Dynamic Medal Colors for 1st (Gold), 2nd (Silver), 3rd (Bronze) & Normal for 4th+
+      let rankCardStyle = "bg-white border border-slate-200 text-slate-800 shadow-sm";
+      let rankTitleStyle = "text-slate-400 font-extrabold tracking-wider";
+      let rankValueStyle = "text-slate-900 font-black";
+      let rankBadgeText = "";
+
+      if (rank === 1 || rank === "1") {
+        // 1st Rank: Gold / Yellow
+        rankCardStyle = "bg-gradient-to-br from-amber-400 via-yellow-400 to-amber-500 text-slate-950 shadow-lg shadow-amber-400/20 border-2 border-amber-300";
+        rankTitleStyle = "text-amber-950 font-black tracking-wider";
+        rankValueStyle = "text-slate-950 font-black drop-shadow-sm";
+        rankBadgeText = "🥇 1st Gold Rank";
+      } else if (rank === 2 || rank === "2") {
+        // 2nd Rank: Silver
+        rankCardStyle = "bg-gradient-to-br from-slate-200 via-slate-100 to-slate-300 text-slate-900 shadow-md border-2 border-slate-300";
+        rankTitleStyle = "text-slate-700 font-black tracking-wider";
+        rankValueStyle = "text-slate-950 font-black";
+        rankBadgeText = "🥈 2nd Silver Rank";
+      } else if (rank === 3 || rank === "3") {
+        // 3rd Rank: Bronze
+        rankCardStyle = "bg-gradient-to-br from-amber-700 via-orange-800 to-amber-900 text-amber-50 shadow-md border-2 border-amber-600";
+        rankTitleStyle = "text-amber-200 font-black tracking-wider";
+        rankValueStyle = "text-white font-black";
+        rankBadgeText = "🥉 3rd Bronze Rank";
+      }
+
       return `
         <div class="space-y-8">
           <!-- ACADEMIC PERFORMANCE HERO SECTION WITH SEMESTER SELECTOR & LIVE STAT CARDS -->
@@ -1797,21 +1823,27 @@
               </div>
             </div>
 
-            <!-- DYNAMIC SEMESTER HERO STAT CARDS (RANK, GRADE & TOTAL MARKS) -->
+            <!-- DYNAMIC SEMESTER HERO STAT CARDS (RANK WITH MEDAL COLORS, GRADE & TOTAL MARKS) -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-              <div class="rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/60 border border-amber-100 p-5 text-center shadow-sm flex flex-col items-center justify-center">
-                <p class="text-[11px] uppercase font-extrabold text-amber-600 tracking-wider">Class Rank</p>
-                <p class="text-3xl font-black text-amber-700 mt-1">#${rank}</p>
+              <!-- Class Rank Card -->
+              <div class="rounded-2xl ${rankCardStyle} p-5 text-center flex flex-col items-center justify-center transition-all duration-300">
+                <p class="text-[11px] uppercase ${rankTitleStyle}">Class Rank</p>
+                <p class="text-3xl ${rankValueStyle} mt-1">#${rank}</p>
+                ${rankBadgeText ? `<span class="mt-1 text-[10px] font-black opacity-90">${rankBadgeText}</span>` : ''}
               </div>
-              <div class="rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50/60 border border-emerald-100 p-5 text-center shadow-sm flex flex-col items-center justify-center">
-                <p class="text-[11px] uppercase font-extrabold text-emerald-600 tracking-wider">Grade</p>
-                <p class="text-3xl font-black text-emerald-700 mt-1">${pct}%</p>
-                <p class="text-[10px] text-emerald-500 font-bold mt-0.5">${grade} Grade</p>
+
+              <!-- Grade Card (Normal Clean Styling) -->
+              <div class="rounded-2xl bg-white border border-slate-200 p-5 text-center shadow-sm flex flex-col items-center justify-center">
+                <p class="text-[11px] uppercase font-extrabold text-slate-400 tracking-wider">Grade</p>
+                <p class="text-3xl font-black text-slate-900 mt-1">${pct}%</p>
+                <p class="text-[10px] text-slate-500 font-extrabold mt-0.5">${grade} Grade</p>
               </div>
-              <div class="rounded-2xl bg-gradient-to-br from-brand-50 to-blue-50/60 border border-brand-100 p-5 text-center shadow-sm flex flex-col items-center justify-center">
-                <p class="text-[11px] uppercase font-extrabold text-brand-500 tracking-wider">Total Marks</p>
-                <p class="text-3xl font-black text-brand-700 mt-1">${totalScore}</p>
-                <p class="text-[10px] text-brand-400 font-bold mt-0.5">out of ${maxScore}</p>
+
+              <!-- Total Marks Card (Normal Clean Styling) -->
+              <div class="rounded-2xl bg-white border border-slate-200 p-5 text-center shadow-sm flex flex-col items-center justify-center">
+                <p class="text-[11px] uppercase font-extrabold text-slate-400 tracking-wider">Total Marks</p>
+                <p class="text-3xl font-black text-slate-900 mt-1">${totalScore}</p>
+                <p class="text-[10px] text-slate-400 font-bold mt-0.5">out of ${maxScore}</p>
               </div>
             </div>
           </div>
