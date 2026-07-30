@@ -864,7 +864,7 @@
                           : getStudentAvatarHtml(currentStudent, "w-10 h-10 rounded-full object-cover ring-2 ring-brand-400 shadow-sm", "text-sm")}
                         <div class="overflow-hidden">
                           <p class="font-extrabold text-slate-900 text-xs truncate">${state.role === 'admin' ? 'Administrator' : currentStudent.name}</p>
-                          <p class="text-[10px] text-slate-500 font-semibold truncate">${state.role === 'admin' ? 'System Controller' : currentStudent.id} &bull; ${state.role === 'admin' ? 'Admin' : 'Student'}</p>
+                          <p class="text-[10px] text-slate-500 font-semibold truncate">${state.role === 'admin' ? 'System Controller' : (currentStudent.class || 'Student')} &bull; ${state.role === 'admin' ? 'Admin' : 'Student'}</p>
                         </div>
                       </div>
                     </div>
@@ -1203,6 +1203,68 @@
       return renderAdminOverviewView(fin);
     }
 
+    // --- SHARED STUDENT ROSTER COMPONENT ---
+    function renderStudentAccountsRosterComponent() {
+      return `
+        <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-base font-extrabold text-slate-900">Registered Student Users (${state.students.length})</h3>
+              <p class="text-xs text-slate-500">Manage student logins, passwords, statuses, profiles, or add/delete accounts</p>
+            </div>
+            <button onclick="toggleModal('addStudent', true)" class="flex items-center justify-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-2xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105 self-start sm:self-auto">
+              ${icon('userPlus', 'w-4 h-4')}
+              <span>Add New Student User</span>
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs min-w-[650px]">
+              <thead>
+                <tr class="border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
+                  <th class="py-2.5 px-3">Student Name</th>
+                  <th class="py-2.5 px-3">Username</th>
+                  <th class="py-2.5 px-3">Password</th>
+                  <th class="py-2.5 px-3">Status</th>
+                  <th class="py-2.5 px-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-50">
+                ${state.students.map(s => `
+                  <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="py-3 px-3 font-bold text-slate-800">
+                      <div class="flex items-center space-x-2.5">
+                        ${getStudentAvatarHtml(s, "w-7 h-7 flex-shrink-0", "text-[10px]")}
+                        <div>
+                          <p class="font-bold text-slate-800">${s.name}</p>
+                          <p class="text-[10px] text-slate-400 font-normal">${s.program || s.class}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="py-3 px-3 font-bold text-brand-600">${s.username}</td>
+                    <td class="py-3 px-3 font-mono font-bold text-slate-700">${s.password}</td>
+                    <td class="py-3 px-3">
+                      <button onclick="toggleSpecificStudentStatus('${s.id}')" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-sm transition-all hover:scale-105 ${s.status === 'Present' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}">
+                        ${s.status}
+                      </button>
+                    </td>
+                    <td class="py-3 px-3 text-right space-x-2">
+                      <button onclick="openEditStudentModal('${s.id}')" class="px-2.5 py-1 rounded-lg bg-brand-50 text-brand-600 font-bold hover:bg-brand-100 text-[11px]">
+                        Edit Profile & Settings
+                      </button>
+                      <button onclick="deleteStudentUser('${s.id}')" class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 font-bold hover:bg-rose-100 text-[11px]" title="Delete Student">
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
     // --- ADMIN MODULE 1: OVERVIEW ---
     function renderAdminOverviewView(fin) {
       return `
@@ -1245,51 +1307,8 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-              <h3 class="text-base font-extrabold text-slate-900 mb-2">Live Student Roster Summary</h3>
-              <p class="text-xs text-slate-500 mb-4">5 Active student users in institute database</p>
-              <div class="space-y-2">
-                ${state.students.map(s => `
-                  <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs">
-                    <div class="flex items-center space-x-2.5">
-                      ${getStudentAvatarHtml(s, "w-7 h-7", "text-[10px]")}
-                      <div>
-                        <p class="font-bold text-slate-800">${s.name}</p>
-                        <p class="text-[10px] text-slate-400">${s.id} â€¢ User: ${s.username}</p>
-                      </div>
-                    </div>
-                    <button 
-                      onclick="toggleSpecificStudentStatus('${s.id}')" 
-                      class="px-2.5 py-1 rounded-full text-[10px] font-extrabold shadow-sm transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer border ${
-                        s.status === 'Present' 
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100' 
-                          : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
-                      }"
-                      title="Click to toggle status"
-                    >
-                      ${s.status}
-                    </button>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-
-            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-              <h3 class="text-base font-extrabold text-slate-900 mb-2">Quick Student User Actions</h3>
-              <p class="text-xs text-slate-500 mb-4">Manage, add or remove student accounts</p>
-              <div class="space-y-3">
-                <button onclick="toggleModal('addStudent', true)" class="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs flex items-center justify-center space-x-2 shadow-md">
-                  ${icon('userPlus', 'w-4 h-4')}
-                  <span>Add New Student User</span>
-                </button>
-                <button onclick="setAdminActiveTab('students')" class="w-full py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center justify-center space-x-2 border border-slate-200">
-                  ${icon('users', 'w-4 h-4')}
-                  <span>Manage All Student Logins & Passwords</span>
-                </button>
-              </div>
-            </div>
-          </div>
+          <!-- INTEGRATED FULL STUDENT ACCOUNTS ROSTER & MANAGEMENT -->
+          ${renderStudentAccountsRosterComponent()}
         </div>
       `;
     }
@@ -1306,61 +1325,9 @@
               <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Student Accounts Manager</h2>
               <p class="text-xs text-slate-500">Add new student users, update passwords/usernames, or delete student accounts</p>
             </div>
-
-            <button onclick="toggleModal('addStudent', true)" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-3 rounded-2xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105">
-              ${icon('userPlus', 'w-4 h-4')}
-              <span>Add New Student User</span>
-            </button>
           </div>
 
-          <!-- STUDENT ACCOUNTS ROSTER TABLE -->
-          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-            <h3 class="text-base font-extrabold text-slate-900 mb-4">Registered Student Users (${state.students.length})</h3>
-            
-            <div class="overflow-x-auto">
-              <table class="w-full text-left border-collapse text-xs min-w-[650px]">
-                <thead>
-                  <tr class="border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
-                    <th class="py-2.5 px-3">Student Name</th>
-                    <th class="py-2.5 px-3">Username</th>
-                    <th class="py-2.5 px-3">Password</th>
-                    <th class="py-2.5 px-3">Status</th>
-                    <th class="py-2.5 px-3 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-50">
-                  ${state.students.map(s => `
-                    <tr class="hover:bg-slate-50/80 transition-colors">
-                      <td class="py-3 px-3 font-bold text-slate-800">
-                        <div class="flex items-center space-x-2.5">
-                          ${getStudentAvatarHtml(s, "w-7 h-7 flex-shrink-0", "text-[10px]")}
-                          <div>
-                            <p>${s.name}</p>
-                            <p class="text-[10px] text-slate-400 font-normal">${s.id} â€¢ ${s.program}</p>
-                          </div>
-                        </div>
-                      </td>
-                      <td class="py-3 px-3 font-bold text-brand-600">${s.username}</td>
-                      <td class="py-3 px-3 font-mono font-bold text-slate-700">${s.password}</td>
-                      <td class="py-3 px-3">
-                        <button onclick="toggleSpecificStudentStatus('${s.id}')" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold ${s.status === 'Present' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
-                          ${s.status}
-                        </button>
-                      </td>
-                      <td class="py-3 px-3 text-right space-x-2">
-                        <button onclick="openEditStudentModal('${s.id}')" class="px-2.5 py-1 rounded-lg bg-brand-50 text-brand-600 font-bold hover:bg-brand-100 text-[11px]">
-                          Edit Profile & Settings
-                        </button>
-                        <button onclick="deleteStudentUser('${s.id}')" class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 font-bold hover:bg-rose-100 text-[11px]" title="Delete Student">
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          ${renderStudentAccountsRosterComponent()}
         </div>
       `;
     }
@@ -1381,7 +1348,7 @@
             <!-- Student Switcher -->
             <select onchange="switchStudentAccount(this.value)" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
               ${state.students.map(s => `
-                <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name} (${s.id})</option>
+                <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name}</option>
               `).join('')}
             </select>
           </div>
@@ -1525,7 +1492,7 @@
                 <!-- Student Switcher -->
                 <select onchange="switchStudentAccount(this.value)" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
                   ${state.students.map(s => `
-                    <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name} (${s.id})</option>
+                    <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name}</option>
                   `).join('')}
                 </select>
 
@@ -1567,7 +1534,7 @@
             <!-- Student Switcher -->
             <select onchange="switchStudentAccount(this.value)" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
               ${state.students.map(s => `
-                <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name} (${s.id})</option>
+                <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name}</option>
               `).join('')}
             </select>
           </div>
@@ -2790,7 +2757,7 @@
                   ` : ''}
                 </div>
                 <p class="font-extrabold text-slate-900 text-lg">${student.name}</p>
-                <p class="text-xs text-slate-400 mb-4">${student.id} â€¢ ${student.program || 'Genesis Program'}</p>
+                <p class="text-xs text-slate-400 mb-4">${student.program || 'Genesis Program'}</p>
                 
                 <div class="space-y-3 text-left text-xs bg-slate-50/70 p-4 rounded-2xl border border-slate-100 mb-4">
                   <div class="flex justify-between border-b border-slate-200/50 pb-2">
@@ -3986,8 +3953,8 @@
             <p class="text-sm font-black text-slate-800 mt-0.5">${student.name}</p>
           </div>
           <div>
-            <p class="text-[10px] uppercase font-bold text-slate-400">Registry System ID</p>
-            <p class="text-sm font-bold text-slate-700 mt-0.5">${student.id}</p>
+            <p class="text-[10px] uppercase font-bold text-slate-400">Academic Program</p>
+            <p class="text-sm font-bold text-slate-700 mt-0.5">${student.program || 'Genesis Program'}</p>
           </div>
           <div>
             <p class="text-[10px] uppercase font-bold text-slate-400">Enrolled School/Branch</p>
