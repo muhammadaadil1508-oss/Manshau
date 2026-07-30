@@ -3645,6 +3645,7 @@
     }
 
     function toggleAttendanceStatus(studentId, dateKey) {
+      if (state.role !== 'admin') return;
       const student = state.students.find(s => s.id === studentId);
       if (!student) return;
       
@@ -3736,31 +3737,44 @@
         html += `<div class="h-10 w-full rounded-xl bg-slate-50/50 border border-slate-100/50"></div>`;
       }
 
+      const isAdmin = state.role === 'admin';
+
       for (let d = 1; d <= daysCount; d++) {
         const dStr = d < 10 ? `0${d}` : `${d}`;
         const dateKey = `${year}-${mIdx}-${dStr}`;
         const status = student.attendanceRecords[dateKey];
         
-        let statusClass = "bg-white border-slate-200 hover:bg-slate-50 text-slate-700";
+        let statusClass = "bg-white border-slate-200 text-slate-700";
         if (status === "Present") {
-          statusClass = "bg-emerald-500 hover:bg-emerald-600 text-white border-emerald-500 shadow-sm";
+          statusClass = "bg-emerald-500 text-white border-emerald-500 shadow-sm";
         } else if (status === "Absent") {
-          statusClass = "bg-rose-500 hover:bg-rose-600 text-white border-rose-500 shadow-sm";
+          statusClass = "bg-rose-500 text-white border-rose-500 shadow-sm";
         } else if (status === "Half Day") {
-          statusClass = "bg-amber-500 hover:bg-amber-600 text-white border-amber-500 shadow-sm";
+          statusClass = "bg-amber-500 text-white border-amber-500 shadow-sm";
         } else if (status === "Academic Leave") {
-          statusClass = "bg-slate-900 hover:bg-black text-white border-slate-900 shadow-sm";
+          statusClass = "bg-slate-900 text-white border-slate-900 shadow-sm";
         }
         
-        html += `
-          <button
-            onclick="toggleAttendanceStatus('${student.id}', '${dateKey}')"
-            class="flex items-center justify-center rounded-xl border text-center transition-all hover:scale-105 active:scale-95 cursor-pointer h-10 w-full font-black text-sm ${statusClass}"
-            title="${dateKey} - ${status || 'Upcoming Dates'}"
-          >
-            ${d}
-          </button>
-        `;
+        if (isAdmin) {
+          html += `
+            <button
+              onclick="toggleAttendanceStatus('${student.id}', '${dateKey}')"
+              class="flex items-center justify-center rounded-xl border text-center transition-all hover:scale-105 active:scale-95 cursor-pointer h-10 w-full font-black text-sm ${statusClass}"
+              title="${dateKey} - ${status || 'Upcoming Dates'}"
+            >
+              ${d}
+            </button>
+          `;
+        } else {
+          html += `
+            <div
+              class="flex items-center justify-center rounded-xl border text-center cursor-default h-10 w-full font-black text-sm ${statusClass}"
+              title="${dateKey} - ${status || 'Upcoming Dates'}"
+            >
+              ${d}
+            </div>
+          `;
+        }
       }
       return html;
     }
@@ -3886,12 +3900,14 @@
     }
 
     function toggleStudentStatus() {
+      if (state.role !== 'admin') return;
       const student = getCurrentStudent();
       student.status = student.status === "Present" ? "On Leave" : "Present";
       renderApp();
     }
 
     function toggleSpecificStudentStatus(studentId) {
+      if (state.role !== 'admin') return;
       const student = state.students.find(s => s.id === studentId);
       if (student) {
         student.status = student.status === "Present" ? "On Leave" : "Present";
