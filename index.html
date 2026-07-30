@@ -2269,23 +2269,39 @@
                     <h4 class="font-extrabold text-slate-900 text-sm">Institute Fund Overview</h4>
                     <span class="text-[10px] font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full border border-brand-100">Financial</span>
                   </div>
-                  <!-- Fund Stats: Cash In / Cash Out / Net -->
-                  <div class="grid grid-cols-3 gap-2 mb-4">
-                    <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-100 text-center">
-                      <p class="text-[9px] font-bold text-emerald-600 uppercase tracking-wider">Cash In</p>
-                      <p class="text-sm font-black text-emerald-800 mt-0.5">${formatINR(fin.totalCredits)}</p>
+
+                  <!-- Fund Stats matching Fund Window style -->
+                  <div class="grid grid-cols-1 gap-2.5 mb-4">
+                    <!-- Cash In -->
+                    <div class="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md flex items-center justify-between">
+                      <div>
+                        <p class="text-[9px] font-semibold opacity-90 uppercase tracking-wider">Cash In</p>
+                        <p class="text-base font-black mt-0.5">${formatINR(fin.totalCredits)}</p>
+                      </div>
+                      <div class="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white flex-shrink-0">
+                        ${icon('arrow-down-left', 'w-5 h-5')}
+                      </div>
                     </div>
-                    <div class="p-3 rounded-xl bg-rose-50 border border-rose-100 text-center">
-                      <p class="text-[9px] font-bold text-rose-600 uppercase tracking-wider">Cash Out</p>
-                      <p class="text-sm font-black text-rose-800 mt-0.5">${formatINR(fin.totalDebits)}</p>
+                    <!-- Cash Out -->
+                    <div class="p-3.5 rounded-2xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-md flex items-center justify-between">
+                      <div>
+                        <p class="text-[9px] font-semibold opacity-90 uppercase tracking-wider">Cash Out</p>
+                        <p class="text-base font-black mt-0.5">${formatINR(fin.totalDebits)}</p>
+                      </div>
+                      <div class="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white flex-shrink-0">
+                        ${icon('arrow-up-right', 'w-5 h-5')}
+                      </div>
                     </div>
-                    <div class="p-3 rounded-xl bg-blue-50 border border-blue-100 text-center">
-                      <p class="text-[9px] font-bold text-blue-600 uppercase tracking-wider">Net Balance</p>
-                      <p class="text-sm font-black text-blue-800 mt-0.5">${formatINR(fin.totalCredits - fin.totalDebits)}</p>
+                    <!-- Net Balance -->
+                    <div class="p-3.5 rounded-2xl bg-gradient-to-br from-brand-600 to-blue-700 text-white shadow-md flex items-center justify-between">
+                      <div>
+                        <p class="text-[9px] font-semibold opacity-90 uppercase tracking-wider">Net Total Balance</p>
+                        <p class="text-base font-black mt-0.5">${formatINR(fin.totalCredits - fin.totalDebits)}</p>
+                      </div>
+                      <div class="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white flex-shrink-0">
+                        ${icon('wallet', 'w-5 h-5')}
+                      </div>
                     </div>
-                  </div>
-                  <div class="h-40 w-full relative">
-                    <canvas id="bankCanvas"></canvas>
                   </div>
                 </div>
               </div>
