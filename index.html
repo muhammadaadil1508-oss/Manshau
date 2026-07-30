@@ -186,7 +186,9 @@
       key: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3.5"/></svg>',
       users: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
       bookOpen: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
-      userPlus: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="16" x2="22" y1="11" y2="11"/></svg>'
+      userPlus: '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="16" x2="22" y1="11" y2="11"/></svg>',
+      'arrow-down-left': '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="7" x2="7" y2="17"/><polyline points="17 17 7 17 7 7"/></svg>',
+      'arrow-up-right': '<svg xmlns="http://www.w3.org/2000/svg" class="w-current h-current" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>'
     };
 
     function icon(name, className = "w-5 h-5") {
@@ -265,6 +267,8 @@
       attendanceFilterMonth: "August 2026",
       selectedBatchFilter: "All",
       selectedLoginBatch: "Genesis 01",
+      fundCategoryFilter: "All",
+      fundDateFilter: "",
       
       currentStudentId: "MSH-2026-0001",
  
@@ -1992,6 +1996,20 @@
 
     // --- VIEW 4: BANK CREDITS HUB ---
     function renderBankCreditsView(student, fin) {
+      const catFilter = state.fundCategoryFilter || "All";
+      const dateFilter = state.fundDateFilter || "";
+      const netBalance = fin.totalCredits - fin.totalDebits;
+
+      let filteredTxns = (student.transactions || []);
+      if (catFilter !== "All") {
+        filteredTxns = filteredTxns.filter(t => t.category === catFilter);
+      }
+      if (dateFilter) {
+        filteredTxns = filteredTxns.filter(t => t.date && t.date.includes(dateFilter));
+      }
+
+      const categories = Array.from(new Set((student.transactions || []).map(t => t.category).filter(Boolean)));
+
       return `
         <div class="space-y-8">
           <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -2003,40 +2021,104 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="p-5 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md">
-              <p class="text-xs font-semibold opacity-90">Total Bank Credits</p>
-              <p class="text-3xl font-black mt-1">${formatINR(fin.totalCredits)}</p>
+          <!-- CASH IN, CASH OUT & NET BALANCE CARDS WITH DIRECTIONAL ARROWS -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <!-- Cash In Card -->
+            <div class="p-5 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold opacity-90 uppercase tracking-wider">Cash In</p>
+                <p class="text-3xl font-black mt-1">${formatINR(fin.totalCredits)}</p>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+                ${icon('arrow-down-left', 'w-6 h-6')}
+              </div>
             </div>
-            <div class="p-5 rounded-3xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-md">
-              <p class="text-xs font-semibold opacity-90">Total Debits</p>
-              <p class="text-3xl font-black mt-1">${formatINR(fin.totalDebits)}</p>
+
+            <!-- Cash Out Card -->
+            <div class="p-5 rounded-3xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-md flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold opacity-90 uppercase tracking-wider">Cash Out</p>
+                <p class="text-3xl font-black mt-1">${formatINR(fin.totalDebits)}</p>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+                ${icon('arrow-up-right', 'w-6 h-6')}
+              </div>
+            </div>
+
+            <!-- Net Total Balance Card -->
+            <div class="p-5 rounded-3xl bg-gradient-to-br from-brand-600 to-blue-700 text-white shadow-md flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold opacity-90 uppercase tracking-wider">Net Total Balance</p>
+                <p class="text-3xl font-black mt-1">${formatINR(netBalance)}</p>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+                ${icon('wallet', 'w-6 h-6')}
+              </div>
             </div>
           </div>
 
-          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-            <h3 class="text-base font-extrabold text-slate-900 mb-4">Transaction History & Payment Ledger</h3>
-            <div class="space-y-2">
-              ${(!student.transactions || student.transactions.length === 0) ? `
-                <div class="p-6 text-center text-slate-400 font-bold bg-slate-50 rounded-2xl border border-slate-100">
-                  No transaction records found in live ledger.
+          <!-- TRANSACTION HISTORY WITH CATEGORY & DATE FILTERING -->
+          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 class="text-base font-extrabold text-slate-900">Transaction History & Payment Ledger</h3>
+                <p class="text-xs text-slate-400 font-semibold mt-0.5">Filter ledger records by category and date</p>
+              </div>
+
+              <!-- Filter Controls (Category & Date) -->
+              <div class="flex items-center space-x-2.5 flex-wrap gap-y-2">
+                <!-- Category Filter -->
+                <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+                  <span class="text-[10px] font-bold text-slate-400 px-2">Category:</span>
+                  <select onchange="changeFundCategoryFilter(this.value)" class="p-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 focus:outline-none">
+                    <option value="All" ${catFilter === 'All' ? 'selected' : ''}>All Categories</option>
+                    ${categories.map(c => `<option value="${c}" ${catFilter === c ? 'selected' : ''}>${c}</option>`).join('')}
+                  </select>
                 </div>
-              ` : student.transactions.map(t => `
-                <div class="flex items-center justify-between p-3.5 rounded-2xl bg-white border border-slate-100 hover:border-slate-200 transition-all text-xs">
+
+                <!-- Date Filter -->
+                <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+                  <span class="text-[10px] font-bold text-slate-400 px-2">Date:</span>
+                  <input
+                    type="date"
+                    value="${dateFilter}"
+                    onchange="changeFundDateFilter(this.value)"
+                    class="p-1 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 focus:outline-none"
+                  />
+                  ${dateFilter ? `
+                    <button onclick="changeFundDateFilter('')" class="text-slate-400 hover:text-rose-500 p-1 text-[10px] font-bold" title="Clear Date Filter">
+                      ${icon('x', 'w-3.5 h-3.5')}
+                    </button>
+                  ` : ''}
+                </div>
+              </div>
+            </div>
+
+            <!-- Ledger Transactions List -->
+            <div class="space-y-2 pt-2">
+              ${filteredTxns.length === 0 ? `
+                <div class="p-8 text-center text-slate-400 font-bold bg-slate-50 rounded-2xl border border-slate-100 text-xs">
+                  No transaction records match the selected category/date filters.
+                </div>
+              ` : filteredTxns.map(t => `
+                <div class="flex items-center justify-between p-3.5 rounded-2xl bg-white border border-slate-100 hover:border-slate-200 transition-all text-xs shadow-sm">
                   <div class="flex items-center space-x-3">
                     <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold ${
                       t.type === "Credit" ? "bg-emerald-100 text-emerald-600" : "bg-rose-100 text-rose-600"
                     }">
-                      ${t.type === "Credit" ? "+" : "-"}
+                      ${t.type === "Credit" ? icon('arrow-down-left', 'w-4 h-4') : icon('arrow-up-right', 'w-4 h-4')}
                     </div>
                     <div>
                       <p class="font-bold text-slate-800 text-sm">${t.description}</p>
-                      <p class="text-[10px] text-slate-400">${t.date} &bull; ${t.category} &bull; ID: ${t.id}</p>
+                      <p class="text-[10px] text-slate-400">${t.date} &bull; <span class="font-semibold text-slate-600">${t.category}</span> &bull; ID: ${t.id}</p>
                     </div>
                   </div>
-                  <span class="font-black text-base ${t.type === "Credit" ? "text-emerald-600" : "text-rose-600"}">
-                    ${t.type === "Credit" ? `+${formatINR(t.amount)}` : `-${formatINR(t.amount)}`}
-                  </span>
+                  <div class="text-right">
+                    <span class="font-black text-base ${t.type === "Credit" ? "text-emerald-600" : "text-rose-600"}">
+                      ${t.type === "Credit" ? `+${formatINR(t.amount)}` : `-${formatINR(t.amount)}`}
+                    </span>
+                    <p class="text-[10px] font-bold ${t.type === "Credit" ? "text-emerald-600" : "text-rose-600"}">${t.type === "Credit" ? "Cash In" : "Cash Out"}</p>
+                  </div>
                 </div>
               `).join('')}
             </div>
@@ -2997,6 +3079,16 @@
 
     function changeAttendanceFilterMonth(val) {
       state.attendanceFilterMonth = val;
+      renderApp();
+    }
+
+    function changeFundCategoryFilter(cat) {
+      state.fundCategoryFilter = cat;
+      renderApp();
+    }
+
+    function changeFundDateFilter(dateVal) {
+      state.fundDateFilter = dateVal;
       renderApp();
     }
 
