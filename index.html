@@ -1766,83 +1766,79 @@
       const myAvg = semExams.length ? totalScore / semExams.length : 0;
       const rank  = semExams.length ? (allAvgs.findIndex(a => a <= myAvg) + 1) : '-';
 
-      // Dynamic Medal Colors for 1st (Gold), 2nd (Silver), 3rd (Bronze) & Normal for 4th+
-      let rankCardStyle = "bg-white border border-slate-200 text-slate-800 shadow-sm";
-      let rankTitleStyle = "text-slate-400 font-extrabold tracking-wider";
+      // Clean Minimal Rank Card Styling (Subtle Refined Accents)
+      let rankCardStyle = "bg-slate-50/60 border border-slate-200/80 text-slate-800 shadow-sm";
+      let rankTitleStyle = "text-slate-400 font-bold tracking-wider";
       let rankValueStyle = "text-slate-900 font-black";
-      let rankBadgeText = "";
 
       if (rank === 1 || rank === "1") {
-        // 1st Rank: Gold / Yellow
-        rankCardStyle = "bg-gradient-to-br from-amber-400 via-yellow-400 to-amber-500 text-slate-950 shadow-lg shadow-amber-400/20 border-2 border-amber-300";
-        rankTitleStyle = "text-amber-950 font-black tracking-wider";
-        rankValueStyle = "text-slate-950 font-black drop-shadow-sm";
-        rankBadgeText = "🥇 1st Gold Rank";
+        // 1st Rank: Subtle Gold Accent
+        rankCardStyle = "bg-amber-50/50 border border-amber-200/80 text-amber-950 shadow-sm";
+        rankTitleStyle = "text-amber-700 font-bold tracking-wider";
+        rankValueStyle = "text-amber-950 font-black";
       } else if (rank === 2 || rank === "2") {
-        // 2nd Rank: Silver
-        rankCardStyle = "bg-gradient-to-br from-slate-200 via-slate-100 to-slate-300 text-slate-900 shadow-md border-2 border-slate-300";
-        rankTitleStyle = "text-slate-700 font-black tracking-wider";
-        rankValueStyle = "text-slate-950 font-black";
-        rankBadgeText = "🥈 2nd Silver Rank";
+        // 2nd Rank: Subtle Silver Accent
+        rankCardStyle = "bg-slate-100/60 border border-slate-200 text-slate-900 shadow-sm";
+        rankTitleStyle = "text-slate-500 font-bold tracking-wider";
+        rankValueStyle = "text-slate-900 font-black";
       } else if (rank === 3 || rank === "3") {
-        // 3rd Rank: Bronze
-        rankCardStyle = "bg-gradient-to-br from-amber-700 via-orange-800 to-amber-900 text-amber-50 shadow-md border-2 border-amber-600";
-        rankTitleStyle = "text-amber-200 font-black tracking-wider";
-        rankValueStyle = "text-white font-black";
-        rankBadgeText = "🥉 3rd Bronze Rank";
+        // 3rd Rank: Subtle Bronze Accent
+        rankCardStyle = "bg-orange-50/40 border border-amber-200/60 text-amber-950 shadow-sm";
+        rankTitleStyle = "text-amber-800 font-bold tracking-wider";
+        rankValueStyle = "text-amber-950 font-black";
       }
 
       return `
         <div class="space-y-8">
-          <!-- ACADEMIC PERFORMANCE HERO SECTION WITH SEMESTER SELECTOR & LIVE STAT CARDS -->
+          <!-- ACADEMIC PERFORMANCE HERO SECTION (MINIMAL COLOR DESIGN) -->
           <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white space-y-6">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <span class="bg-brand-50 text-brand-600 text-xs px-3 py-1 rounded-full font-bold border border-brand-100">
+                <span class="bg-slate-100 text-slate-700 text-xs px-3 py-1 rounded-full font-bold border border-slate-200">
                   ACADEMIC PERFORMANCE
                 </span>
                 <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Examinations & Marksheet</h2>
-                <p class="text-xs text-slate-400 font-semibold mt-1">Student Batch: <span class="text-brand-600 font-bold">${student.class || 'Genesis 02'}</span></p>
+                <p class="text-xs text-slate-400 font-semibold mt-1">Student Batch: <span class="text-slate-800 font-bold">${student.class || 'Genesis 02'}</span></p>
               </div>
 
               <div class="flex items-center space-x-3 flex-wrap gap-y-2">
-                <!-- Semester Selector Dropdown in Hero -->
-                <div class="flex items-center space-x-2 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200 shadow-sm">
-                  <span class="text-xs font-extrabold text-slate-600 pl-2">Semester:</span>
-                  <select onchange="changeSelectedSemester(this.value)" class="p-2 bg-white border border-slate-200 rounded-xl text-xs font-extrabold text-brand-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                <!-- Minimal Semester Selector Dropdown in Hero -->
+                <div class="flex items-center space-x-2 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200 shadow-sm">
+                  <span class="text-xs font-bold text-slate-600 pl-2">Semester:</span>
+                  <select onchange="changeSelectedSemester(this.value)" class="p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none cursor-pointer">
                     ${["Sem 1", "Sem 2", "Sem 3", "Sem 4"].map(sem => `
                       <option value="${sem}" ${state.selectedSem === sem ? 'selected' : ''}>${sem}</option>
                     `).join('')}
                   </select>
                 </div>
 
-                <button onclick="downloadMarksheetPDF('${student.id}')" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105">
+                <button onclick="downloadMarksheetPDF('${student.id}')" class="flex items-center space-x-2 bg-slate-900 hover:bg-black text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm transition-all hover:scale-105">
                   ${icon('download', 'w-4 h-4')}
                   <span>Download Marksheet PDF</span>
                 </button>
               </div>
             </div>
 
-            <!-- DYNAMIC SEMESTER HERO STAT CARDS (RANK WITH MEDAL COLORS, COLORED GRADE & COLORED TOTAL MARKS) -->
+            <!-- DYNAMIC MINIMAL HERO STAT CARDS (RANK, GRADE & TOTAL MARKS) -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-              <!-- Class Rank Card -->
+              <!-- Class Rank Card (Minimal) -->
               <div class="rounded-2xl ${rankCardStyle} p-5 text-center flex flex-col items-center justify-center transition-all duration-300">
                 <p class="text-[11px] uppercase ${rankTitleStyle}">Class Rank</p>
                 <p class="text-3xl ${rankValueStyle} mt-1">#${rank}</p>
               </div>
 
-              <!-- Grade Card (Vibrant Emerald Gradient Styling) -->
-              <div class="rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-5 text-center shadow-md border border-emerald-400/40 flex flex-col items-center justify-center">
-                <p class="text-[11px] uppercase font-extrabold text-emerald-100 tracking-wider">Grade</p>
-                <p class="text-3xl font-black text-white mt-1">${pct}%</p>
-                <p class="text-[10px] text-emerald-100 font-extrabold mt-0.5">${grade} Grade</p>
+              <!-- Grade Card (Minimal) -->
+              <div class="rounded-2xl bg-slate-50/60 border border-slate-200/80 p-5 text-center shadow-sm flex flex-col items-center justify-center">
+                <p class="text-[11px] uppercase font-bold text-slate-400 tracking-wider">Grade</p>
+                <p class="text-3xl font-black text-slate-900 mt-1">${pct}%</p>
+                <p class="text-[10px] text-slate-500 font-bold mt-0.5">${grade} Grade</p>
               </div>
 
-              <!-- Total Marks Card (Vibrant Brand Blue Gradient Styling) -->
-              <div class="rounded-2xl bg-gradient-to-br from-brand-600 to-indigo-700 text-white p-5 text-center shadow-md border border-brand-400/40 flex flex-col items-center justify-center">
-                <p class="text-[11px] uppercase font-extrabold text-blue-100 tracking-wider">Total Marks</p>
-                <p class="text-3xl font-black text-white mt-1">${totalScore}</p>
-                <p class="text-[10px] text-blue-100 font-bold mt-0.5">out of ${maxScore}</p>
+              <!-- Total Marks Card (Minimal) -->
+              <div class="rounded-2xl bg-slate-50/60 border border-slate-200/80 p-5 text-center shadow-sm flex flex-col items-center justify-center">
+                <p class="text-[11px] uppercase font-bold text-slate-400 tracking-wider">Total Marks</p>
+                <p class="text-3xl font-black text-slate-900 mt-1">${totalScore}</p>
+                <p class="text-[10px] text-slate-400 font-bold mt-0.5">out of ${maxScore}</p>
               </div>
             </div>
           </div>
@@ -1856,7 +1852,7 @@
               </div>
 
               <div class="flex items-center space-x-2.5 flex-wrap gap-y-2">
-                <!-- Batch Filter Selector -->
+                <!-- Minimal Batch Filter Selector -->
                 <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
                   <span class="text-[10px] font-bold text-slate-400 px-2">Compare Rank Batch:</span>
                   ${["All", "Genesis 01", "Genesis 02"].map(b => `
@@ -1864,7 +1860,7 @@
                       onclick="changeSelectedBatchFilter('${b}')"
                       class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
                         (state.selectedBatchFilter || 'All') === b
-                          ? 'bg-white text-brand-600 shadow-sm font-extrabold'
+                          ? 'bg-slate-900 text-white shadow-sm font-bold'
                           : 'text-slate-500 hover:text-slate-800'
                       }"
                     >
@@ -1897,7 +1893,7 @@
                       </td>
                       <td class="py-3 px-3 text-center font-bold text-slate-700">${item.score} / 100</td>
                       <td class="py-3 px-3 text-center">
-                        <span class="px-2.5 py-1 rounded-md text-[10px] font-black bg-emerald-100 text-emerald-700">
+                        <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-100 text-slate-800 border border-slate-200">
                           ${item.grade}
                         </span>
                       </td>
@@ -1905,18 +1901,18 @@
                   `).join('')}
                 </tbody>
 
-                <!-- GRAND TOTAL FOOTER ROW UNDER ALL SUBJECTS -->
+                <!-- MINIMAL GRAND TOTAL FOOTER ROW -->
                 ${semExams.length > 0 ? `
-                  <tfoot class="border-t-2 border-slate-200 bg-slate-50/90 font-black">
+                  <tfoot class="border-t-2 border-slate-200 bg-slate-50/80 font-black">
                     <tr class="text-slate-900">
-                      <td class="py-3 px-3 uppercase font-extrabold tracking-wider text-xs">
+                      <td class="py-3 px-3 uppercase font-bold tracking-wider text-xs text-slate-700">
                         Grand Total (${state.selectedSem})
                       </td>
                       <td class="py-3 px-3 text-center font-black text-sm text-slate-900">
                         ${totalScore} / ${maxScore}
                       </td>
                       <td class="py-3 px-3 text-center">
-                        <span class="px-3 py-1 rounded-lg text-xs font-black bg-brand-600 text-white shadow-sm">
+                        <span class="px-3 py-1 rounded-lg text-xs font-bold bg-slate-900 text-white shadow-sm">
                           ${grade} Grade
                         </span>
                       </td>
