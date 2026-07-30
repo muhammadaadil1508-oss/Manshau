@@ -1735,6 +1735,64 @@
         ${renderAcademicUpdatesTicker()}
 
 
+        <!-- ACADEMIC PERFORMANCE SUMMARY CARD -->
+        ${(() => {
+          const dashExams = student.exams.filter(e => (e.sem || 'Sem 4') === state.selectedSem);
+          const dashTotal = dashExams.reduce((s, e) => s + (e.score || 0), 0);
+          const dashMax   = dashExams.length * 100;
+          const dashPct   = dashMax > 0 ? ((dashTotal / dashMax) * 100).toFixed(1) : '0.0';
+          const dashGrade = dashExams.length > 0 ? getGradeFromScore(parseFloat(dashPct)) : 'N/A';
+
+          const allAvgs = state.students.map(st => {
+            const exs = (st.exams || []).filter(e => (e.sem || 'Sem 4') === state.selectedSem);
+            return exs.length ? exs.reduce((s, e) => s + (e.score || 0), 0) / exs.length : 0;
+          }).sort((a, b) => b - a);
+          const myAvg = dashExams.length ? dashTotal / dashExams.length : 0;
+          const rank  = dashExams.length ? (allAvgs.findIndex(a => a <= myAvg) + 1) : '-';
+
+          let rankCardStyle = 'bg-slate-50/60 border border-slate-200/80 text-slate-900';
+          let rankLabelStyle = 'text-slate-400';
+          if (rank === 1) { rankCardStyle = 'bg-amber-50/60 border border-amber-200/80 text-amber-950'; rankLabelStyle = 'text-amber-600'; }
+          else if (rank === 2) { rankCardStyle = 'bg-slate-100/60 border border-slate-300/60 text-slate-900'; rankLabelStyle = 'text-slate-500'; }
+          else if (rank === 3) { rankCardStyle = 'bg-orange-50/40 border border-amber-200/60 text-amber-950'; rankLabelStyle = 'text-amber-700'; }
+
+          return `
+          <div class="glass-card rounded-3xl p-6 shadow-anti-gravity border border-white mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+              <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center">
+                  ${icon('graduation-cap', 'w-4 h-4')}
+                </div>
+                <h3 class="text-sm font-extrabold text-slate-900">Academic Performance</h3>
+              </div>
+              <div class="flex items-center space-x-2 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200 shadow-sm self-start sm:self-auto">
+                <span class="text-[11px] font-extrabold text-slate-500 pl-1">Semester:</span>
+                <select onchange="changeSelectedSemester(this.value)" class="p-1.5 bg-white border border-slate-200 rounded-xl text-xs font-extrabold text-brand-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                  ${["Sem 1","Sem 2","Sem 3","Sem 4"].map(sem => `
+                    <option value="${sem}" ${state.selectedSem === sem ? 'selected' : ''}>${sem}</option>
+                  `).join('')}
+                </select>
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+              <div class="rounded-2xl border p-4 text-center flex flex-col items-center justify-center transition-all ${rankCardStyle}">
+                <p class="text-[10px] uppercase font-bold tracking-wider ${rankLabelStyle}">Class Rank</p>
+                <p class="text-2xl sm:text-3xl font-black mt-1">#${rank}</p>
+              </div>
+              <div class="rounded-2xl bg-emerald-50/60 border border-emerald-100/80 p-4 text-center shadow-sm flex flex-col items-center justify-center">
+                <p class="text-[10px] uppercase font-bold text-emerald-600 tracking-wider">Grade</p>
+                <p class="text-2xl sm:text-3xl font-black text-emerald-950 mt-1">${dashPct}%</p>
+                <p class="text-[10px] text-emerald-600 font-bold mt-0.5">${dashGrade} Grade</p>
+              </div>
+              <div class="rounded-2xl bg-blue-50/60 border border-blue-100/80 p-4 text-center shadow-sm flex flex-col items-center justify-center">
+                <p class="text-[10px] uppercase font-bold text-blue-600 tracking-wider">Total Marks</p>
+                <p class="text-2xl sm:text-3xl font-black text-blue-950 mt-1">${dashTotal}</p>
+                <p class="text-[10px] text-blue-500 font-bold mt-0.5">out of ${dashMax}</p>
+              </div>
+            </div>
+          </div>
+          `;
+        })()}
 
         <!-- SPECIALIZED TAGS & GRAPHS -->
         <div class="glass-card rounded-3xl p-6 shadow-anti-gravity anti-gravity-card border border-white mb-6">
