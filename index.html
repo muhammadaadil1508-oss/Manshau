@@ -195,7 +195,8 @@
     }
 
     function formatINR(amount) {
-      return 'â‚¹' + Number(amount).toLocaleString('en-IN');
+      const val = Number(amount) || 0;
+      return '₹' + val.toLocaleString('en-IN');
     }
 
     function getStudentAvatarHtml(student, sizeClass = "w-10 h-10 text-sm ring-2 ring-brand-400 shadow-sm", initialsSizeClass = "text-sm") {
@@ -279,7 +280,12 @@
           avatarInitials: "SW",
           avatarBg: "from-brand-600 to-sky-400",
           lastUpdated: Date.now(),
-          transactions: [],
+          transactions: [
+            { id: "TXN-1001", date: "2026-07-28", description: "Semester Tuition Fee Payment", category: "Academic Fee", type: "Credit", amount: 45000 },
+            { id: "TXN-1002", date: "2026-07-20", description: "Merit Academic Scholarship Grant", category: "Scholarship", type: "Credit", amount: 15000 },
+            { id: "TXN-1003", date: "2026-07-15", description: "Lab & Library Security Deposit", category: "Facility", type: "Credit", amount: 5000 },
+            { id: "TXN-1004", date: "2026-07-10", description: "Textbook & Course Material Purchase", category: "Bookstore", type: "Debit", amount: 3500 }
+          ],
           exams: [
             { id: "EXM-001", subject: "Mathematics", code: "MAT-301", score: 85, grade: "A", credits: 4, sem: "Sem 4" },
             { id: "EXM-002", subject: "Physics", code: "PHY-302", score: 78, grade: "B+", credits: 4, sem: "Sem 4" },
@@ -657,8 +663,9 @@
 
     function getFinancials(studentObj) {
       const student = studentObj || getCurrentStudent();
-      const totalCredits = student.transactions.filter(t => t.type === "Credit").reduce((sum, t) => sum + t.amount, 0);
-      const totalDebits = student.transactions.filter(t => t.type === "Debit").reduce((sum, t) => sum + t.amount, 0);
+      const txs = (student && Array.isArray(student.transactions)) ? student.transactions : [];
+      const totalCredits = txs.filter(t => t.type === "Credit").reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+      const totalDebits = txs.filter(t => t.type === "Debit").reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
       const totalFeesAssigned = 85000;
       const pendingDues = Math.max(0, totalFeesAssigned - totalCredits + totalDebits);
       return { totalCredits, totalDebits, totalFeesAssigned, pendingDues };
@@ -1803,10 +1810,9 @@
           <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <span class="bg-emerald-50 text-emerald-700 text-xs px-3 py-1 rounded-full font-bold border border-emerald-100">
-                STUDENTS' FUND (INR â‚¹)
+                STUDENTS' FUND (INR ₹)
               </span>
               <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">${student.name}'s Fund Manager</h2>
-              <p class="text-xs text-slate-500">Track paid fees, credits, scholarships, and funds in Indian Rupees (â‚¹)</p>
             </div>
           </div>
 
@@ -1821,11 +1827,14 @@
             </div>
           </div>
 
-
           <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
             <h3 class="text-base font-extrabold text-slate-900 mb-4">Transaction History & Payment Ledger</h3>
             <div class="space-y-2">
-              ${student.transactions.map(t => `
+              ${(!student.transactions || student.transactions.length === 0) ? `
+                <div class="p-6 text-center text-slate-400 font-bold bg-slate-50 rounded-2xl border border-slate-100">
+                  No transaction records found in live ledger.
+                </div>
+              ` : student.transactions.map(t => `
                 <div class="flex items-center justify-between p-3.5 rounded-2xl bg-white border border-slate-100 hover:border-slate-200 transition-all text-xs">
                   <div class="flex items-center space-x-3">
                     <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold ${
@@ -1835,7 +1844,7 @@
                     </div>
                     <div>
                       <p class="font-bold text-slate-800 text-sm">${t.description}</p>
-                      <p class="text-[10px] text-slate-400">${t.date} â€¢ ${t.category} â€¢ ID: ${t.id}</p>
+                      <p class="text-[10px] text-slate-400">${t.date} &bull; ${t.category} &bull; ID: ${t.id}</p>
                     </div>
                   </div>
                   <span class="font-black text-base ${t.type === "Credit" ? "text-emerald-600" : "text-rose-600"}">
