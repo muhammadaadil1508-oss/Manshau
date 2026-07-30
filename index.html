@@ -2061,11 +2061,6 @@
           `;
         })()}
 
-        <!-- CLASS LEADERBOARDS HERO SECTION -->
-        <div class="mb-6">
-          ${renderSemesterRankHoldersComponent(state.selectedSem)}
-        </div>
-
         <!-- SPECIALIZED TAGS & GRAPHS -->
         <div class="glass-card rounded-3xl p-6 shadow-anti-gravity anti-gravity-card border border-white mb-6">
           <div class="flex items-center space-x-3 mb-6">
@@ -2078,6 +2073,11 @@
           </div>
 
           ${renderGraphContent(student, fin)}
+        </div>
+
+        <!-- CLASS LEADERBOARDS HERO SECTION (LOWER IN DASHBOARD) -->
+        <div class="mb-6">
+          ${renderSemesterRankHoldersComponent(state.selectedSem)}
         </div>
       `;
     }
