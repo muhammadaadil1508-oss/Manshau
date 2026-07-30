@@ -3360,7 +3360,38 @@
       renderApp();
     }
 
+    function syncLeaveDatesToAttendance(student) {
+      if (!student || !student.leaves || !Array.isArray(student.leaves)) return;
+      student.attendanceRecords = student.attendanceRecords || {};
+      
+      student.leaves.forEach(leave => {
+        if (!leave.startDate || leave.status === "Rejected") return;
+        
+        const startParts = leave.startDate.split('-');
+        const endParts = (leave.endDate || leave.startDate).split('-');
+        if (startParts.length !== 3) return;
+        
+        const start = new Date(parseInt(startParts[0]), parseInt(startParts[1]) - 1, parseInt(startParts[2]));
+        const end = new Date(parseInt(endParts[0]), parseInt(endParts[1]) - 1, parseInt(endParts[2]));
+        
+        let curr = new Date(start);
+        while (curr <= end) {
+          const y = curr.getFullYear();
+          const m = String(curr.getMonth() + 1).padStart(2, '0');
+          const d = String(curr.getDate()).padStart(2, '0');
+          const dateKey = `${y}-${m}-${d}`;
+          
+          if (!student.attendanceRecords[dateKey] || student.attendanceRecords[dateKey] === "Academic Leave") {
+            student.attendanceRecords[dateKey] = "Academic Leave";
+          }
+          
+          curr.setDate(curr.getDate() + 1);
+        }
+      });
+    }
+
     function generateAttendanceDaysGrid(student, filterMonth) {
+      syncLeaveDatesToAttendance(student);
       const daysCount = getDaysInMonthString(filterMonth);
       const parts = filterMonth.split(' ');
       const mName = parts[0];
@@ -3865,6 +3896,7 @@
         const leave = student.leaves.find(l => l.id === leaveId);
         if (leave) leave.status = newStatus;
         
+        syncLeaveDatesToAttendance(student);
         recalculateStudentLeaves(student);
         
         student.lastUpdated = Date.now();
@@ -4261,8 +4293,10 @@
         status: "Pending",
         appliedOn: new Date().toISOString().split('T')[0]
       });
+      syncLeaveDatesToAttendance(student);
       student.lastUpdated = Date.now();
       toggleModal('leave', false);
+      saveState();
       renderApp();
     }
 
