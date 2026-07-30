@@ -1158,7 +1158,7 @@
                 { id: "overview", label: "Overview", labelMobile: "Overview", iconName: "layout-dashboard" },
                 { id: "academics", label: "Academics & Exams", labelMobile: "Academic", iconName: "bookOpen" },
                 { id: "leaves", label: "Leave Approvals", labelMobile: "Leaves", iconName: "check-square" },
-                { id: "finance", label: "Bank Ledger (₹)", labelMobile: "Ledger", iconName: "landmark" },
+                { id: "finance", label: "Institute Fund", labelMobile: "Fund", iconName: "landmark" },
                 { id: "broadcast", label: "Broadcaster", labelMobile: "Broadcast", iconName: "radio" },
               ].map(item => {
                 const isActive = state.adminActiveTab === item.id;
@@ -1671,29 +1671,69 @@
 
     // --- ADMIN MODULE 5: FINANCIAL LEDGER ---
     function renderAdminFinanceView(student, fin) {
+      const netBalance = fin.totalCredits - fin.totalDebits;
+
       return `
-        <div class="space-y-8">
+        <div class="space-y-6">
+          <!-- HEADER CARD -->
           <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <span class="bg-emerald-50 text-emerald-700 text-xs px-3 py-1 rounded-full font-bold border border-emerald-100">
-                INR FINANCIAL CONTROLLER (â‚¹)
+              <span class="bg-emerald-50 text-emerald-700 text-xs px-3 py-1 rounded-full font-bold border border-emerald-100 uppercase tracking-wider">
+                INSTITUTE FUND (₹)
               </span>
-              <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Bank Simulator & Ledger Injector</h2>
+              <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Institute Fund</h2>
             </div>
 
             <!-- Student Switcher -->
-            <select onchange="switchStudentAccount(this.value)" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+            <select onchange="switchStudentAccount(this.value)" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shadow-sm">
               ${state.students.map(s => `
                 <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name}</option>
               `).join('')}
             </select>
           </div>
 
+          <!-- CASH IN, CASH OUT & NET BALANCE CARDS (MATCHING STUDENT USER STYLE) -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <!-- Cash In Card -->
+            <div class="p-5 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold opacity-90 uppercase tracking-wider">Cash In</p>
+                <p class="text-3xl font-black mt-1">${formatINR(fin.totalCredits)}</p>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+                ${icon('arrow-down-left', 'w-6 h-6')}
+              </div>
+            </div>
+
+            <!-- Cash Out Card -->
+            <div class="p-5 rounded-3xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-md flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold opacity-90 uppercase tracking-wider">Cash Out</p>
+                <p class="text-3xl font-black mt-1">${formatINR(fin.totalDebits)}</p>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+                ${icon('arrow-up-right', 'w-6 h-6')}
+              </div>
+            </div>
+
+            <!-- Net Total Balance Card -->
+            <div class="p-5 rounded-3xl bg-gradient-to-br from-brand-600 to-blue-700 text-white shadow-md flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold opacity-90 uppercase tracking-wider">Net Total Balance</p>
+                <p class="text-3xl font-black mt-1">${formatINR(netBalance)}</p>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white">
+                ${icon('wallet', 'w-6 h-6')}
+              </div>
+            </div>
+          </div>
+
+          <!-- TRANSACTION INJECTION & HISTORY -->
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
               <h3 class="text-base font-extrabold text-slate-900 mb-4 flex items-center space-x-2">
                 ${icon('landmark', 'w-5 h-5 text-emerald-600')}
-                <span>Inject Transaction into ${student.name}'s Ledger (INR â‚¹)</span>
+                <span>Add Transaction for ${student.name}</span>
               </h3>
 
               <form onsubmit="handleAdminInjectTxnForStudent(event, '${student.id}')" class="space-y-3 text-xs">
@@ -1707,31 +1747,37 @@
 
                 <div>
                   <label class="block font-bold text-slate-700 mb-1">Transaction Description</label>
-                  <input type="text" id="adminTxnDesc" required placeholder="e.g. Lab Deposit Refund" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
+                  <input type="text" id="adminTxnDesc" required placeholder="e.g. Tuition Fee Payment" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
                 </div>
 
                 <div>
-                  <label class="block font-bold text-slate-700 mb-1">Amount (â‚¹)</label>
+                  <label class="block font-bold text-slate-700 mb-1">Amount (₹)</label>
                   <input type="number" id="adminTxnAmount" required placeholder="2500" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
                 </div>
 
                 <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 rounded-xl transition-all shadow-md shadow-emerald-500/20">
-                  Inject Transaction into Live Ledger (â‚¹)
+                  Add Transaction to Fund (₹)
                 </button>
               </form>
             </div>
 
+            <!-- TRANSACTION LIST -->
             <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-              <h3 class="text-base font-extrabold text-slate-900 mb-4">${student.name}'s Financial Summary</h3>
-              <div class="space-y-3 text-xs">
-                <div class="p-3.5 rounded-2xl bg-emerald-50 text-emerald-800 font-bold flex justify-between">
-                  <span>Total Bank Credits:</span>
-                  <span>${formatINR(fin.totalCredits)}</span>
-                </div>
-                <div class="p-3.5 rounded-2xl bg-rose-50 text-rose-800 font-bold flex justify-between">
-                  <span>Total Debits:</span>
-                  <span>${formatINR(fin.totalDebits)}</span>
-                </div>
+              <h3 class="text-base font-extrabold text-slate-900 mb-4">${student.name}'s Fund Ledger</h3>
+              <div class="space-y-3 text-xs max-h-[350px] overflow-y-auto pr-1">
+                ${(!student.transactions || student.transactions.length === 0) ? `
+                  <p class="text-slate-400 font-bold text-center py-8">No transactions recorded for ${student.name}.</p>
+                ` : student.transactions.map(t => `
+                  <div class="p-3.5 rounded-2xl bg-white border border-slate-100 flex items-center justify-between shadow-xs">
+                    <div>
+                      <p class="font-bold text-slate-800">${t.description}</p>
+                      <p class="text-[10px] text-slate-400 font-semibold mt-0.5">${t.date} &bull; <span class="text-brand-600">${t.category || 'General'}</span></p>
+                    </div>
+                    <span class="font-black text-sm ${t.type === 'Credit' ? 'text-emerald-600' : 'text-rose-600'}">
+                      ${t.type === 'Credit' ? '+' : '-'}${formatINR(t.amount)}
+                    </span>
+                  </div>
+                `).join('')}
               </div>
             </div>
           </div>
