@@ -199,6 +199,16 @@
       return '₹' + val.toLocaleString('en-IN');
     }
 
+    function getAdminAvatarHtml(sizeClass = "w-10 h-10 text-sm ring-2 ring-indigo-500 shadow-sm") {
+      const cleanSizeClass = sizeClass.replace('object-cover', '').replace('rounded-xl', 'rounded-full');
+      return `<div class="${cleanSizeClass} rounded-full bg-gradient-to-tr from-slate-900 via-slate-800 to-indigo-950 text-indigo-300 flex items-center justify-center shadow-md border border-indigo-400/40">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-1/2 h-1/2 text-indigo-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <circle cx="12" cy="11" r="2.5"/>
+        </svg>
+      </div>`;
+    }
+
     function getStudentAvatarHtml(student, sizeClass = "w-10 h-10 text-sm ring-2 ring-brand-400 shadow-sm", initialsSizeClass = "text-sm") {
       if (student && student.photoUrl) {
         return `<img src="${student.photoUrl}" class="${sizeClass} rounded-full object-cover" alt="${student.name || 'User'}" />`;
@@ -805,13 +815,13 @@
                 </div>
 
 
-                <!-- NOTIFICATION BELL ICON -->
+                <!-- NOTIFICATION BELL ICON (CIRCULAR BORDER MATCHING PROFILE ICON RATIO) -->
                 <button 
                   onclick="toggleModal('notification', true)"
-                  class="relative p-2 rounded-xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-200/80 shadow-sm transition-all hover:scale-105"
+                  class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white hover:bg-slate-50 border-2 border-brand-500/80 shadow-sm transition-all hover:scale-105 flex flex-shrink-0 items-center justify-center text-slate-600"
                   title="Academic Notifications & Alerts"
                 >
-                  ${icon('bell', 'w-5 h-5 text-slate-600')}
+                  ${icon('bell', 'w-4.5 h-4.5 text-slate-600')}
                   ${unreadCount > 0 ? `
                     <span class="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center animate-bounce shadow-sm">
                       ${String(unreadCount).padStart(2, '0')}
@@ -827,7 +837,9 @@
                     class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white hover:bg-slate-50 border-2 border-brand-500/80 shadow-sm transition-all hover:scale-105 p-0.5 flex flex-shrink-0 items-center justify-center group"
                     title="User Profile & Settings"
                   >
-                    ${getStudentAvatarHtml(currentStudent, "w-full h-full rounded-full object-cover", "text-xs")}
+                    ${state.role === 'admin' 
+                      ? getAdminAvatarHtml("w-full h-full rounded-full") 
+                      : getStudentAvatarHtml(currentStudent, "w-full h-full rounded-full object-cover", "text-xs")}
                     <span class="absolute -bottom-0.5 -right-0.5 bg-white rounded-full p-0.5 border border-slate-200 shadow-sm text-slate-400 group-hover:text-slate-600 flex items-center justify-center">
                       ${icon('chevron-down', 'w-2.5 h-2.5')}
                     </span>
@@ -837,10 +849,12 @@
                   <div id="headerProfileMenu" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-anti-gravity-lg border border-slate-100 overflow-hidden z-50 animate-fade-in-up">
                     <div class="p-3 bg-gradient-to-r from-brand-50/60 to-slate-50 border-b border-slate-100">
                       <div class="flex items-center space-x-3">
-                        ${getStudentAvatarHtml(currentStudent, "w-10 h-10 rounded-full object-cover ring-2 ring-brand-400 shadow-sm", "text-sm")}
+                        ${state.role === 'admin' 
+                          ? getAdminAvatarHtml("w-10 h-10 rounded-full ring-2 ring-indigo-500 shadow-sm") 
+                          : getStudentAvatarHtml(currentStudent, "w-10 h-10 rounded-full object-cover ring-2 ring-brand-400 shadow-sm", "text-sm")}
                         <div class="overflow-hidden">
-                          <p class="font-extrabold text-slate-900 text-xs truncate">${currentStudent.name}</p>
-                          <p class="text-[10px] text-slate-500 font-semibold truncate">${currentStudent.id} &bull; ${state.role === 'admin' ? 'Admin' : 'Student'}</p>
+                          <p class="font-extrabold text-slate-900 text-xs truncate">${state.role === 'admin' ? 'Administrator' : currentStudent.name}</p>
+                          <p class="text-[10px] text-slate-500 font-semibold truncate">${state.role === 'admin' ? 'System Controller' : currentStudent.id} &bull; ${state.role === 'admin' ? 'Admin' : 'Student'}</p>
                         </div>
                       </div>
                     </div>
@@ -2389,7 +2403,6 @@
                   </div>
                   <div>
                     <h3 class="text-lg font-extrabold text-slate-900">Academic Notifications</h3>
-                    <p class="text-xs text-slate-500">Live institute updates, schedules & announcements (12-Hour AM/PM)</p>
                   </div>
                 </div>
 
