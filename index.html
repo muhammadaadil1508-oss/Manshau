@@ -1205,14 +1205,12 @@
     }
 
     // --- SHARED STUDENT ROSTER COMPONENT ---
-    // --- SHARED STUDENT ROSTER COMPONENT ---
     function renderStudentAccountsRosterComponent() {
       return `
         <div class="glass-card p-5 sm:p-6 rounded-3xl shadow-anti-gravity border border-white space-y-3">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 class="text-sm font-extrabold text-slate-900">Registered Student Users (${state.students.length})</h3>
-              <p class="text-[11px] text-slate-500">Manage student logins, passwords, statuses, profiles, or add/delete accounts</p>
             </div>
             <button onclick="toggleModal('addStudent', true)" class="flex items-center justify-center space-x-1.5 bg-brand-600 hover:bg-brand-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105 self-start sm:self-auto">
               ${icon('userPlus', 'w-3.5 h-3.5')}
@@ -1267,6 +1265,29 @@
       `;
     }
 
+    function calculateLiveAverageAttendance() {
+      let totalRecords = 0;
+      let totalPresents = 0;
+      (state.students || []).forEach(s => {
+        if (s.attendanceRecords) {
+          const vals = Object.values(s.attendanceRecords);
+          vals.forEach(v => {
+            if (v === "Present") {
+              totalRecords++;
+              totalPresents += 1.0;
+            } else if (v === "Half Day") {
+              totalRecords++;
+              totalPresents += 0.5;
+            } else if (v === "Absent") {
+              totalRecords++;
+            }
+          });
+        }
+      });
+      if (totalRecords === 0) return "0.0%";
+      return ((totalPresents / totalRecords) * 100).toFixed(1) + "%";
+    }
+
     // --- ADMIN MODULE 1: OVERVIEW ---
     function renderAdminOverviewView(fin) {
       return `
@@ -1278,7 +1299,7 @@
                 <span class="bg-brand-500/20 text-sky-400 text-[10px] px-2.5 py-0.5 rounded-full font-bold border border-sky-400/30 uppercase tracking-wider">
                   ORCHESTRATOR COMMAND CENTER
                 </span>
-                <h2 class="text-xl sm:text-2xl font-black tracking-tight mt-1">Admin Dashboard Overview</h2>
+                <h2 class="text-xl sm:text-2xl font-black tracking-tight mt-1">Admin Dashboard</h2>
               </div>
               <div class="hidden sm:flex items-center space-x-2 text-xs font-semibold text-emerald-400 bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700">
                 <span class="relative flex h-2 w-2">
@@ -1304,7 +1325,7 @@
               </div>
               <div class="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/60">
                 <p class="text-[10px] uppercase font-bold text-slate-400">Average Attendance</p>
-                <p class="text-xl font-black text-sky-400 mt-0.5">95.2%</p>
+                <p class="text-xl font-black text-sky-400 mt-0.5">${calculateLiveAverageAttendance()}</p>
               </div>
             </div>
           </div>
@@ -1441,9 +1462,6 @@
             </div>
           </div>
 
-          <!-- RANK HOLDERS COMPONENT UNDER HERO SECTION -->
-          ${renderSemesterRankHoldersComponent(state.selectedSem)}
-
           <!-- MARKS SHEET TABLE IN SAME WINDOW -->
           <div class="space-y-2">
             <div class="flex items-center justify-between">
@@ -1503,6 +1521,9 @@
               </table>
             </div>
           </div>
+
+          <!-- RANK HOLDERS COMPONENT UNDER COURSE MARKS TABLE -->
+          ${renderSemesterRankHoldersComponent(state.selectedSem)}
         </div>
       `;
     }
@@ -2035,18 +2056,21 @@
                 <p class="text-3xl font-black text-blue-950 mt-1">${totalScore}</p>
                 <p class="text-[10px] text-blue-500 font-bold mt-0.5">out of ${maxScore}</p>
               </div>
+              
+              <!-- Average Attendance Card -->
+              <div class="rounded-2xl bg-purple-50/60 border border-purple-100/80 p-5 text-center shadow-sm flex flex-col items-center justify-center">
+                <p class="text-[11px] uppercase font-bold text-purple-600 tracking-wider">Avg Attendance</p>
+                <p class="text-3xl font-black text-purple-950 mt-1">${liveAvgAttendance}%</p>
+                <p class="text-[10px] text-purple-600 font-bold mt-0.5">Across Batch</p>
+              </div>
             </div>
           </div>
-
-          <!-- RANK HOLDERS COMPONENT UNDER HERO SECTION -->
-          ${renderSemesterRankHoldersComponent(state.selectedSem)}
 
           <!-- MARKSHEET SUBJECT BREAKDOWN TABLE, LOWER CONTROLS (SEMESTER & PDF DOWNLOAD) -->
           <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
               <div>
                 <h3 class="text-base font-extrabold text-slate-900">Course Marks & Grades</h3>
-
               </div>
 
               <div class="flex items-center space-x-3 flex-wrap gap-y-2">
@@ -2059,9 +2083,6 @@
                     `).join('')}
                   </select>
                 </div>
-
-
-                <!-- Download Marksheet PDF Button (Header Right) -->
               </div>
             </div>
 
@@ -2124,6 +2145,9 @@
               </button>
             </div>
           </div>
+
+          <!-- MARKS LEADERBOARD UNDER COURSE MARKS -->
+          ${renderSemesterRankHoldersComponent(state.selectedSem)}
         </div>
       `;
     }
