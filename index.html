@@ -1205,9 +1205,19 @@
 
     // --- SHARED STUDENT ROSTER COMPONENT ---
     function renderStudentAccountsRosterComponent() {
+      // Group students by class
+      const classMap = {};
+      (state.students || []).forEach(s => {
+        const cls = s.class || "Genesis 01";
+        if (!classMap[cls]) classMap[cls] = [];
+        classMap[cls].push(s);
+      });
+
+      const classNames = Object.keys(classMap).sort();
+
       return `
-        <div class="glass-card p-5 sm:p-6 rounded-3xl shadow-anti-gravity border border-white space-y-3">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="glass-card p-5 sm:p-6 rounded-3xl shadow-anti-gravity border border-white space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <div>
               <h3 class="text-sm font-extrabold text-slate-900">Registered Student Users (${state.students.length})</h3>
             </div>
@@ -1217,48 +1227,64 @@
             </button>
           </div>
 
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs min-w-[600px]">
-              <thead>
-                <tr class="border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
-                  <th class="py-2 px-3">Student Name</th>
-                  <th class="py-2 px-3">Username</th>
-                  <th class="py-2 px-3">Password</th>
-                  <th class="py-2 px-3">Status</th>
-                  <th class="py-2 px-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-50">
-                ${state.students.map(s => `
-                  <tr class="hover:bg-slate-50/80 transition-colors">
-                    <td class="py-2.5 px-3 font-bold text-slate-800">
-                      <div class="flex items-center space-x-2.5">
-                        ${getStudentAvatarHtml(s, "w-7 h-7 flex-shrink-0", "text-[10px]")}
-                        <div>
-                          <p class="font-bold text-slate-800">${s.name}</p>
-                          <p class="text-[10px] text-slate-400 font-normal">${s.class}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="py-2.5 px-3 font-bold text-brand-600">${s.username}</td>
-                    <td class="py-2.5 px-3 font-mono font-bold text-slate-700">${s.password}</td>
-                    <td class="py-2.5 px-3">
-                      <button onclick="toggleSpecificStudentStatus('${s.id}')" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-sm transition-all hover:scale-105 ${s.status === 'Present' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}">
-                        ${s.status}
-                      </button>
-                    </td>
-                    <td class="py-2.5 px-3 text-right space-x-2">
-                      <button onclick="openEditStudentModal('${s.id}')" class="px-2.5 py-1 rounded-lg bg-brand-50 text-brand-600 font-bold hover:bg-brand-100 text-[11px]">
-                        Edit Profile & Settings
-                      </button>
-                      <button onclick="deleteStudentUser('${s.id}')" class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 font-bold hover:bg-rose-100 text-[11px]" title="Delete Student">
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
+          <div class="space-y-6">
+            ${classNames.map(cls => {
+              const studentsInClass = classMap[cls];
+              return `
+                <div class="space-y-2.5">
+                  <div class="flex items-center justify-between px-1">
+                    <div class="flex items-center space-x-2">
+                      <span class="w-2.5 h-2.5 rounded-full bg-brand-500 inline-block shadow-xs"></span>
+                      <h4 class="text-xs font-black text-brand-600 uppercase tracking-wider">${cls} (${studentsInClass.length})</h4>
+                    </div>
+                  </div>
+
+                  <div class="w-full overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs min-w-[550px]">
+                      <thead>
+                        <tr class="border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
+                          <th class="py-2 px-3">Student Name</th>
+                          <th class="py-2 px-3">Username</th>
+                          <th class="py-2 px-3">Password</th>
+                          <th class="py-2 px-3">Status</th>
+                          <th class="py-2 px-3 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-slate-50">
+                        ${studentsInClass.map(s => `
+                          <tr class="hover:bg-slate-50/80 transition-colors">
+                            <td class="py-2.5 px-3 font-bold text-slate-800">
+                              <div class="flex items-center space-x-2.5">
+                                ${getStudentAvatarHtml(s, "w-7 h-7 flex-shrink-0", "text-[10px]")}
+                                <div>
+                                  <p class="font-bold text-slate-800">${s.name}</p>
+                                  <p class="text-[10px] text-slate-400 font-normal">${s.class}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td class="py-2.5 px-3 font-bold text-brand-600">${s.username}</td>
+                            <td class="py-2.5 px-3 font-mono font-bold text-slate-700">${s.password}</td>
+                            <td class="py-2.5 px-3">
+                              <button onclick="toggleSpecificStudentStatus('${s.id}')" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-sm transition-all hover:scale-105 ${s.status === 'Present' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}">
+                                ${s.status}
+                              </button>
+                            </td>
+                            <td class="py-2.5 px-3 text-right space-x-2">
+                              <button onclick="openEditStudentModal('${s.id}')" class="px-2.5 py-1 rounded-lg bg-brand-50 text-brand-600 font-bold hover:bg-brand-100 text-[11px]">
+                                Edit Profile & Settings
+                              </button>
+                              <button onclick="deleteStudentUser('${s.id}')" class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 font-bold hover:bg-rose-100 text-[11px]" title="Delete Student">
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        `).join('')}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              `;
+            }).join('')}
           </div>
         </div>
       `;
