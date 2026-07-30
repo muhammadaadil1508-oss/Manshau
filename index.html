@@ -793,7 +793,6 @@
                 <div>
                   <div class="flex items-center space-x-2">
                     <span class="font-extrabold text-slate-900 text-lg tracking-tight">MANSHAU</span>
-                    ${state.role === 'admin' ? '<span class="bg-brand-50 text-brand-600 text-[11px] px-2.5 py-0.5 rounded-full font-bold border border-brand-100">ERP 2.0</span>' : ''}
                   </div>
                 </div>
               </div>
@@ -1479,40 +1478,37 @@
             </div>
           </div>
 
-          <!-- STANDALONE LEADERBOARD HERO SECTION -->
-          ${renderSemesterRankHoldersComponent(state.selectedSem)}
-
           <!-- MARKS SHEET TABLE CARD -->
           <div class="glass-card p-5 sm:p-6 rounded-3xl shadow-anti-gravity border border-white space-y-3">
             <div class="flex items-center justify-between">
               <h3 class="text-sm font-extrabold text-slate-800">Course Marks & Grades</h3>
             </div>
             
-            <div class="overflow-x-auto">
-              <table class="w-full text-left border-collapse text-xs min-w-[500px]">
+            <div class="w-full overflow-hidden">
+              <table class="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr class="border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
-                    <th class="py-2 px-3">Subject</th>
-                    <th class="py-2 px-3 text-center">Score</th>
-                    <th class="py-2 px-3 text-center">Grade</th>
-                    <th class="py-2 px-3 text-right">Action</th>
+                    <th class="py-2 px-2">Subject</th>
+                    <th class="py-2 px-1 text-center">Score</th>
+                    <th class="py-2 px-1 text-center">Grade</th>
+                    <th class="py-2 px-1 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
                   ${semExams.map((item, idx) => `
                     <tr class="hover:bg-slate-50/80 transition-colors">
-                      <td class="py-2.5 px-3 font-bold text-slate-800">
-                        <p>${item.subject}</p>
+                      <td class="py-2.5 px-2 font-bold text-slate-800">
+                        <p class="break-words line-clamp-2">${item.subject}</p>
                         <span class="text-[10px] text-slate-400 font-normal">${item.code || ''}</span>
                       </td>
-                      <td class="py-2.5 px-3 text-center font-bold text-slate-700">${item.score} / 100</td>
-                      <td class="py-2.5 px-3 text-center">
-                        <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-800 border border-slate-200">
+                      <td class="py-2.5 px-1 text-center font-bold text-slate-700">${item.score} / 100</td>
+                      <td class="py-2.5 px-1 text-center">
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-800 border border-slate-200">
                           ${item.grade}
                         </span>
                       </td>
-                      <td class="py-2.5 px-3 text-right space-x-2">
-                        <button onclick="editExamScoreForStudent('${student.id}', ${idx})" class="text-brand-600 hover:text-brand-800 font-bold text-xs">Edit Score</button>
+                      <td class="py-2.5 px-1 text-right space-x-1.5">
+                        <button onclick="editExamScoreForStudent('${student.id}', ${idx})" class="text-brand-600 hover:text-brand-800 font-bold text-xs">Edit</button>
                         <button onclick="deleteExamForStudent('${student.id}', ${idx})" class="text-rose-600 hover:text-rose-800 font-bold text-xs">Delete</button>
                       </td>
                     </tr>
@@ -1522,25 +1518,28 @@
                 <!-- GRAND TOTAL FOOTER ROW -->
                 ${semExams.length > 0 ? `
                   <tfoot class="border-t-2 border-slate-200 bg-slate-50/90 font-black">
-                    <tr class="text-slate-900 whitespace-nowrap">
-                      <td class="py-2.5 px-3 uppercase font-extrabold tracking-wider text-xs text-slate-700">
-                        Grand Total (${state.selectedSem || 'Sem 4'})
+                    <tr class="text-slate-900">
+                      <td class="py-2.5 px-2 uppercase font-extrabold tracking-wider text-[11px] sm:text-xs text-slate-700">
+                        Grand Total
                       </td>
-                      <td class="py-2.5 px-3 text-center font-black text-xs sm:text-sm text-slate-900">
-                        ${totalScore} / ${maxScore}
+                      <td class="py-2.5 px-1 text-center font-black text-xs sm:text-sm text-slate-900">
+                        ${totalScore}/${maxScore}
                       </td>
-                      <td class="py-2.5 px-3 text-center">
-                        <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black bg-brand-600 text-white shadow-xs">
-                          ${grade} Grade (${pct}%)
+                      <td class="py-2.5 px-1 text-center">
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-black bg-brand-600 text-white shadow-xs">
+                          ${grade} (${pct}%)
                         </span>
                       </td>
-                      <td class="py-2.5 px-3"></td>
+                      <td class="py-2.5 px-1"></td>
                     </tr>
                   </tfoot>
                 ` : ''}
               </table>
             </div>
           </div>
+
+          <!-- STANDALONE LEADERBOARD HERO SECTION BELOW MARK LIST -->
+          ${renderSemesterRankHoldersComponent(state.selectedSem)}
         </div>
       `;
     }
@@ -2149,9 +2148,9 @@
               <table class="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr class="border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
-                    <th class="py-2.5 px-3">Subject</th>
-                    <th class="py-2.5 px-3 text-center">Score</th>
-                    <th class="py-2.5 px-3 text-center">Grade</th>
+                    <th class="py-2.5 px-2">Subject</th>
+                    <th class="py-2.5 px-1 text-center">Score</th>
+                    <th class="py-2.5 px-1 text-center">Grade</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
@@ -2161,13 +2160,13 @@
                     </tr>
                   ` : semExams.map(item => `
                     <tr class="hover:bg-slate-50/80 transition-colors">
-                      <td class="py-3 px-3 font-bold text-slate-800">
+                      <td class="py-3 px-2 font-bold text-slate-800">
                         <p class="break-words line-clamp-2">${item.subject}</p>
                         <span class="text-[10px] text-slate-400 font-normal">${item.code}</span>
                       </td>
-                      <td class="py-3 px-3 text-center font-bold text-slate-700">${item.score} / 100</td>
-                      <td class="py-3 px-3 text-center">
-                        <span class="px-2.5 py-1 rounded-md text-[10px] font-black bg-emerald-100 text-emerald-700">
+                      <td class="py-3 px-1 text-center font-bold text-slate-700">${item.score} / 100</td>
+                      <td class="py-3 px-1 text-center">
+                        <span class="px-2 py-1 rounded-md text-[10px] font-black bg-emerald-100 text-emerald-700">
                           ${item.grade}
                         </span>
                       </td>
@@ -2175,18 +2174,18 @@
                   `).join('')}
                 </tbody>
 
-                <!-- GRAND TOTAL FOOTER ROW (SINGLE LINED ON MOBILE) -->
+                <!-- GRAND TOTAL FOOTER ROW -->
                 ${semExams.length > 0 ? `
                   <tfoot class="border-t-2 border-slate-200 bg-slate-50/90 font-black">
-                    <tr class="text-slate-900 whitespace-nowrap">
-                      <td class="py-2.5 px-2 sm:px-3 uppercase font-extrabold tracking-wider text-[11px] sm:text-xs text-slate-700 whitespace-nowrap">
-                        Grand Total (${state.selectedSem})
+                    <tr class="text-slate-900">
+                      <td class="py-2.5 px-2 uppercase font-extrabold tracking-wider text-[11px] sm:text-xs text-slate-700">
+                        Grand Total
                       </td>
-                      <td class="py-2.5 px-2 sm:px-3 text-center font-black text-xs sm:text-sm text-slate-900 whitespace-nowrap">
-                        ${totalScore} / ${maxScore}
+                      <td class="py-2.5 px-1 text-center font-black text-xs sm:text-sm text-slate-900">
+                        ${totalScore}/${maxScore}
                       </td>
-                      <td class="py-2.5 px-2 sm:px-3 text-center whitespace-nowrap">
-                        <span class="px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-black bg-brand-600 text-white shadow-sm inline-block whitespace-nowrap">
+                      <td class="py-2.5 px-1 text-center">
+                        <span class="px-2 py-1 rounded-lg text-[11px] sm:text-xs font-black bg-brand-600 text-white shadow-sm inline-block">
                           ${grade} Grade
                         </span>
                       </td>
@@ -2205,7 +2204,7 @@
             </div>
           </div>
 
-          <!-- MARKS LEADERBOARD UNDER COURSE MARKS -->
+          <!-- STANDALONE LEADERBOARD HERO SECTION BELOW MARK LIST -->
           ${renderSemesterRankHoldersComponent(state.selectedSem)}
         </div>
       `;
