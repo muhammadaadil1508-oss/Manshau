@@ -678,7 +678,7 @@
                 s.class = s.class.replace(/geenesis/gi, 'genesis');
                 updated = true;
               }
-              if (s.transactions && s.transactions.length > 0) {
+              if (!Array.isArray(s.transactions)) {
                 s.transactions = [];
                 updated = true;
               }
@@ -4597,11 +4597,13 @@
 
     function handleAdminInjectTxnForStudent(e, studentId) {
       e.preventDefault();
-      const student = state.students.find(s => s.id === studentId) || getCurrentStudent();
+      const student = state.students.find(s => s.id === studentId) || state.students.find(s => s.id === state.currentStudentId) || state.students[0];
+      if (!student) return;
       const type = document.getElementById("adminTxnType").value;
-      const desc = document.getElementById("adminTxnDesc").value.trim();
+      const desc = (document.getElementById("adminTxnDesc").value || "").trim();
       const amount = parseFloat(document.getElementById("adminTxnAmount").value);
-      if (!amount || isNaN(amount)) return;
+      if (!amount || isNaN(amount) || amount <= 0) return;
+      if (!Array.isArray(student.transactions)) student.transactions = [];
       student.transactions.unshift({
         id: `TXN-${Math.floor(100 + Math.random() * 900)}`,
         date: new Date().toISOString().split('T')[0],
