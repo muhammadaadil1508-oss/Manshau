@@ -819,10 +819,10 @@
                 </div>
 
 
-                <!-- NOTIFICATION BELL ICON (CIRCULAR BORDER MATCHING PROFILE ICON RATIO) -->
+                <!-- NOTIFICATION BELL ICON (CLEAN BORDERLESS / NEUTRAL BORDER) -->
                 <button 
                   onclick="toggleModal('notification', true)"
-                  class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white hover:bg-slate-50 border-2 border-brand-500/80 shadow-sm transition-all hover:scale-105 flex flex-shrink-0 items-center justify-center text-slate-600"
+                  class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white hover:bg-slate-50 border border-slate-200/80 shadow-sm transition-all hover:scale-105 flex flex-shrink-0 items-center justify-center text-slate-600"
                   title="Academic Notifications & Alerts"
                 >
                   ${icon('bell', 'w-4.5 h-4.5 text-slate-600')}
@@ -1792,31 +1792,12 @@
         <div class="space-y-8">
           <!-- ACADEMIC PERFORMANCE HERO SECTION -->
           <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white space-y-6">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <span class="bg-brand-50 text-brand-600 text-xs px-3 py-1 rounded-full font-bold border border-brand-100">
-                  ACADEMIC PERFORMANCE
-                </span>
-                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Examinations & Marksheet</h2>
-                <p class="text-xs text-slate-400 font-semibold mt-1">Student Batch: <span class="text-brand-600 font-bold">${student.class || 'Genesis 02'}</span></p>
-              </div>
-
-              <div class="flex items-center space-x-3 flex-wrap gap-y-2">
-                <!-- Semester Selector Dropdown in Hero -->
-                <div class="flex items-center space-x-2 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200 shadow-sm">
-                  <span class="text-xs font-extrabold text-slate-600 pl-2">Semester:</span>
-                  <select onchange="changeSelectedSemester(this.value)" class="p-2 bg-white border border-slate-200 rounded-xl text-xs font-extrabold text-brand-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
-                    ${["Sem 1", "Sem 2", "Sem 3", "Sem 4"].map(sem => `
-                      <option value="${sem}" ${state.selectedSem === sem ? 'selected' : ''}>${sem}</option>
-                    `).join('')}
-                  </select>
-                </div>
-
-                <button onclick="downloadMarksheetPDF('${student.id}')" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-3 rounded-2xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105">
-                  ${icon('download', 'w-4 h-4')}
-                  <span>Download Marksheet PDF</span>
-                </button>
-              </div>
+            <div>
+              <span class="bg-brand-50 text-brand-600 text-xs px-3 py-1 rounded-full font-bold border border-brand-100">
+                ACADEMIC PERFORMANCE
+              </span>
+              <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Examinations & Marksheet</h2>
+              <p class="text-xs text-slate-400 font-semibold mt-1">Student Batch: <span class="text-brand-600 font-bold">${student.class || 'Genesis 02'}</span></p>
             </div>
 
             <!-- DYNAMIC HERO STAT CARDS (RANK, GRADE & TOTAL MARKS) -->
@@ -1843,22 +1824,32 @@
             </div>
           </div>
 
-          <!-- MARKSHEET SUBJECT BREAKDOWN TABLE & BATCH FILTER -->
+          <!-- MARKSHEET SUBJECT BREAKDOWN TABLE, LOWER CONTROLS (SEMESTER & PDF DOWNLOAD) -->
           <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5">
               <div>
                 <h3 class="text-base font-extrabold text-slate-900">Subject Breakdown for ${state.selectedSem}</h3>
                 <p class="text-xs text-slate-400 font-semibold mt-0.5">Course Marks & Grades</p>
               </div>
 
-              <div class="flex items-center space-x-2.5 flex-wrap gap-y-2">
+              <div class="flex items-center space-x-3 flex-wrap gap-y-2">
+                <!-- Semester Selector Dropdown (Lower Portion) -->
+                <div class="flex items-center space-x-2 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200 shadow-sm">
+                  <span class="text-xs font-extrabold text-slate-600 pl-2">Semester:</span>
+                  <select onchange="changeSelectedSemester(this.value)" class="p-2 bg-white border border-slate-200 rounded-xl text-xs font-extrabold text-brand-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                    ${["Sem 1", "Sem 2", "Sem 3", "Sem 4"].map(sem => `
+                      <option value="${sem}" ${state.selectedSem === sem ? 'selected' : ''}>${sem}</option>
+                    `).join('')}
+                  </select>
+                </div>
+
                 <!-- Batch Filter Selector -->
-                <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+                <div class="flex items-center space-x-1 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 text-xs">
                   <span class="text-[10px] font-bold text-slate-400 px-2">Compare Rank Batch:</span>
                   ${["All", "Genesis 01", "Genesis 02"].map(b => `
                     <button
                       onclick="changeSelectedBatchFilter('${b}')"
-                      class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                      class="px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all ${
                         (state.selectedBatchFilter || 'All') === b
                           ? 'bg-white text-brand-600 shadow-sm font-extrabold'
                           : 'text-slate-500 hover:text-slate-800'
@@ -1868,6 +1859,12 @@
                     </button>
                   `).join('')}
                 </div>
+
+                <!-- Download Marksheet PDF Button (Lower Portion) -->
+                <button onclick="downloadMarksheetPDF('${student.id}')" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105">
+                  ${icon('download', 'w-4 h-4')}
+                  <span>Download Marksheet PDF</span>
+                </button>
               </div>
             </div>
 
