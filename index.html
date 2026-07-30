@@ -253,6 +253,8 @@
       adminActiveTab: "overview",
       activeGraphTag: "analytics",      selectedSem: "Sem 4",
       attendanceFilterMonth: "August 2026",
+      selectedBatchFilter: "All",
+      selectedLoginBatch: "Genesis 01",
       
       currentStudentId: "MSH-2026-0001",
  
@@ -262,16 +264,16 @@
         { metric: "Analytical & Lab Aptitude", score: 88, status: "Good" },
         { metric: "Social & Community Contribution", score: 92, status: "Excellent" }
       ],
-      // SINGLE SEED USER (password: 123)
+      // SEED USERS SEPARATED BY BATCH (Genesis 01 & Genesis 02)
       students: [
         {
           id: "MSH-2026-0001",
           username: "user",
           password: "123",
-          name: "swalih",
+          name: "Swalih",
           status: "Present",
           school: "Manshau Alfaris",
-          class: "genesis 02",
+          class: "Genesis 02",
           program: "B.Sc Computer Science",
           age: 14,
           phone: "+919961887681",
@@ -293,6 +295,79 @@
             { id: "EXM-004", subject: "Moral Science", code: "ISL-201", score: 65, grade: "C", credits: 3, sem: "Sem 4" },
             { id: "EXM-005", subject: "Arabic Language", code: "ARB-102", score: 88, grade: "A", credits: 3, sem: "Sem 4" },
             { id: "EXM-006", subject: "Computer Science", code: "CSC-204", score: 95, grade: "A+", credits: 4, sem: "Sem 4" }
+          ],
+          leaves: []
+        },
+        {
+          id: "MSH-2026-0002",
+          username: "rayan",
+          password: "123",
+          name: "Rayan Khalid",
+          status: "Present",
+          school: "Manshau Alfaris",
+          class: "Genesis 01",
+          program: "B.Sc Computer Science",
+          age: 15,
+          phone: "+919876543210",
+          attendanceRate: 0.0,
+          totalLeaveDays: 0,
+          avatarInitials: "RK",
+          avatarBg: "from-purple-600 to-pink-500",
+          lastUpdated: Date.now(),
+          transactions: [
+            { id: "TXN-2001", date: "2026-07-25", description: "Tuition Fee Payment", category: "Academic Fee", type: "Credit", amount: 48000 }
+          ],
+          exams: [
+            { id: "EXM-011", subject: "Mathematics", code: "MAT-301", score: 92, grade: "A+", credits: 4, sem: "Sem 4" },
+            { id: "EXM-012", subject: "Physics", code: "PHY-302", score: 86, grade: "A", credits: 4, sem: "Sem 4" },
+            { id: "EXM-013", subject: "English", code: "ENG-101", score: 89, grade: "A", credits: 3, sem: "Sem 4" },
+            { id: "EXM-014", subject: "Computer Science", code: "CSC-204", score: 98, grade: "A+", credits: 4, sem: "Sem 4" }
+          ],
+          leaves: []
+        },
+        {
+          id: "MSH-2026-0003",
+          username: "aadil",
+          password: "123",
+          name: "Aadil Muhammed",
+          status: "Present",
+          school: "Manshau Alfaris",
+          class: "Genesis 01",
+          program: "B.Sc Computer Science",
+          age: 15,
+          phone: "+919998887770",
+          attendanceRate: 0.0,
+          totalLeaveDays: 0,
+          avatarInitials: "AM",
+          avatarBg: "from-emerald-600 to-teal-400",
+          lastUpdated: Date.now(),
+          transactions: [],
+          exams: [
+            { id: "EXM-021", subject: "Mathematics", code: "MAT-301", score: 79, grade: "B+", credits: 4, sem: "Sem 4" },
+            { id: "EXM-022", subject: "Physics", code: "PHY-302", score: 81, grade: "A", credits: 4, sem: "Sem 4" }
+          ],
+          leaves: []
+        },
+        {
+          id: "MSH-2026-0004",
+          username: "faras",
+          password: "123",
+          name: "Faras Ahmed",
+          status: "Present",
+          school: "Manshau Alfaris",
+          class: "Genesis 02",
+          program: "B.Sc Computer Science",
+          age: 14,
+          phone: "+919112233445",
+          attendanceRate: 0.0,
+          totalLeaveDays: 0,
+          avatarInitials: "FA",
+          avatarBg: "from-rose-600 to-orange-400",
+          lastUpdated: Date.now(),
+          transactions: [],
+          exams: [
+            { id: "EXM-031", subject: "Mathematics", code: "MAT-301", score: 88, grade: "A", credits: 4, sem: "Sem 4" },
+            { id: "EXM-032", subject: "Computer Science", code: "CSC-204", score: 91, grade: "A+", credits: 4, sem: "Sem 4" }
           ],
           leaves: []
         }
@@ -878,6 +953,36 @@
               ` : ''}
 
               <form onsubmit="handleLoginSubmit(event)" class="space-y-4 text-xs">
+                ${state.loginRole === 'student' ? `
+                  <div>
+                    <label class="block font-bold text-slate-600 mb-1.5">Academic Batch</label>
+                    <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                      <button
+                        type="button"
+                        onclick="setLoginBatch('Genesis 01')"
+                        class="py-2 rounded-lg text-xs font-bold transition-all ${
+                          (state.selectedLoginBatch || 'Genesis 01') === 'Genesis 01'
+                            ? 'bg-brand-600 text-white shadow-sm font-extrabold'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }"
+                      >
+                        Genesis 01
+                      </button>
+                      <button
+                        type="button"
+                        onclick="setLoginBatch('Genesis 02')"
+                        class="py-2 rounded-lg text-xs font-bold transition-all ${
+                          (state.selectedLoginBatch || 'Genesis 01') === 'Genesis 02'
+                            ? 'bg-brand-600 text-white shadow-sm font-extrabold'
+                            : 'text-slate-600 hover:text-slate-900'
+                        }"
+                      >
+                        Genesis 02
+                      </button>
+                    </div>
+                  </div>
+                ` : ''}
+
                 <div>
                   <label class="block font-bold text-slate-600 mb-1.5">Username / Student ID</label>
                   <div class="relative">
@@ -888,7 +993,7 @@
                       type="text"
                       id="loginUsername"
                       required
-                      placeholder="${isStudentRole ? 'e.g. aadil' : 'e.g. admin'}"
+                      placeholder="${isStudentRole ? 'e.g. rayan or user' : 'e.g. admin'}"
                       class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:outline-none font-medium text-slate-900 bg-white"
                     />
                   </div>
@@ -904,7 +1009,7 @@
                       type="password"
                       id="loginPassword"
                       required
-                      placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                      placeholder="••••••••"
                       class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500 focus:outline-none font-medium text-slate-900 bg-white"
                     />
                   </div>
@@ -922,6 +1027,44 @@
                   ${icon('arrowRight', 'w-4 h-4')}
                 </button>
               </form>
+
+              ${state.loginRole === 'student' ? `
+                <!-- Quick Student Batch Accounts -->
+                <div class="mt-6 pt-5 border-t border-slate-100">
+                  <p class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-3 text-center">Quick Student Login (Select Batch)</p>
+                  <div class="space-y-3">
+                    <!-- Genesis 01 Batch -->
+                    <div class="bg-blue-50/70 p-2.5 rounded-2xl border border-blue-100">
+                      <div class="flex items-center justify-between mb-2">
+                        <span class="text-[10px] font-extrabold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-md uppercase tracking-wider">Genesis 01 Batch</span>
+                      </div>
+                      <div class="grid grid-cols-2 gap-2">
+                        ${state.students.filter(s => (s.class || '').toLowerCase().includes('01')).map(s => `
+                          <button type="button" onclick="quickLoginStudent('${s.id}')" class="p-2 rounded-xl bg-white hover:bg-blue-100/80 border border-blue-200/80 text-left transition-all hover:scale-105 shadow-sm">
+                            <p class="font-bold text-slate-800 text-xs truncate">${s.name}</p>
+                            <p class="text-[10px] text-slate-400 truncate">User: ${s.username}</p>
+                          </button>
+                        `).join('')}
+                      </div>
+                    </div>
+
+                    <!-- Genesis 02 Batch -->
+                    <div class="bg-purple-50/70 p-2.5 rounded-2xl border border-purple-100">
+                      <div class="flex items-center justify-between mb-2">
+                        <span class="text-[10px] font-extrabold text-purple-700 bg-purple-100 px-2 py-0.5 rounded-md uppercase tracking-wider">Genesis 02 Batch</span>
+                      </div>
+                      <div class="grid grid-cols-2 gap-2">
+                        ${state.students.filter(s => (s.class || '').toLowerCase().includes('02')).map(s => `
+                          <button type="button" onclick="quickLoginStudent('${s.id}')" class="p-2 rounded-xl bg-white hover:bg-purple-100/80 border border-purple-200/80 text-left transition-all hover:scale-105 shadow-sm">
+                            <p class="font-bold text-slate-800 text-xs truncate">${s.name}</p>
+                            <p class="text-[10px] text-slate-400 truncate">User: ${s.username}</p>
+                          </button>
+                        `).join('')}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ` : ''}
             </div>
           </div>
         </div>
@@ -1607,16 +1750,36 @@
 
 
           <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-            <div class="flex items-center justify-between mb-4">
-              <h3 class="text-base font-extrabold text-slate-900">Semester Scores</h3>
-              <div class="flex items-center space-x-3">
-                <!-- Semester Selector Dropdown Option -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+              <div>
+                <h3 class="text-base font-extrabold text-slate-900">Semester Scores & Marksheet</h3>
+                <p class="text-xs text-slate-400 font-semibold mt-0.5">Student Batch: <span class="text-brand-600 font-bold">${student.class || 'Genesis 02'}</span></p>
+              </div>
+
+              <div class="flex items-center space-x-2.5 flex-wrap gap-y-2">
+                <!-- Batch Filter Selector -->
+                <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+                  <span class="text-[10px] font-bold text-slate-400 px-2">Batch:</span>
+                  ${["All", "Genesis 01", "Genesis 02"].map(b => `
+                    <button
+                      onclick="changeSelectedBatchFilter('${b}')"
+                      class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                        (state.selectedBatchFilter || 'All') === b
+                          ? 'bg-white text-brand-600 shadow-sm font-extrabold'
+                          : 'text-slate-500 hover:text-slate-800'
+                      }"
+                    >
+                      ${b}
+                    </button>
+                  `).join('')}
+                </div>
+
+                <!-- Semester Selector Dropdown -->
                 <select onchange="changeSelectedSemester(this.value)" class="p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
                   ${["Sem 1", "Sem 2", "Sem 3", "Sem 4"].map(sem => `
                     <option value="${sem}" ${state.selectedSem === sem ? 'selected' : ''}>${sem}</option>
                   `).join('')}
                 </select>
-
               </div>
             </div>
 
@@ -1654,7 +1817,13 @@
               const totalScore = semExams.reduce((s, e) => s + (e.score || 0), 0);
               const maxScore   = semExams.length * 100;
               const pct        = maxScore > 0 ? ((totalScore / maxScore) * 100).toFixed(1) : '0.0';
-              const allAvgs    = state.students.map(st => {
+              
+              const selectedBatch = state.selectedBatchFilter || "All";
+              const batchStudents = selectedBatch === "All" 
+                ? state.students 
+                : state.students.filter(st => (st.class || '').toLowerCase().includes(selectedBatch.toLowerCase().replace('genesis ', '')));
+                
+              const allAvgs    = batchStudents.map(st => {
                 const exs = (st.exams || []).filter(e => (e.sem || 'Sem 4') === state.selectedSem);
                 return exs.length ? exs.reduce((s, e) => s + (e.score || 0), 0) / exs.length : 0;
               }).sort((a, b) => b - a);
@@ -1672,9 +1841,9 @@
                     <p class="text-[10px] text-emerald-400 font-semibold mt-0.5">${getGradeFromScore(parseFloat(pct))} Grade</p>
                   </div>
                   <div class="rounded-2xl bg-amber-50 border border-amber-100 p-4 text-center">
-                    <p class="text-[10px] uppercase font-bold text-amber-500 tracking-wider mb-1">Rank</p>
-                    <p class="text-2xl font-black text-amber-700">#${rank}</p>
-                    <p class="text-[10px] text-amber-400 font-semibold mt-0.5">of ${state.students.length} students</p>
+                    <p class="text-[10px] uppercase font-bold text-amber-500 tracking-wider mb-1">Rank (${selectedBatch})</p>
+                    <p class="text-2xl font-black text-amber-700">#${rank || 1}</p>
+                    <p class="text-[10px] text-amber-400 font-semibold mt-0.5">of ${batchStudents.length} in ${selectedBatch === 'All' ? 'Institute' : selectedBatch}</p>
                   </div>
                 </div>`;
             })()}
@@ -2804,6 +2973,16 @@
 
     function changeAttendanceFilterMonth(val) {
       state.attendanceFilterMonth = val;
+      renderApp();
+    }
+
+    function changeSelectedBatchFilter(batch) {
+      state.selectedBatchFilter = batch;
+      renderApp();
+    }
+
+    function setLoginBatch(batch) {
+      state.selectedLoginBatch = batch;
       renderApp();
     }
 
