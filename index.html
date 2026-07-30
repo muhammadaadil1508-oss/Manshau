@@ -1216,7 +1216,7 @@
       const classNames = Object.keys(classMap).sort();
 
       return `
-        <div class="glass-card p-5 sm:p-6 rounded-3xl shadow-anti-gravity border border-white space-y-5">
+        <div class="glass-card p-4 sm:p-6 rounded-3xl shadow-anti-gravity border border-white space-y-5">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
             <div>
               <h3 class="text-sm font-extrabold text-slate-900">Registered Student Users (${state.students.length})</h3>
@@ -1231,7 +1231,7 @@
             ${classNames.map(cls => {
               const studentsInClass = classMap[cls];
               return `
-                <div class="space-y-2.5">
+                <div class="space-y-3">
                   <div class="flex items-center justify-between px-1">
                     <div class="flex items-center space-x-2">
                       <span class="w-2.5 h-2.5 rounded-full bg-brand-500 inline-block shadow-xs"></span>
@@ -1239,41 +1239,82 @@
                     </div>
                   </div>
 
-                  <div class="w-full overflow-hidden">
-                    <table class="w-full text-left border-collapse text-xs">
+                  <!-- MOBILE CARDS VIEW (GUARANTEED EDIT & DELETE VISIBILITY ON MOBILE) -->
+                  <div class="md:hidden space-y-3">
+                    ${studentsInClass.map(s => `
+                      <div class="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-3">
+                        <div class="flex items-center justify-between">
+                          <div class="flex items-center space-x-2.5 min-w-0">
+                            ${getStudentAvatarHtml(s, "w-9 h-9 flex-shrink-0", "text-xs")}
+                            <div class="min-w-0">
+                              <p class="font-extrabold text-xs text-slate-900 truncate">${s.name}</p>
+                              <p class="text-[10px] text-slate-400 font-semibold">${s.class}</p>
+                            </div>
+                          </div>
+                          <button onclick="toggleSpecificStudentStatus('${s.id}')" class="px-2.5 py-1 rounded-full text-[10px] font-extrabold flex-shrink-0 ${s.status === 'Present' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}">
+                            ${s.status}
+                          </button>
+                        </div>
+
+                        <div class="flex items-center justify-between text-[11px] bg-slate-50 p-2.5 rounded-xl border border-slate-100 font-bold">
+                          <div>
+                            <span class="text-slate-400 text-[10px] uppercase block font-bold">Username</span>
+                            <span class="text-brand-600">${s.username}</span>
+                          </div>
+                          <div class="text-right">
+                            <span class="text-slate-400 text-[10px] uppercase block font-bold">Password</span>
+                            <span class="font-mono text-slate-700">${s.password}</span>
+                          </div>
+                        </div>
+
+                        <div class="flex items-center space-x-2 pt-1 border-t border-slate-100">
+                          <button onclick="openEditStudentModal('${s.id}')" class="flex-1 py-2 rounded-xl bg-brand-50 text-brand-600 font-extrabold hover:bg-brand-100 text-xs text-center border border-brand-100">
+                            Edit Profile & Settings
+                          </button>
+                          <button onclick="deleteStudentUser('${s.id}')" class="px-4 py-2 rounded-xl bg-rose-50 text-rose-600 font-extrabold hover:bg-rose-100 text-xs text-center border border-rose-100">
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+
+                  <!-- DESKTOP TABLE VIEW -->
+                  <div class="hidden md:block w-full overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs min-w-[550px]">
                       <thead>
                         <tr class="border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
-                          <th class="py-2 px-2">Student Name</th>
-                          <th class="py-2 px-1">Username</th>
-                          <th class="py-2 px-1">Password</th>
-                          <th class="py-2 px-1">Status</th>
-                          <th class="py-2 px-1 text-right">Actions</th>
+                          <th class="py-2 px-3">Student Name</th>
+                          <th class="py-2 px-3">Username</th>
+                          <th class="py-2 px-3">Password</th>
+                          <th class="py-2 px-3">Status</th>
+                          <th class="py-2 px-3 text-right">Actions</th>
                         </tr>
                       </thead>
                       <tbody class="divide-y divide-slate-50">
                         ${studentsInClass.map(s => `
                           <tr class="hover:bg-slate-50/80 transition-colors">
-                            <td class="py-2.5 px-2 font-bold text-slate-800">
-                              <div class="flex items-center space-x-2">
+                            <td class="py-2.5 px-3 font-bold text-slate-800">
+                              <div class="flex items-center space-x-2.5">
                                 ${getStudentAvatarHtml(s, "w-7 h-7 flex-shrink-0", "text-[10px]")}
-                                <div class="min-w-0">
-                                  <p class="font-bold text-slate-800 truncate">${s.name}</p>
+                                <div>
+                                  <p class="font-bold text-slate-800">${s.name}</p>
                                   <p class="text-[10px] text-slate-400 font-normal">${s.class}</p>
                                 </div>
                               </div>
                             </td>
-                            <td class="py-2.5 px-1 font-bold text-brand-600 truncate">${s.username}</td>
-                            <td class="py-2.5 px-1 font-mono font-bold text-slate-700">${s.password}</td>
-                            <td class="py-2.5 px-1">
-                              <button onclick="toggleSpecificStudentStatus('${s.id}')" class="px-2 py-0.5 rounded-full text-[10px] font-bold shadow-sm transition-all hover:scale-105 ${s.status === 'Present' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}">
+                            <td class="py-2.5 px-3 font-bold text-brand-600">${s.username}</td>
+                            <td class="py-2.5 px-3 font-mono font-bold text-slate-700">${s.password}</td>
+                            <td class="py-2.5 px-3">
+                              <button onclick="toggleSpecificStudentStatus('${s.id}')" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-sm transition-all hover:scale-105 ${s.status === 'Present' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}">
                                 ${s.status}
                               </button>
                             </td>
-                            <td class="py-2.5 px-1 text-right space-x-1">
-                              <button onclick="openEditStudentModal('${s.id}')" class="px-2 py-1 rounded-lg bg-brand-50 text-brand-600 font-bold hover:bg-brand-100 text-[11px]">
-                                Edit
+                            <td class="py-2.5 px-3 text-right space-x-2">
+                              <button onclick="openEditStudentModal('${s.id}')" class="px-2.5 py-1 rounded-lg bg-brand-50 text-brand-600 font-bold hover:bg-brand-100 text-[11px]">
+                                Edit Profile & Settings
                               </button>
-                              <button onclick="deleteStudentUser('${s.id}')" class="px-2 py-1 rounded-lg bg-rose-50 text-rose-600 font-bold hover:bg-rose-100 text-[11px]" title="Delete Student">
+                              <button onclick="deleteStudentUser('${s.id}')" class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 font-bold hover:bg-rose-100 text-[11px]" title="Delete Student">
                                 Delete
                               </button>
                             </td>
