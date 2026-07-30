@@ -561,7 +561,7 @@
           const dbIds = dbStudents.map(s => s.id);
           state.students = state.students.filter(s => dbIds.includes(s.id));
 
-          // Force all user attendance rates to 0, rename class Geenesis to genesis, and empty transactions
+          // Recalculate attendance rates, fix class names, ensure arrays are initialized
           let needsRemoteUpdate = false;
           state.students.forEach(s => {
             let updated = false;
@@ -592,7 +592,7 @@
               s.class = s.class.replace(/geenesis/gi, 'genesis');
               updated = true;
             }
-            if (s.transactions && s.transactions.length > 0) {
+            if (!Array.isArray(s.transactions)) {
               s.transactions = [];
               updated = true;
             }
