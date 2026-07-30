@@ -1693,7 +1693,6 @@
                 OFFICIAL ABSENCE MANAGEMENT
               </span>
               <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Leave Management Center</h2>
-
             </div>
 
             <button onclick="toggleModal('leave', true)" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-3 rounded-2xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105">
@@ -1702,64 +1701,16 @@
             </button>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm text-center">
-              <p class="text-xs uppercase font-extrabold text-slate-400">Allowed Annual Leaves</p>
-              <p class="text-3xl font-black text-slate-900 mt-1">15 Days</p>
-            </div>
-            <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm text-center">
-              <p class="text-xs uppercase font-extrabold text-slate-400">Total Leaves Taken</p>
-              <p class="text-3xl font-black text-brand-600 mt-1">${student.totalLeaveDays} Days</p>
-            </div>
-            <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm text-center">
-              <p class="text-xs uppercase font-extrabold text-slate-400">Remaining Balance</p>
-              <p class="text-3xl font-black text-emerald-600 mt-1">${15 - student.totalLeaveDays} Days</p>
-            </div>
+          <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm text-center max-w-xs">
+            <p class="text-xs uppercase font-extrabold text-slate-400">Total Leaves Taken</p>
+            <p class="text-3xl font-black text-brand-600 mt-1">${student.totalLeaveDays} Days</p>
           </div>
 
-          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-            <h3 class="text-base font-extrabold text-slate-900 mb-4">Leave Application History</h3>
-            <div class="space-y-3">
-              ${student.leaves.map(l => `
-                <div class="p-4 rounded-2xl bg-white border border-slate-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                  <div class="flex items-center space-x-3">
-                    <span class="relative flex h-3.5 w-3.5">
-                      ${
-                        l.status === "Approved" ? `<span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 shadow-glow-emerald"></span>` :
-                        l.status === "Pending" ? `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-amber-500"></span>` :
-                        `<span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-rose-500"></span>`
-                      }
-                    </span>
-                    <div>
-                      <p class="font-bold text-slate-800 text-sm">${l.reason}</p>
-                      <p class="text-[11px] text-slate-500 mt-0.5">
-                        ${l.startDate} to ${l.endDate} â€¢ <span class="font-semibold text-brand-600">${l.category}</span>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div class="flex items-center space-x-3">
-                    <span class="px-3 py-1 rounded-full text-xs font-bold ${
-                      l.status === "Approved" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" :
-                      l.status === "Pending" ? "bg-amber-50 text-amber-700 border border-amber-200" :
-                      "bg-rose-50 text-rose-700 border border-rose-200"
-                    }">${l.status}</span>
-                    ${l.status === "Pending" ? `
-                      <button onclick="deleteStudentLeave('${student.id}', '${l.id}')" class="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition-colors" title="Cancel Request">
-                        ${icon('trash-2', 'w-4 h-4')}
-                      </button>
-                    ` : ''}
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-
-          <!-- MY ATTENDANCE CALENDAR -->
+          <!-- ATTENDANCE CALENDAR -->
           <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
               <div>
-                <h3 class="text-base font-extrabold text-slate-900">My Daily Attendance Calendar</h3>
+                <h3 class="text-base font-extrabold text-slate-900">Attendance Calendar</h3>
                 
                 <!-- Legend / Color Guide -->
                 <div class="flex flex-wrap gap-4 mt-2 text-[10px] font-bold text-slate-500">
@@ -1793,11 +1744,57 @@
               </select>
             </div>
 
-            <!-- Calendar grid of dates for the selected month -->
-            <div class="grid grid-cols-3 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 gap-3 max-h-[350px] overflow-y-auto pr-1">
+            <!-- Calendar grid of dates for the selected month (No inner scrolling) -->
+            <div class="grid grid-cols-3 sm:grid-cols-6 md:grid-cols-7 lg:grid-cols-8 gap-3">
               ${generateStudentAttendanceDaysGrid(student, state.attendanceFilterMonth || "August 2026")}
             </div>
           </div>
+
+          <!-- LEAVE APPLICATION HISTORY (PLACED DOWNWARD AT THE VERY BOTTOM) -->
+          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+            <h3 class="text-base font-extrabold text-slate-900 mb-4">Leave Application History</h3>
+            <div class="space-y-3">
+              ${(!student.leaves || student.leaves.length === 0) ? `
+                <div class="p-6 text-center text-slate-400 font-bold bg-slate-50 rounded-2xl border border-slate-100 text-xs">
+                  No leave requests recorded yet.
+                </div>
+              ` : student.leaves.map(l => `
+                <div class="p-4 rounded-2xl bg-white border border-slate-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                  <div class="flex items-center space-x-3">
+                    <span class="relative flex h-3.5 w-3.5">
+                      ${
+                        l.status === "Approved" ? `<span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-500 shadow-glow-emerald"></span>` :
+                        l.status === "Pending" ? `<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-amber-500"></span>` :
+                        `<span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-rose-500"></span>`
+                      }
+                    </span>
+                    <div>
+                      <p class="font-bold text-slate-800 text-sm">${l.reason}</p>
+                      <p class="text-[11px] text-slate-500 mt-0.5">
+                        ${l.startDate} to ${l.endDate} &bull; <span class="font-semibold text-brand-600">${l.category}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center space-x-3">
+                    <span class="px-3 py-1 rounded-full text-xs font-bold ${
+                      l.status === "Approved" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" :
+                      l.status === "Pending" ? "bg-amber-50 text-amber-700 border border-amber-200" :
+                      "bg-rose-50 text-rose-700 border border-rose-200"
+                    }">${l.status}</span>
+                    ${l.status === "Pending" ? `
+                      <button onclick="deleteStudentLeave('${student.id}', '${l.id}')" class="text-slate-400 hover:text-rose-500 p-1 rounded-lg transition-colors" title="Cancel Request">
+                        ${icon('trash-2', 'w-4 h-4')}
+                      </button>
+                    ` : ''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
 
         </div>
       `;
