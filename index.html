@@ -1345,9 +1345,14 @@
       `;
     }
 
-    function getSemesterRankHolders(sem) {
+    function getSemesterRankHolders(sem, classFilter) {
       const targetSem = sem || state.selectedSem || 'Sem 4';
-      const studentScores = (state.students || []).map(st => {
+      let list = state.students || [];
+      if (classFilter) {
+        list = list.filter(st => (st.class || '').toLowerCase().includes(classFilter.toLowerCase()));
+      }
+
+      const studentScores = list.map(st => {
         const semExams = (st.exams || []).filter(e => (e.sem || 'Sem 4') === targetSem);
         const totalScore = semExams.reduce((s, e) => s + (e.score || 0), 0);
         const maxScore = semExams.length * 100;
@@ -1369,52 +1374,62 @@
 
     function renderSemesterRankHoldersComponent(sem) {
       const targetSem = sem || state.selectedSem || 'Sem 4';
-      const rankHolders = getSemesterRankHolders(targetSem);
+      const classes = ["Genesis 01", "Genesis 02"];
       const medals = ["🥇", "🥈", "🥉"];
-      const medalColors = [
-        "bg-amber-50/70 border-amber-200/80 text-amber-950",
-        "bg-slate-50 border-slate-200 text-slate-900",
-        "bg-orange-50/60 border-orange-200/80 text-amber-950"
-      ];
-      const badgeColors = [
-        "bg-amber-500 text-white shadow-xs",
-        "bg-slate-700 text-white shadow-xs",
-        "bg-amber-700 text-white shadow-xs"
-      ];
 
       return `
-        <div class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/60 space-y-2.5">
-          <div class="flex items-center justify-between">
+        <div class="p-4 sm:p-5 rounded-2xl bg-slate-50/80 border border-slate-200/60 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-200/60 pb-3">
             <div class="flex items-center space-x-2">
-              <span class="p-1.5 rounded-lg bg-amber-100 text-amber-700">
+              <span class="p-1.5 rounded-lg bg-amber-100 text-amber-700 shadow-xs">
                 ${icon('award', 'w-4 h-4')}
               </span>
               <div>
-                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider">${targetSem} Rank Holders</h4>
+                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider">${targetSem} Class Leaderboards</h4>
               </div>
             </div>
-            <span class="text-[10px] font-bold text-slate-400">Class Leaderboard</span>
+            <span class="text-[10px] font-bold text-slate-400">Class Rank Separation</span>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            ${rankHolders.length === 0 ? `
-              <div class="col-span-3 text-center py-3 text-xs text-slate-400 font-bold">
-                No exam records submitted for ${targetSem} yet.
-              </div>
-            ` : rankHolders.map((rh, index) => `
-              <div class="p-2.5 rounded-xl border ${medalColors[index] || medalColors[1]} flex items-center justify-between">
-                <div class="flex items-center space-x-2.5">
-                  <span class="text-xl">${medals[index]}</span>
-                  <div>
-                    <p class="font-extrabold text-xs text-slate-800">${rh.student.name}</p>
-                    <p class="text-[10px] text-slate-500 font-semibold">${rh.pct}% &bull; ${rh.totalScore}/${rh.maxScore} marks</p>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            ${classes.map(cls => {
+              const rankHolders = getSemesterRankHolders(targetSem, cls);
+              return `
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between px-1">
+                    <span class="text-[11px] font-black text-brand-600 uppercase tracking-wider flex items-center space-x-1.5">
+                      <span class="w-2 h-2 rounded-full bg-brand-500 inline-block"></span>
+                      <span>${cls}</span>
+                    </span>
+                    <span class="text-[10px] font-bold text-slate-400">Top 3 Rankers</span>
+                  </div>
+
+                  <div class="space-y-2">
+                    ${rankHolders.length === 0 ? `
+                      <div class="p-3 text-center text-xs text-slate-400 font-bold bg-white rounded-xl border border-slate-100">
+                        No exam records for ${cls} in ${targetSem}.
+                      </div>
+                    ` : rankHolders.map((rh, index) => `
+                      <div class="p-2.5 rounded-xl bg-white border border-slate-200/80 flex items-center justify-between shadow-xs hover:border-brand-200 transition-all">
+                        <div class="flex items-center space-x-2.5">
+                          <span class="text-lg">${medals[index]}</span>
+                          <div>
+                            <p class="font-extrabold text-xs text-slate-800">${rh.student.name}</p>
+                            <p class="text-[10px] text-slate-500 font-semibold">${rh.pct}% &bull; ${rh.totalScore}/${rh.maxScore} marks</p>
+                          </div>
+                        </div>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black ${
+                          index === 0 ? 'bg-amber-500 text-white shadow-xs' :
+                          index === 1 ? 'bg-slate-700 text-white shadow-xs' : 'bg-amber-700 text-white shadow-xs'
+                        }">
+                          #${index + 1}
+                        </span>
+                      </div>
+                    `).join('')}
                   </div>
                 </div>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-black ${badgeColors[index]}">
-                  #${index + 1}
-                </span>
-              </div>
-            `).join('')}
+              `;
+            }).join('')}
           </div>
         </div>
       `;
