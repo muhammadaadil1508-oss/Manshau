@@ -1744,36 +1744,87 @@
 
     // --- VIEW 2: EXAMINATION HUB ---
     function renderExaminationView(student) {
+      const semExams = student.exams.filter(e => (e.sem || 'Sem 4') === state.selectedSem);
+      const totalScore = semExams.reduce((s, e) => s + (e.score || 0), 0);
+      const maxScore   = semExams.length * 100;
+      const pct        = maxScore > 0 ? ((totalScore / maxScore) * 100).toFixed(1) : '0.0';
+      const grade      = semExams.length > 0 ? getGradeFromScore(parseFloat(pct)) : 'N/A';
+      
+      const selectedBatch = state.selectedBatchFilter || "All";
+      const batchStudents = selectedBatch === "All" 
+        ? state.students 
+        : state.students.filter(st => (st.class || '').toLowerCase().includes(selectedBatch.toLowerCase().replace('genesis ', '')));
+        
+      const allAvgs    = batchStudents.map(st => {
+        const exs = (st.exams || []).filter(e => (e.sem || 'Sem 4') === state.selectedSem);
+        return exs.length ? exs.reduce((s, e) => s + (e.score || 0), 0) / exs.length : 0;
+      }).sort((a, b) => b - a);
+      const myAvg = semExams.length ? totalScore / semExams.length : 0;
+      const rank  = semExams.length ? (allAvgs.findIndex(a => a <= myAvg) + 1) : '-';
+
       return `
         <div class="space-y-8">
-          <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <span class="bg-brand-50 text-brand-600 text-xs px-3 py-1 rounded-full font-bold border border-brand-100">
-                ACADEMIC PERFORMANCE
-              </span>
-              <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Examinations & Marksheet</h2>
+          <!-- ACADEMIC PERFORMANCE HERO SECTION WITH SEMESTER SELECTOR & LIVE STAT CARDS -->
+          <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <span class="bg-brand-50 text-brand-600 text-xs px-3 py-1 rounded-full font-bold border border-brand-100">
+                  ACADEMIC PERFORMANCE
+                </span>
+                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Examinations & Marksheet</h2>
+                <p class="text-xs text-slate-400 font-semibold mt-1">Student Batch: <span class="text-brand-600 font-bold">${student.class || 'Genesis 02'}</span></p>
+              </div>
+
+              <div class="flex items-center space-x-3 flex-wrap gap-y-2">
+                <!-- Semester Selector Dropdown in Hero -->
+                <div class="flex items-center space-x-2 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200 shadow-sm">
+                  <span class="text-xs font-extrabold text-slate-600 pl-2">Semester:</span>
+                  <select onchange="changeSelectedSemester(this.value)" class="p-2 bg-white border border-slate-200 rounded-xl text-xs font-extrabold text-brand-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                    ${["Sem 1", "Sem 2", "Sem 3", "Sem 4"].map(sem => `
+                      <option value="${sem}" ${state.selectedSem === sem ? 'selected' : ''}>${sem}</option>
+                    `).join('')}
+                  </select>
+                </div>
+
+                <button onclick="downloadMarksheetPDF('${student.id}')" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105">
+                  ${icon('download', 'w-4 h-4')}
+                  <span>Download Marksheet PDF</span>
+                </button>
+              </div>
             </div>
 
-            <div class="flex items-center space-x-3">
-              <button onclick="downloadMarksheetPDF('${student.id}')" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105">
-                ${icon('download', 'w-4 h-4')}
-                <span>Download Marksheet PDF</span>
-              </button>
+            <!-- DYNAMIC SEMESTER HERO STAT CARDS (TOTAL MARKS, GRADE & RANK) -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+              <div class="rounded-2xl bg-gradient-to-br from-brand-50 to-blue-50/60 border border-brand-100 p-5 text-center shadow-sm">
+                <p class="text-[11px] uppercase font-extrabold text-brand-500 tracking-wider">Total Marks (${state.selectedSem})</p>
+                <p class="text-3xl font-black text-brand-700 mt-1">${totalScore}</p>
+                <p class="text-[10px] text-brand-400 font-bold mt-0.5">out of ${maxScore}</p>
+              </div>
+              <div class="rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50/60 border border-emerald-100 p-5 text-center shadow-sm">
+                <p class="text-[11px] uppercase font-extrabold text-emerald-600 tracking-wider">Grade & Percentage (${state.selectedSem})</p>
+                <p class="text-3xl font-black text-emerald-700 mt-1">${pct}%</p>
+                <p class="text-[10px] text-emerald-500 font-bold mt-0.5">${grade} Grade</p>
+              </div>
+              <div class="rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/60 border border-amber-100 p-5 text-center shadow-sm">
+                <p class="text-[11px] uppercase font-extrabold text-amber-600 tracking-wider">Class Rank (${selectedBatch})</p>
+                <p class="text-3xl font-black text-amber-700 mt-1">#${rank}</p>
+                <p class="text-[10px] text-amber-500 font-bold mt-0.5">out of ${batchStudents.length} in ${selectedBatch === 'All' ? 'Institute' : selectedBatch}</p>
+              </div>
             </div>
           </div>
 
-
+          <!-- MARKSHEET SUBJECT BREAKDOWN TABLE & BATCH FILTER -->
           <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
               <div>
-                <h3 class="text-base font-extrabold text-slate-900">Semester Scores & Marksheet</h3>
-                <p class="text-xs text-slate-400 font-semibold mt-0.5">Student Batch: <span class="text-brand-600 font-bold">${student.class || 'Genesis 02'}</span></p>
+                <h3 class="text-base font-extrabold text-slate-900">Subject Breakdown for ${state.selectedSem}</h3>
+                <p class="text-xs text-slate-400 font-semibold mt-0.5">Course Marks & Grades</p>
               </div>
 
               <div class="flex items-center space-x-2.5 flex-wrap gap-y-2">
                 <!-- Batch Filter Selector -->
                 <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
-                  <span class="text-[10px] font-bold text-slate-400 px-2">Batch:</span>
+                  <span class="text-[10px] font-bold text-slate-400 px-2">Compare Rank Batch:</span>
                   ${["All", "Genesis 01", "Genesis 02"].map(b => `
                     <button
                       onclick="changeSelectedBatchFilter('${b}')"
@@ -1787,13 +1838,6 @@
                     </button>
                   `).join('')}
                 </div>
-
-                <!-- Semester Selector Dropdown -->
-                <select onchange="changeSelectedSemester(this.value)" class="p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
-                  ${["Sem 1", "Sem 2", "Sem 3", "Sem 4"].map(sem => `
-                    <option value="${sem}" ${state.selectedSem === sem ? 'selected' : ''}>${sem}</option>
-                  `).join('')}
-                </select>
               </div>
             </div>
 
@@ -1807,7 +1851,11 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
-                  ${student.exams.filter(item => (item.sem || "Sem 4") === state.selectedSem).map(item => `
+                  ${semExams.length === 0 ? `
+                    <tr>
+                      <td colspan="3" class="py-6 text-center text-slate-400 font-bold">No exam subjects recorded for ${state.selectedSem}.</td>
+                    </tr>
+                  ` : semExams.map(item => `
                     <tr class="hover:bg-slate-50/80 transition-colors">
                       <td class="py-3 px-3 font-bold text-slate-800">
                         <p class="break-words line-clamp-2">${item.subject}</p>
@@ -1824,43 +1872,6 @@
                 </tbody>
               </table>
             </div>
-
-            ${(() => {
-              const semExams = student.exams.filter(e => (e.sem || 'Sem 4') === state.selectedSem);
-              if (!semExams.length) return '';
-              const totalScore = semExams.reduce((s, e) => s + (e.score || 0), 0);
-              const maxScore   = semExams.length * 100;
-              const pct        = maxScore > 0 ? ((totalScore / maxScore) * 100).toFixed(1) : '0.0';
-              
-              const selectedBatch = state.selectedBatchFilter || "All";
-              const batchStudents = selectedBatch === "All" 
-                ? state.students 
-                : state.students.filter(st => (st.class || '').toLowerCase().includes(selectedBatch.toLowerCase().replace('genesis ', '')));
-                
-              const allAvgs    = batchStudents.map(st => {
-                const exs = (st.exams || []).filter(e => (e.sem || 'Sem 4') === state.selectedSem);
-                return exs.length ? exs.reduce((s, e) => s + (e.score || 0), 0) / exs.length : 0;
-              }).sort((a, b) => b - a);
-              const myAvg = totalScore / semExams.length;
-              const rank  = allAvgs.findIndex(a => a <= myAvg) + 1;
-              return `<div class="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-slate-100">
-                  <div class="rounded-2xl bg-brand-50 border border-brand-100 p-4 text-center">
-                    <p class="text-[10px] uppercase font-bold text-brand-400 tracking-wider mb-1">Total Marks</p>
-                    <p class="text-2xl font-black text-brand-700">${totalScore}</p>
-                    <p class="text-[10px] text-brand-400 font-semibold mt-0.5">out of ${maxScore}</p>
-                  </div>
-                  <div class="rounded-2xl bg-emerald-50 border border-emerald-100 p-4 text-center">
-                    <p class="text-[10px] uppercase font-bold text-emerald-500 tracking-wider mb-1">Percentage</p>
-                    <p class="text-2xl font-black text-emerald-700">${pct}%</p>
-                    <p class="text-[10px] text-emerald-400 font-semibold mt-0.5">${getGradeFromScore(parseFloat(pct))} Grade</p>
-                  </div>
-                  <div class="rounded-2xl bg-amber-50 border border-amber-100 p-4 text-center">
-                    <p class="text-[10px] uppercase font-bold text-amber-500 tracking-wider mb-1">Rank (${selectedBatch})</p>
-                    <p class="text-2xl font-black text-amber-700">#${rank || 1}</p>
-                    <p class="text-[10px] text-amber-400 font-semibold mt-0.5">of ${batchStudents.length} in ${selectedBatch === 'All' ? 'Institute' : selectedBatch}</p>
-                  </div>
-                </div>`;
-            })()}
           </div>
         </div>
       `;
