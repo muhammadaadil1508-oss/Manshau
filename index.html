@@ -1898,18 +1898,18 @@
                   `).join('')}
                 </tbody>
 
-                <!-- GRAND TOTAL FOOTER ROW -->
+                <!-- GRAND TOTAL FOOTER ROW (SINGLE LINED ON MOBILE) -->
                 ${semExams.length > 0 ? `
                   <tfoot class="border-t-2 border-slate-200 bg-slate-50/90 font-black">
-                    <tr class="text-slate-900">
-                      <td class="py-3 px-3 uppercase font-extrabold tracking-wider text-xs text-slate-700">
+                    <tr class="text-slate-900 whitespace-nowrap">
+                      <td class="py-2.5 px-2 sm:px-3 uppercase font-extrabold tracking-wider text-[11px] sm:text-xs text-slate-700 whitespace-nowrap">
                         Grand Total (${state.selectedSem})
                       </td>
-                      <td class="py-3 px-3 text-center font-black text-sm text-slate-900">
+                      <td class="py-2.5 px-2 sm:px-3 text-center font-black text-xs sm:text-sm text-slate-900 whitespace-nowrap">
                         ${totalScore} / ${maxScore}
                       </td>
-                      <td class="py-3 px-3 text-center">
-                        <span class="px-3 py-1 rounded-lg text-xs font-black bg-brand-600 text-white shadow-sm">
+                      <td class="py-2.5 px-2 sm:px-3 text-center whitespace-nowrap">
+                        <span class="px-2.5 sm:px-3 py-1 rounded-lg text-[11px] sm:text-xs font-black bg-brand-600 text-white shadow-sm inline-block whitespace-nowrap">
                           ${grade} Grade
                         </span>
                       </td>
