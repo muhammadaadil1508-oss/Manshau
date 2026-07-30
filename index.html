@@ -1239,41 +1239,41 @@
                     </div>
                   </div>
 
-                  <div class="w-full overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-xs min-w-[550px]">
+                  <div class="w-full overflow-hidden">
+                    <table class="w-full text-left border-collapse text-xs">
                       <thead>
                         <tr class="border-b border-slate-100 text-slate-400 font-bold uppercase text-[10px]">
-                          <th class="py-2 px-3">Student Name</th>
-                          <th class="py-2 px-3">Username</th>
-                          <th class="py-2 px-3">Password</th>
-                          <th class="py-2 px-3">Status</th>
-                          <th class="py-2 px-3 text-right">Actions</th>
+                          <th class="py-2 px-2">Student Name</th>
+                          <th class="py-2 px-1">Username</th>
+                          <th class="py-2 px-1">Password</th>
+                          <th class="py-2 px-1">Status</th>
+                          <th class="py-2 px-1 text-right">Actions</th>
                         </tr>
                       </thead>
                       <tbody class="divide-y divide-slate-50">
                         ${studentsInClass.map(s => `
                           <tr class="hover:bg-slate-50/80 transition-colors">
-                            <td class="py-2.5 px-3 font-bold text-slate-800">
-                              <div class="flex items-center space-x-2.5">
+                            <td class="py-2.5 px-2 font-bold text-slate-800">
+                              <div class="flex items-center space-x-2">
                                 ${getStudentAvatarHtml(s, "w-7 h-7 flex-shrink-0", "text-[10px]")}
-                                <div>
-                                  <p class="font-bold text-slate-800">${s.name}</p>
+                                <div class="min-w-0">
+                                  <p class="font-bold text-slate-800 truncate">${s.name}</p>
                                   <p class="text-[10px] text-slate-400 font-normal">${s.class}</p>
                                 </div>
                               </div>
                             </td>
-                            <td class="py-2.5 px-3 font-bold text-brand-600">${s.username}</td>
-                            <td class="py-2.5 px-3 font-mono font-bold text-slate-700">${s.password}</td>
-                            <td class="py-2.5 px-3">
-                              <button onclick="toggleSpecificStudentStatus('${s.id}')" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-sm transition-all hover:scale-105 ${s.status === 'Present' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}">
+                            <td class="py-2.5 px-1 font-bold text-brand-600 truncate">${s.username}</td>
+                            <td class="py-2.5 px-1 font-mono font-bold text-slate-700">${s.password}</td>
+                            <td class="py-2.5 px-1">
+                              <button onclick="toggleSpecificStudentStatus('${s.id}')" class="px-2 py-0.5 rounded-full text-[10px] font-bold shadow-sm transition-all hover:scale-105 ${s.status === 'Present' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}">
                                 ${s.status}
                               </button>
                             </td>
-                            <td class="py-2.5 px-3 text-right space-x-2">
-                              <button onclick="openEditStudentModal('${s.id}')" class="px-2.5 py-1 rounded-lg bg-brand-50 text-brand-600 font-bold hover:bg-brand-100 text-[11px]">
-                                Edit Profile & Settings
+                            <td class="py-2.5 px-1 text-right space-x-1">
+                              <button onclick="openEditStudentModal('${s.id}')" class="px-2 py-1 rounded-lg bg-brand-50 text-brand-600 font-bold hover:bg-brand-100 text-[11px]">
+                                Edit
                               </button>
-                              <button onclick="deleteStudentUser('${s.id}')" class="px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 font-bold hover:bg-rose-100 text-[11px]" title="Delete Student">
+                              <button onclick="deleteStudentUser('${s.id}')" class="px-2 py-1 rounded-lg bg-rose-50 text-rose-600 font-bold hover:bg-rose-100 text-[11px]" title="Delete Student">
                                 Delete
                               </button>
                             </td>
