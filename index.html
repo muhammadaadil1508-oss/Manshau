@@ -260,6 +260,11 @@
         username: "admin",
         password: "123",
       },
+
+      controlPanelCredentials: {
+        username: "control panel",
+        password: "123",
+      },
       
       role: "student",
       activeTab: "dashboard",
@@ -905,7 +910,11 @@
 
           <!-- Main Body Stage -->
           <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 pb-36">
-            ${state.role === "student" ? renderStudentPortal(currentStudent, fin) : renderAdminPortal(currentStudent, fin)}
+            ${
+              state.role === "student" ? renderStudentPortal(currentStudent, fin) :
+              state.role === "controlpanel" ? renderControlPanelPortal() :
+              renderAdminPortal(currentStudent, fin)
+            }
           </main>
 
           <!-- Modals -->
@@ -937,7 +946,7 @@
             </div>
 
             <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-anti-gravity border border-white bg-white/80 backdrop-blur-md">
-              <div class="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-2xl mb-6 border border-slate-200">
+              <div class="grid grid-cols-3 gap-1 bg-slate-100 p-1 rounded-2xl mb-6 border border-slate-200">
                 <button
                   type="button"
                   onclick="setLoginRole('student')"
@@ -948,7 +957,7 @@
                   }"
                 >
                   ${icon('user', 'w-4 h-4')}
-                  <span>Student Login</span>
+                  <span>Student</span>
                 </button>
 
                 <button
@@ -961,7 +970,20 @@
                   }"
                 >
                   ${icon('shield', 'w-4 h-4')}
-                  <span>Admin Panel</span>
+                  <span>Admin</span>
+                </button>
+
+                <button
+                  type="button"
+                  onclick="setLoginRole('controlpanel')"
+                  class="py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-1.5 ${
+                    state.loginRole === "controlpanel"
+                      ? "bg-emerald-600 text-white shadow-md font-extrabold"
+                      : "text-slate-500 hover:text-slate-800"
+                  }"
+                >
+                  ${icon('layout-dashboard', 'w-4 h-4')}
+                  <span>Control</span>
                 </button>
               </div>
 
@@ -1037,13 +1059,19 @@
 
                 <button
                   type="submit"
-                  class="w-full py-3.5 px-4 rounded-xl text-white font-extrabold text-sm transition-all duration-300 shadow-md shadow-brand-500/20 flex items-center justify-center space-x-2 ${
+                  class="w-full py-3.5 px-4 rounded-xl text-white font-extrabold text-sm transition-all duration-300 shadow-md flex items-center justify-center space-x-2 ${
                     state.loginRole === 'student'
-                      ? "bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-700 hover:to-brand-600"
+                      ? "bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-700 hover:to-brand-600 shadow-brand-500/20"
+                      : state.loginRole === 'controlpanel'
+                      ? "bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 shadow-emerald-500/20"
                       : "bg-slate-900 hover:bg-black"
                   }"
                 >
-                  <span>Sign In to ${state.loginRole === 'student' ? 'Student Portal' : 'Admin Panel'}</span>
+                  <span>Sign In to ${
+                    state.loginRole === 'student' ? 'Student Portal' :
+                    state.loginRole === 'controlpanel' ? 'Control Panel' :
+                    'Admin Panel'
+                  }</span>
                   ${icon('arrowRight', 'w-4 h-4')}
                 </button>
               </form>
@@ -1741,6 +1769,169 @@
     }
 
     // --- ADMIN MODULE 5: FINANCIAL LEDGER ---
+    // --- CONTROL PANEL PORTAL ---
+    function renderControlPanelPortal() {
+      const genesis01 = state.students.filter(s => (s.class || '') === 'Genesis 01');
+      const cpStudent = state.students.find(s => s.id === state.cpSelectedStudentId) || genesis01[0];
+      if (!cpStudent) return `<div class="text-center py-20 text-slate-400 font-bold">No Genesis 01 students found.</div>`;
+
+      const fin = getFinancials(cpStudent);
+      const netBalance = fin.totalCredits - fin.totalDebits;
+      const filterMonth = state.attendanceFilterMonth || 'August 2026';
+
+      return `
+        <div class="space-y-6">
+          <!-- HEADER -->
+          <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <span class="bg-emerald-50 text-emerald-700 text-xs px-3 py-1 rounded-full font-bold border border-emerald-100 uppercase tracking-wider">Control Panel</span>
+              <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Genesis 01 — Fund &amp; Attendance</h2>
+            </div>
+            <!-- Student Switcher -->
+            <select onchange="state.cpSelectedStudentId=this.value;renderApp()" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shadow-sm">
+              ${genesis01.map(s => `<option value="${s.id}" ${s.id === cpStudent.id ? 'selected' : ''}>${s.name}</option>`).join('')}
+            </select>
+          </div>
+
+          <!-- FUND STATS -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="p-5 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold opacity-90 uppercase tracking-wider">Cash In</p>
+                <p class="text-3xl font-black mt-1">${formatINR(fin.totalCredits)}</p>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">${icon('arrow-down-left','w-6 h-6')}</div>
+            </div>
+            <div class="p-5 rounded-3xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-md flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold opacity-90 uppercase tracking-wider">Cash Out</p>
+                <p class="text-3xl font-black mt-1">${formatINR(fin.totalDebits)}</p>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">${icon('arrow-up-right','w-6 h-6')}</div>
+            </div>
+            <div class="p-5 rounded-3xl bg-gradient-to-br from-brand-600 to-blue-700 text-white shadow-md flex items-center justify-between">
+              <div>
+                <p class="text-xs font-semibold opacity-90 uppercase tracking-wider">Net Balance</p>
+                <p class="text-3xl font-black mt-1">${formatINR(netBalance)}</p>
+              </div>
+              <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">${icon('wallet','w-6 h-6')}</div>
+            </div>
+          </div>
+
+          <!-- FUND FORM + HISTORY -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Add Transaction -->
+            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+              <h3 class="text-base font-extrabold text-slate-900 mb-4 flex items-center space-x-2">
+                ${icon('landmark','w-5 h-5 text-emerald-600')}
+                <span>Add Transaction — ${cpStudent.name}</span>
+              </h3>
+              <form onsubmit="cpAddTransaction(event,'${cpStudent.id}')" class="space-y-3 text-xs">
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Transaction Type</label>
+                  <select id="cpTxnType" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-bold">
+                    <option value="Credit">+ Cash In (INR)</option>
+                    <option value="Debit">- Cash Out (INR)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Amount (₹)</label>
+                  <input type="number" id="cpTxnAmount" required placeholder="2500" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
+                </div>
+                <div>
+                  <label class="block font-bold text-slate-700 mb-1">Description <span class="text-slate-400 font-normal">(optional)</span></label>
+                  <input type="text" id="cpTxnDesc" placeholder="e.g. Tuition Fee Payment" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 rounded-xl transition-all shadow-md shadow-emerald-500/20">
+                  Add Transaction to Fund (₹)
+                </button>
+              </form>
+            </div>
+
+            <!-- Fund History -->
+            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+              <h3 class="text-base font-extrabold text-slate-900 mb-4">${cpStudent.name}'s Fund History</h3>
+              <div class="space-y-3 text-xs max-h-[400px] overflow-y-auto pr-1">
+                ${(!cpStudent.transactions || cpStudent.transactions.length === 0) ? `
+                  <p class="text-slate-400 font-bold text-center py-8">No transactions recorded.</p>
+                ` : cpStudent.transactions.map((t, tIdx) => `
+                  <div class="p-3.5 rounded-2xl bg-white border border-slate-100 flex items-center justify-between gap-2">
+                    <div class="flex-1 min-w-0">
+                      <p class="font-bold text-slate-800 truncate">${t.description || (t.type === 'Credit' ? 'Cash In' : 'Cash Out')}</p>
+                      <p class="text-[10px] text-slate-400 font-semibold mt-0.5">${t.date} &bull; <span class="${t.type === 'Credit' ? 'text-emerald-600' : 'text-rose-600'}">${t.type === 'Credit' ? 'Cash In' : 'Cash Out'}</span></p>
+                    </div>
+                    <div class="flex items-center space-x-2 flex-shrink-0">
+                      <span class="font-black text-sm ${t.type === 'Credit' ? 'text-emerald-600' : 'text-rose-600'}">${t.type === 'Credit' ? '+' : '-'}${formatINR(t.amount)}</span>
+                      <button onclick="cpDeleteTransaction('${cpStudent.id}',${tIdx})" class="p-1.5 rounded-lg hover:bg-rose-50 text-rose-400 hover:text-rose-600 transition-colors" title="Delete">
+                        ${icon('trash-2','w-3.5 h-3.5')}
+                      </button>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          <!-- ATTENDANCE -->
+          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+              <h3 class="text-base font-extrabold text-slate-900">${cpStudent.name} — Attendance</h3>
+              <select onchange="changeAttendanceFilterMonth(this.value)" class="p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shadow-sm">
+                ${["August 2026","September 2026","October 2026","November 2026","December 2026","January 2027","February 2027","March 2027"].map(m => `
+                  <option value="${m}" ${filterMonth === m ? 'selected' : ''}>${m}</option>
+                `).join('')}
+              </select>
+            </div>
+            <!-- Legend -->
+            <div class="flex flex-wrap gap-3 mb-4 text-[10px] font-bold">
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-500 inline-block"></span>Present</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-rose-500 inline-block"></span>Absent</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-500 inline-block"></span>Half Day</span>
+              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-900 inline-block"></span>Academic Leave</span>
+            </div>
+            <!-- Day headers -->
+            <div class="grid grid-cols-7 gap-1 mb-1 text-center text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">
+              <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+            </div>
+            <div class="grid grid-cols-7 gap-1">
+              ${generateAttendanceDaysGrid(cpStudent, filterMonth)}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function cpAddTransaction(e, studentId) {
+      e.preventDefault();
+      const student = state.students.find(s => s.id === studentId);
+      if (!student) return;
+      const type = document.getElementById('cpTxnType').value;
+      const desc = (document.getElementById('cpTxnDesc').value || '').trim();
+      const amount = parseFloat(document.getElementById('cpTxnAmount').value);
+      if (!amount || isNaN(amount) || amount <= 0) return;
+      if (!Array.isArray(student.transactions)) student.transactions = [];
+      student.transactions.unshift({
+        id: `TXN-${Math.floor(100 + Math.random() * 900)}`,
+        date: new Date().toISOString().split('T')[0],
+        description: desc || (type === 'Credit' ? 'Cash In' : 'Cash Out'),
+        type,
+        amount,
+        category: type === 'Credit' ? 'Cash In' : 'Cash Out'
+      });
+      student.lastUpdated = Date.now();
+      saveState();
+      renderApp();
+    }
+
+    function cpDeleteTransaction(studentId, index) {
+      const student = state.students.find(s => s.id === studentId);
+      if (!student || !student.transactions[index]) return;
+      student.transactions.splice(index, 1);
+      student.lastUpdated = Date.now();
+      saveState();
+      renderApp();
+    }
+
     function renderAdminFinanceView(student, fin) {
       const netBalance = fin.totalCredits - fin.totalDebits;
 
@@ -3568,6 +3759,16 @@
           state.loginError = `Invalid Admin Credentials! Use admin / 123`;
           renderApp();
         }
+      } else if (state.loginRole === "controlpanel") {
+        if (u === state.controlPanelCredentials.username && p === state.controlPanelCredentials.password) {
+          state.isAuthenticated = true;
+          state.role = "controlpanel";
+          state.loginError = "";
+          renderApp();
+        } else {
+          state.loginError = `Invalid Control Panel Credentials!`;
+          renderApp();
+        }
       }
     }
 
@@ -3725,7 +3926,7 @@
         html += `<div class="h-10 w-full rounded-xl bg-slate-50/50 border border-slate-100/50"></div>`;
       }
 
-      const isAdmin = state.role === 'admin';
+      const isAdmin = state.role === 'admin' || state.role === 'controlpanel';
 
       for (let d = 1; d <= daysCount; d++) {
         const dStr = d < 10 ? `0${d}` : `${d}`;
