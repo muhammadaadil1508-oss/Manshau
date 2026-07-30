@@ -1790,38 +1790,38 @@
 
       return `
         <div class="space-y-8">
-          <!-- ACADEMIC PERFORMANCE HERO SECTION (MINIMAL COLOR DESIGN) -->
+          <!-- ACADEMIC PERFORMANCE HERO SECTION -->
           <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white space-y-6">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <span class="bg-slate-100 text-slate-700 text-xs px-3 py-1 rounded-full font-bold border border-slate-200">
+                <span class="bg-brand-50 text-brand-600 text-xs px-3 py-1 rounded-full font-bold border border-brand-100">
                   ACADEMIC PERFORMANCE
                 </span>
                 <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Examinations & Marksheet</h2>
-                <p class="text-xs text-slate-400 font-semibold mt-1">Student Batch: <span class="text-slate-800 font-bold">${student.class || 'Genesis 02'}</span></p>
+                <p class="text-xs text-slate-400 font-semibold mt-1">Student Batch: <span class="text-brand-600 font-bold">${student.class || 'Genesis 02'}</span></p>
               </div>
 
               <div class="flex items-center space-x-3 flex-wrap gap-y-2">
-                <!-- Minimal Semester Selector Dropdown in Hero -->
-                <div class="flex items-center space-x-2 bg-slate-100/80 p-1.5 rounded-2xl border border-slate-200 shadow-sm">
-                  <span class="text-xs font-bold text-slate-600 pl-2">Semester:</span>
-                  <select onchange="changeSelectedSemester(this.value)" class="p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none cursor-pointer">
+                <!-- Semester Selector Dropdown in Hero -->
+                <div class="flex items-center space-x-2 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200 shadow-sm">
+                  <span class="text-xs font-extrabold text-slate-600 pl-2">Semester:</span>
+                  <select onchange="changeSelectedSemester(this.value)" class="p-2 bg-white border border-slate-200 rounded-xl text-xs font-extrabold text-brand-600 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
                     ${["Sem 1", "Sem 2", "Sem 3", "Sem 4"].map(sem => `
                       <option value="${sem}" ${state.selectedSem === sem ? 'selected' : ''}>${sem}</option>
                     `).join('')}
                   </select>
                 </div>
 
-                <button onclick="downloadMarksheetPDF('${student.id}')" class="flex items-center space-x-2 bg-slate-900 hover:bg-black text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm transition-all hover:scale-105">
+                <button onclick="downloadMarksheetPDF('${student.id}')" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-3 rounded-2xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105">
                   ${icon('download', 'w-4 h-4')}
                   <span>Download Marksheet PDF</span>
                 </button>
               </div>
             </div>
 
-            <!-- DYNAMIC MINIMAL HERO STAT CARDS (RANK, GRADE & TOTAL MARKS) -->
+            <!-- DYNAMIC HERO STAT CARDS (RANK, GRADE & TOTAL MARKS) -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-              <!-- Class Rank Card (Minimal) -->
+              <!-- Class Rank Card -->
               <div class="rounded-2xl ${rankCardStyle} p-5 text-center flex flex-col items-center justify-center transition-all duration-300">
                 <p class="text-[11px] uppercase ${rankTitleStyle}">Class Rank</p>
                 <p class="text-3xl ${rankValueStyle} mt-1">#${rank}</p>
@@ -1852,7 +1852,7 @@
               </div>
 
               <div class="flex items-center space-x-2.5 flex-wrap gap-y-2">
-                <!-- Minimal Batch Filter Selector -->
+                <!-- Batch Filter Selector -->
                 <div class="flex items-center space-x-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
                   <span class="text-[10px] font-bold text-slate-400 px-2">Compare Rank Batch:</span>
                   ${["All", "Genesis 01", "Genesis 02"].map(b => `
@@ -1860,7 +1860,7 @@
                       onclick="changeSelectedBatchFilter('${b}')"
                       class="px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
                         (state.selectedBatchFilter || 'All') === b
-                          ? 'bg-slate-900 text-white shadow-sm font-bold'
+                          ? 'bg-white text-brand-600 shadow-sm font-extrabold'
                           : 'text-slate-500 hover:text-slate-800'
                       }"
                     >
@@ -1893,7 +1893,7 @@
                       </td>
                       <td class="py-3 px-3 text-center font-bold text-slate-700">${item.score} / 100</td>
                       <td class="py-3 px-3 text-center">
-                        <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-100 text-slate-800 border border-slate-200">
+                        <span class="px-2.5 py-1 rounded-md text-[10px] font-black bg-emerald-100 text-emerald-700">
                           ${item.grade}
                         </span>
                       </td>
@@ -1901,18 +1901,18 @@
                   `).join('')}
                 </tbody>
 
-                <!-- MINIMAL GRAND TOTAL FOOTER ROW -->
+                <!-- GRAND TOTAL FOOTER ROW -->
                 ${semExams.length > 0 ? `
-                  <tfoot class="border-t-2 border-slate-200 bg-slate-50/80 font-black">
+                  <tfoot class="border-t-2 border-slate-200 bg-slate-50/90 font-black">
                     <tr class="text-slate-900">
-                      <td class="py-3 px-3 uppercase font-bold tracking-wider text-xs text-slate-700">
+                      <td class="py-3 px-3 uppercase font-extrabold tracking-wider text-xs text-slate-700">
                         Grand Total (${state.selectedSem})
                       </td>
                       <td class="py-3 px-3 text-center font-black text-sm text-slate-900">
                         ${totalScore} / ${maxScore}
                       </td>
                       <td class="py-3 px-3 text-center">
-                        <span class="px-3 py-1 rounded-lg text-xs font-bold bg-slate-900 text-white shadow-sm">
+                        <span class="px-3 py-1 rounded-lg text-xs font-black bg-brand-600 text-white shadow-sm">
                           ${grade} Grade
                         </span>
                       </td>
