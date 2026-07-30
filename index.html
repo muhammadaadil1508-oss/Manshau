@@ -1324,8 +1324,89 @@
       `;
     }
 
+    function getSemesterRankHolders(sem) {
+      const targetSem = sem || state.selectedSem || 'Sem 4';
+      const studentScores = (state.students || []).map(st => {
+        const semExams = (st.exams || []).filter(e => (e.sem || 'Sem 4') === targetSem);
+        const totalScore = semExams.reduce((s, e) => s + (e.score || 0), 0);
+        const maxScore = semExams.length * 100;
+        const pct = maxScore > 0 ? (totalScore / maxScore) * 100 : 0;
+        const grade = semExams.length > 0 ? getGradeFromScore(pct) : 'N/A';
+        return {
+          student: st,
+          totalScore,
+          maxScore,
+          pct: parseFloat(pct.toFixed(1)),
+          grade,
+          examCount: semExams.length
+        };
+      }).filter(item => item.examCount > 0)
+        .sort((a, b) => b.pct - a.pct || b.totalScore - a.totalScore);
+
+      return studentScores.slice(0, 3);
+    }
+
+    function renderSemesterRankHoldersComponent(sem) {
+      const targetSem = sem || state.selectedSem || 'Sem 4';
+      const rankHolders = getSemesterRankHolders(targetSem);
+      const medals = ["🥇", "🥈", "🥉"];
+      const medalColors = [
+        "bg-amber-50/70 border-amber-200/80 text-amber-950",
+        "bg-slate-50 border-slate-200 text-slate-900",
+        "bg-orange-50/60 border-orange-200/80 text-amber-950"
+      ];
+      const badgeColors = [
+        "bg-amber-500 text-white shadow-xs",
+        "bg-slate-700 text-white shadow-xs",
+        "bg-amber-700 text-white shadow-xs"
+      ];
+
+      return `
+        <div class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/60 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+              <span class="p-1.5 rounded-lg bg-amber-100 text-amber-700">
+                ${icon('award', 'w-4 h-4')}
+              </span>
+              <div>
+                <h4 class="text-xs font-black text-slate-800 uppercase tracking-wider">${targetSem} Rank Holders</h4>
+              </div>
+            </div>
+            <span class="text-[10px] font-bold text-slate-400">Class Leaderboard</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            ${rankHolders.length === 0 ? `
+              <div class="col-span-3 text-center py-3 text-xs text-slate-400 font-bold">
+                No exam records submitted for ${targetSem} yet.
+              </div>
+            ` : rankHolders.map((rh, index) => `
+              <div class="p-2.5 rounded-xl border ${medalColors[index] || medalColors[1]} flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                  <span class="text-xl">${medals[index]}</span>
+                  <div>
+                    <p class="font-extrabold text-xs text-slate-800">${rh.student.name}</p>
+                    <p class="text-[10px] text-slate-500 font-semibold">${rh.pct}% &bull; ${rh.totalScore}/${rh.maxScore} marks</p>
+                  </div>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black ${badgeColors[index]}">
+                  #${index + 1}
+                </span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
     // --- ADMIN MODULE 3: ACADEMICS & EXAMINATIONS ---
     function renderAdminAcademicsView(student) {
+      const semExams = (student.exams || []).filter(e => (e.sem || 'Sem 4') === state.selectedSem);
+      const totalScore = semExams.reduce((s, e) => s + (e.score || 0), 0);
+      const maxScore   = semExams.length * 100;
+      const pct        = maxScore > 0 ? ((totalScore / maxScore) * 100).toFixed(1) : '0.0';
+      const grade      = semExams.length > 0 ? getGradeFromScore(parseFloat(pct)) : 'N/A';
+
       return `
         <div class="glass-card p-5 sm:p-6 rounded-3xl shadow-anti-gravity border border-white space-y-4">
           <!-- UNIFIED TOP TOOLBAR & HEADER -->
@@ -1360,6 +1441,9 @@
             </div>
           </div>
 
+          <!-- RANK HOLDERS COMPONENT UNDER HERO SECTION -->
+          ${renderSemesterRankHoldersComponent(state.selectedSem)}
+
           <!-- MARKS SHEET TABLE IN SAME WINDOW -->
           <div class="space-y-2">
             <div class="flex items-center justify-between">
@@ -1377,9 +1461,7 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
-                  ${student.exams.map((item, idx) => ({ item, idx }))
-                    .filter(entry => (entry.item.sem || "Sem 4") === state.selectedSem)
-                    .map(({ item, idx }) => `
+                  ${semExams.map((item, idx) => `
                     <tr class="hover:bg-slate-50/80 transition-colors">
                       <td class="py-2.5 px-3 font-bold text-slate-800">
                         <p>${item.subject}</p>
@@ -1398,6 +1480,26 @@
                     </tr>
                   `).join('')}
                 </tbody>
+
+                <!-- GRAND TOTAL FOOTER ROW -->
+                ${semExams.length > 0 ? `
+                  <tfoot class="border-t-2 border-slate-200 bg-slate-50/90 font-black">
+                    <tr class="text-slate-900 whitespace-nowrap">
+                      <td class="py-2.5 px-3 uppercase font-extrabold tracking-wider text-xs text-slate-700">
+                        Grand Total (${state.selectedSem || 'Sem 4'})
+                      </td>
+                      <td class="py-2.5 px-3 text-center font-black text-xs sm:text-sm text-slate-900">
+                        ${totalScore} / ${maxScore}
+                      </td>
+                      <td class="py-2.5 px-3 text-center">
+                        <span class="px-2.5 py-0.5 rounded-md text-[10px] font-black bg-brand-600 text-white shadow-xs">
+                          ${grade} Grade (${pct}%)
+                        </span>
+                      </td>
+                      <td class="py-2.5 px-3"></td>
+                    </tr>
+                  </tfoot>
+                ` : ''}
               </table>
             </div>
           </div>
@@ -1935,6 +2037,9 @@
               </div>
             </div>
           </div>
+
+          <!-- RANK HOLDERS COMPONENT UNDER HERO SECTION -->
+          ${renderSemesterRankHoldersComponent(state.selectedSem)}
 
           <!-- MARKSHEET SUBJECT BREAKDOWN TABLE, LOWER CONTROLS (SEMESTER & PDF DOWNLOAD) -->
           <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
