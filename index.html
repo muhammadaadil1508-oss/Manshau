@@ -4937,13 +4937,15 @@
         if (!state.deletedStudentIds.includes(studentId)) {
           state.deletedStudentIds.push(studentId);
         }
+        
+        // Remove from local array
         state.students = state.students.filter(s => s.id !== studentId);
+        
         if (state.currentStudentId === studentId) {
-          state.currentStudentId = state.students[0].id;
+          state.currentStudentId = state.students[0] ? state.students[0].id : "";
         }
 
-        saveState();
-
+        // Direct Firestore deletion
         try {
           if (db && fsDoc && fsDeleteDoc) {
             await fsDeleteDoc(fsDoc(db, 'users', studentId));
@@ -4952,6 +4954,7 @@
           console.error("Failed to delete student from Firebase:", e);
         }
 
+        saveState();
         alert(`Student user "${student ? student.name : studentId}" permanently deleted!`);
         renderApp();
       }
@@ -5142,21 +5145,23 @@
     function saveCroppedImage() {
       if (!currentCropper) return;
 
+      // Profile pic size lowered to 150x150 & 0.6 quality for fast Firebase Syncing
       const canvas = currentCropper.getCroppedCanvas({
-        width: 300,
-        height: 300,
+        width: 150,
+        height: 150,
         imageSmoothingEnabled: true,
-        imageSmoothingQuality: 'high',
+        imageSmoothingQuality: 'medium',
       });
 
       if (!canvas) return;
 
-      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
 
       if (currentCropMode === 'self') {
         const student = getCurrentStudent();
         if (student) {
           student.photoUrl = croppedDataUrl;
+          student.lastUpdated = Date.now();
           saveState();
           renderApp();
         }
