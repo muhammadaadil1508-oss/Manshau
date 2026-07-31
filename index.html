@@ -4433,12 +4433,26 @@
       return dayCounts[month] || 30;
     }
 
+    const ACADEMIC_START_DATE = "2026-08-01";
+    const DAILY_ATTENDANCE_TIME_HOUR = 8; // 8:00 AM daily attendance trigger
+
     function getTodayDateKey() {
       const now = new Date();
       const y = now.getFullYear();
       const m = String(now.getMonth() + 1).padStart(2, '0');
       const d = String(now.getDate()).padStart(2, '0');
       return `${y}-${m}-${d}`;
+    }
+
+    function isAttendanceActiveForDate(dateKey) {
+      if (dateKey < ACADEMIC_START_DATE) return false;
+      const todayKey = getTodayDateKey();
+      if (dateKey < todayKey) return true;
+      if (dateKey === todayKey) {
+        const now = new Date();
+        return now.getHours() >= DAILY_ATTENDANCE_TIME_HOUR;
+      }
+      return false;
     }
 
     function recalculateAttendanceRate(student) {
@@ -4451,7 +4465,6 @@
       const mName = parts[0];
       const year = parts[1] || '2026';
       const mIdx = MONTH_MAP[mName] || '08';
-      const todayKey = getTodayDateKey();
       
       let totalPassedDays = 0;
       let absentCount = 0;
@@ -4460,7 +4473,7 @@
       for (let d = 1; d <= daysCount; d++) {
         const dStr = d < 10 ? `0${d}` : `${d}`;
         const dateKey = `${year}-${mIdx}-${dStr}`;
-        if (dateKey <= todayKey) {
+        if (isAttendanceActiveForDate(dateKey)) {
           totalPassedDays++;
           const status = student.attendanceRecords[dateKey] || "Present";
           if (status === "Absent") absentCount += 1.0;
@@ -4614,9 +4627,9 @@
       for (let d = 1; d <= daysCount; d++) {
         const dStr = d < 10 ? `0${d}` : `${d}`;
         const dateKey = `${year}-${mIdx}-${dStr}`;
-        const isPastOrToday = dateKey <= todayKey;
+        const isActive = isAttendanceActiveForDate(dateKey);
         const recordedStatus = student.attendanceRecords[dateKey];
-        const status = recordedStatus ? recordedStatus : (isPastOrToday ? "Present" : "");
+        const status = recordedStatus ? recordedStatus : (isActive ? "Present" : "");
         
         let statusClass = "bg-white border-slate-200 text-slate-700";
         if (status === "Present") {
@@ -4659,7 +4672,6 @@
       const mName = parts[0];
       const year = parts[1];
       const mIdx = MONTH_MAP[mName];
-      const todayKey = getTodayDateKey();
       
       student.attendanceRecords = student.attendanceRecords || {};
       
@@ -4667,9 +4679,9 @@
       for (let d = 1; d <= daysCount; d++) {
         const dStr = d < 10 ? `0${d}` : `${d}`;
         const dateKey = `${year}-${mIdx}-${dStr}`;
-        const isPastOrToday = dateKey <= todayKey;
+        const isActive = isAttendanceActiveForDate(dateKey);
         const recordedStatus = student.attendanceRecords[dateKey];
-        const status = recordedStatus ? recordedStatus : (isPastOrToday ? "Present" : "");
+        const status = recordedStatus ? recordedStatus : (isActive ? "Present" : "");
         
         let statusClass = "bg-white border-slate-200 text-slate-700";
         if (status === "Present") {
