@@ -296,7 +296,7 @@
           program: "Genesis 01",
           age: 15,
           phone: "+919800000001",
-          attendanceRate: 0.0,
+          attendanceRate: 100.0,
           totalLeaveDays: 0,
           avatarInitials: "ZY",
           avatarBg: "from-brand-600 to-sky-400",
@@ -316,7 +316,7 @@
           program: "Genesis 01",
           age: 15,
           phone: "+919800000002",
-          attendanceRate: 0.0,
+          attendanceRate: 100.0,
           totalLeaveDays: 0,
           avatarInitials: "MM",
           avatarBg: "from-purple-600 to-pink-500",
@@ -336,7 +336,7 @@
           program: "Genesis 01",
           age: 15,
           phone: "+919800000003",
-          attendanceRate: 0.0,
+          attendanceRate: 100.0,
           totalLeaveDays: 0,
           avatarInitials: "RO",
           avatarBg: "from-emerald-600 to-teal-400",
@@ -356,7 +356,7 @@
           program: "Genesis 01",
           age: 15,
           phone: "+919800000004",
-          attendanceRate: 0.0,
+          attendanceRate: 100.0,
           totalLeaveDays: 0,
           avatarInitials: "SH",
           avatarBg: "from-rose-600 to-orange-400",
@@ -376,7 +376,7 @@
           program: "Genesis 01",
           age: 15,
           phone: "+919800000005",
-          attendanceRate: 0.0,
+          attendanceRate: 100.0,
           totalLeaveDays: 0,
           avatarInitials: "MA",
           avatarBg: "from-blue-600 to-indigo-500",
@@ -396,7 +396,7 @@
           program: "Genesis 01",
           age: 15,
           phone: "+919800000006",
-          attendanceRate: 0.0,
+          attendanceRate: 100.0,
           totalLeaveDays: 0,
           avatarInitials: "AS",
           avatarBg: "from-indigo-600 to-purple-500",
@@ -416,7 +416,7 @@
           program: "Genesis 01",
           age: 15,
           phone: "+919800000007",
-          attendanceRate: 0.0,
+          attendanceRate: 100.0,
           totalLeaveDays: 0,
           avatarInitials: "SW",
           avatarBg: "from-cyan-600 to-blue-500",
@@ -436,7 +436,7 @@
           program: "Genesis 01",
           age: 15,
           phone: "+919800000008",
-          attendanceRate: 0.0,
+          attendanceRate: 100.0,
           totalLeaveDays: 0,
           avatarInitials: "SF",
           avatarBg: "from-teal-600 to-emerald-500",
@@ -456,7 +456,7 @@
           program: "Genesis 02",
           age: 14,
           phone: "+919800000009",
-          attendanceRate: 0.0,
+          attendanceRate: 100.0,
           totalLeaveDays: 0,
           avatarInitials: "AN",
           avatarBg: "from-amber-600 to-orange-500",
@@ -476,7 +476,7 @@
           program: "Genesis 02",
           age: 14,
           phone: "+919800000010",
-          attendanceRate: 0.0,
+          attendanceRate: 100.0,
           totalLeaveDays: 0,
           avatarInitials: "NO",
           avatarBg: "from-sky-600 to-blue-500",
@@ -496,7 +496,7 @@
           program: "Genesis 02",
           age: 14,
           phone: "+919800000011",
-          attendanceRate: 0.0,
+          attendanceRate: 100.0,
           totalLeaveDays: 0,
           avatarInitials: "AD",
           avatarBg: "from-fuchsia-600 to-pink-500",
@@ -516,7 +516,7 @@
           program: "Genesis 02",
           age: 14,
           phone: "+919800000012",
-          attendanceRate: 0.0,
+          attendanceRate: 100.0,
           totalLeaveDays: 0,
           avatarInitials: "SI",
           avatarBg: "from-violet-600 to-purple-500",
@@ -536,7 +536,7 @@
           program: "Genesis 02",
           age: 14,
           phone: "+919800000013",
-          attendanceRate: 0.0,
+          attendanceRate: 100.0,
           totalLeaveDays: 0,
           avatarInitials: "MT",
           avatarBg: "from-emerald-600 to-green-500",
@@ -556,7 +556,7 @@
           program: "Genesis 02",
           age: 14,
           phone: "+919800000014",
-          attendanceRate: 0.0,
+          attendanceRate: 100.0,
           totalLeaveDays: 0,
           avatarInitials: "VA",
           avatarBg: "from-blue-700 to-indigo-600",
@@ -576,7 +576,7 @@
           program: "Genesis 02",
           age: 14,
           phone: "+919800000015",
-          attendanceRate: 0.0,
+          attendanceRate: 100.0,
           totalLeaveDays: 0,
           avatarInitials: "AM",
           avatarBg: "from-orange-600 to-red-500",
@@ -596,7 +596,7 @@
           program: "Genesis 02",
           age: 14,
           phone: "+919800000016",
-          attendanceRate: 0.0,
+          attendanceRate: 100.0,
           totalLeaveDays: 0,
           avatarInitials: "YA",
           avatarBg: "from-cyan-600 to-teal-500",
@@ -4251,41 +4251,52 @@
       return dayCounts[month] || 30;
     }
 
+    function recalculateAttendanceRate(student) {
+      if (!student) return;
+      student.attendanceRecords = student.attendanceRecords || {};
+      
+      const filterMonth = state.attendanceFilterMonth || "August 2026";
+      const daysCount = getDaysInMonthString(filterMonth);
+      const parts = filterMonth.split(' ');
+      const mName = parts[0];
+      const year = parts[1] || '2026';
+      const mIdx = MONTH_MAP[mName] || '08';
+      
+      let absentCount = 0;
+      let halfDayCount = 0;
+      
+      for (let d = 1; d <= daysCount; d++) {
+        const dStr = d < 10 ? `0${d}` : `${d}`;
+        const dateKey = `${year}-${mIdx}-${dStr}`;
+        const status = student.attendanceRecords[dateKey] || "Present";
+        if (status === "Absent") absentCount += 1.0;
+        else if (status === "Half Day") halfDayCount += 0.5;
+      }
+      
+      const presentDays = Math.max(0, daysCount - absentCount - halfDayCount);
+      const rate = parseFloat(((presentDays / daysCount) * 100).toFixed(1));
+      student.attendanceRate = Math.max(0, Math.min(100, rate));
+    }
+
     function toggleAttendanceStatus(studentId, dateKey) {
       if (state.role !== 'admin' && state.role !== 'controlpanel') return;
       const student = state.students.find(s => s.id === studentId);
       if (!student) return;
       
       student.attendanceRecords = student.attendanceRecords || {};
-      const current = student.attendanceRecords[dateKey];
+      const current = student.attendanceRecords[dateKey] || "Present";
       
-      if (!current) {
-        student.attendanceRecords[dateKey] = "Present";
-      } else if (current === "Present") {
+      if (current === "Present") {
         student.attendanceRecords[dateKey] = "Absent";
       } else if (current === "Absent") {
         student.attendanceRecords[dateKey] = "Half Day";
       } else if (current === "Half Day") {
         student.attendanceRecords[dateKey] = "Academic Leave";
       } else {
-        delete student.attendanceRecords[dateKey];
+        student.attendanceRecords[dateKey] = "Present";
       }
       
-      // Recalculate attendanceRate
-      const vals = Object.values(student.attendanceRecords);
-      const recordCount = vals.length;
-      if (recordCount === 0) {
-        student.attendanceRate = 0.0;
-      } else {
-        const presents = vals.reduce((acc, v) => {
-          if (v === "Present") return acc + 1.0;
-          if (v === "Half Day") return acc + 0.5;
-          return acc;
-        }, 0);
-        student.attendanceRate = parseFloat(((presents / recordCount) * 100).toFixed(1));
-      }
-
-      // Recalculate totalLeaveDays
+      recalculateAttendanceRate(student);
       recalculateStudentLeaves(student);
       
       student.lastUpdated = Date.now();
@@ -4349,12 +4360,10 @@
       for (let d = 1; d <= daysCount; d++) {
         const dStr = d < 10 ? `0${d}` : `${d}`;
         const dateKey = `${year}-${mIdx}-${dStr}`;
-        const status = student.attendanceRecords[dateKey];
+        const status = student.attendanceRecords[dateKey] || "Present";
         
-        let statusClass = "bg-white border-slate-200 text-slate-700";
-        if (status === "Present") {
-          statusClass = "bg-emerald-500 text-white border-emerald-500 shadow-sm";
-        } else if (status === "Absent") {
+        let statusClass = "bg-emerald-500 text-white border-emerald-500 shadow-sm";
+        if (status === "Absent") {
           statusClass = "bg-rose-500 text-white border-rose-500 shadow-sm";
         } else if (status === "Half Day") {
           statusClass = "bg-amber-500 text-white border-amber-500 shadow-sm";
@@ -4367,7 +4376,7 @@
             <button
               onclick="toggleAttendanceStatus('${student.id}', '${dateKey}')"
               class="flex items-center justify-center rounded-xl border text-center transition-all hover:scale-105 active:scale-95 cursor-pointer h-10 w-full font-black text-sm ${statusClass}"
-              title="${dateKey} - ${status || 'Upcoming Dates'}"
+              title="${dateKey} - ${status}"
             >
               ${d}
             </button>
@@ -4376,7 +4385,7 @@
           html += `
             <div
               class="flex items-center justify-center rounded-xl border text-center cursor-default h-10 w-full font-black text-sm ${statusClass}"
-              title="${dateKey} - ${status || 'Upcoming Dates'}"
+              title="${dateKey} - ${status}"
             >
               ${d}
             </div>
@@ -4399,12 +4408,10 @@
       for (let d = 1; d <= daysCount; d++) {
         const dStr = d < 10 ? `0${d}` : `${d}`;
         const dateKey = `${year}-${mIdx}-${dStr}`;
-        const status = student.attendanceRecords[dateKey];
+        const status = student.attendanceRecords[dateKey] || "Present";
         
-        let statusClass = "bg-white border-slate-200 text-slate-700";
-        if (status === "Present") {
-          statusClass = "bg-emerald-500 text-white border-emerald-500 shadow-sm";
-        } else if (status === "Absent") {
+        let statusClass = "bg-emerald-500 text-white border-emerald-500 shadow-sm";
+        if (status === "Absent") {
           statusClass = "bg-rose-500 text-white border-rose-500 shadow-sm";
         } else if (status === "Half Day") {
           statusClass = "bg-amber-500 text-white border-amber-500 shadow-sm";
@@ -4415,7 +4422,7 @@
         html += `
           <div
             class="flex items-center justify-center rounded-xl border text-center cursor-default h-10 w-full font-black text-sm ${statusClass}"
-            title="${dateKey} - ${status || 'Upcoming Dates'}"
+            title="${dateKey} - ${status}"
           >
             ${d}
           </div>
