@@ -907,7 +907,7 @@
               if (Array.isArray(s.exams)) {
                 const legacyExamIds = ["EXM-001", "EXM-002", "EXM-003", "EXM-004", "EXM-005", "EXM-006", "EXM-011", "EXM-012", "EXM-013", "EXM-014", "EXM-021", "EXM-022", "EXM-031", "EXM-032", "EXM-041", "EXM-042", "EXM-051", "EXM-061", "EXM-071", "EXM-081", "EXM-091", "EXM-101", "EXM-111", "EXM-121", "EXM-131", "EXM-141", "EXM-151"];
                 const origExLen = s.exams.length;
-                s.exams = s.exams.filter(e => !legacyExamIds.includes(e.id));
+                s.exams = s.exams.filter(e => !legacyExamIds.includes(e.id) && !(e.sem && (e.sem === 'Sem 4' || e.sem.includes('4'))));
                 if (s.exams.length !== origExLen) updated = true;
               } else {
                 s.exams = [];
@@ -1625,7 +1625,7 @@
       }
 
       const studentScores = list.map(st => {
-        const semExams = (st.exams || []).filter(e => (e.sem || 'Sem 4') === targetSem);
+        const semExams = (st.exams || []).filter(e => (e.sem) === targetSem);
         const totalScore = semExams.reduce((s, e) => s + (e.score || 0), 0);
         const maxScore = semExams.length * 100;
         const pct = maxScore > 0 ? (totalScore / maxScore) * 100 : 0;
@@ -1723,7 +1723,7 @@
 
     // --- ADMIN MODULE 3: ACADEMICS & EXAMINATIONS ---
     function renderAdminAcademicsView(student) {
-      const semExams = (student.exams || []).filter(e => (e.sem || 'Sem 4') === state.selectedSem);
+      const semExams = (student.exams || []).filter(e => (e.sem) === state.selectedSem);
       const totalScore = semExams.reduce((s, e) => s + (e.score || 0), 0);
       const maxScore   = semExams.length * 100;
       const pct        = maxScore > 0 ? ((totalScore / maxScore) * 100).toFixed(1) : '0.0';
@@ -2117,7 +2117,7 @@
       `;
 
       // --- MARKS ENTRY SECTION ---
-      const semExams = (cpStudent.exams || []).filter(e => (e.sem || 'Sem 4') === state.selectedSem);
+      const semExams = (cpStudent.exams || []).filter(e => (e.sem) === state.selectedSem);
       const totalScore = semExams.reduce((s, e) => s + (e.score || 0), 0);
       const maxScore   = semExams.length * 100;
       const pct        = maxScore > 0 ? ((totalScore / maxScore) * 100).toFixed(1) : '0.0';
@@ -2568,7 +2568,7 @@
 
         <!-- ACADEMIC PERFORMANCE SUMMARY CARD -->
         ${(() => {
-          const dashExams = student.exams.filter(e => (e.sem || 'Sem 4') === state.selectedSem);
+          const dashExams = student.exams.filter(e => (e.sem) === state.selectedSem);
           const dashTotal = dashExams.reduce((s, e) => s + (e.score || 0), 0);
           const dashMax   = dashExams.length * 100;
           const dashPct   = dashMax > 0 ? ((dashTotal / dashMax) * 100).toFixed(1) : '0.0';
@@ -2576,7 +2576,7 @@
 
           const sameClassStudents = state.students.filter(st => (st.class || '') === (student.class || 'Genesis 01'));
           const allAvgs = sameClassStudents.map(st => {
-            const exs = (st.exams || []).filter(e => (e.sem || 'Sem 4') === state.selectedSem);
+            const exs = (st.exams || []).filter(e => (e.sem) === state.selectedSem);
             return exs.length ? exs.reduce((s, e) => s + (e.score || 0), 0) / exs.length : 0;
           }).sort((a, b) => b - a);
           const myAvg = dashExams.length ? dashTotal / dashExams.length : 0;
@@ -2649,7 +2649,7 @@
 
     // --- VIEW 2: EXAMINATION HUB ---
     function renderExaminationView(student) {
-      const semExams = student.exams.filter(e => (e.sem || 'Sem 4') === state.selectedSem);
+      const semExams = student.exams.filter(e => (e.sem) === state.selectedSem);
       const totalScore = semExams.reduce((s, e) => s + (e.score || 0), 0);
       const maxScore   = semExams.length * 100;
       const pct        = maxScore > 0 ? ((totalScore / maxScore) * 100).toFixed(1) : '0.0';
@@ -2657,7 +2657,7 @@
       
       const sameClassStudents = state.students.filter(st => (st.class || '') === (student.class || 'Genesis 01'));
       const allAvgs = sameClassStudents.map(st => {
-        const exs = (st.exams || []).filter(e => (e.sem || 'Sem 4') === state.selectedSem);
+        const exs = (st.exams || []).filter(e => (e.sem) === state.selectedSem);
         return exs.length ? exs.reduce((s, e) => s + (e.score || 0), 0) / exs.length : 0;
       }).sort((a, b) => b - a);
       const myAvg = semExams.length ? totalScore / semExams.length : 0;
