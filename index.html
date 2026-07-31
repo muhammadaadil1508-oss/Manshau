@@ -601,15 +601,8 @@
               s.transactions = [];
               updated = true;
             }
-            if (s.id === "MSH-2026-0001" && (!s.exams || s.exams.length === 0)) {
-              s.exams = [
-                { id: "EXM-001", subject: "Mathematics", code: "MAT-301", score: 85, grade: "A", credits: 4, sem: "Sem 4" },
-                { id: "EXM-002", subject: "Physics", code: "PHY-302", score: 78, grade: "B+", credits: 4, sem: "Sem 4" },
-                { id: "EXM-003", subject: "English", code: "ENG-101", score: 92, grade: "A+", credits: 3, sem: "Sem 4" },
-                { id: "EXM-004", subject: "Moral Science", code: "ISL-201", score: 65, grade: "C", credits: 3, sem: "Sem 4" },
-                { id: "EXM-005", subject: "Arabic Language", code: "ARB-102", score: 88, grade: "A", credits: 3, sem: "Sem 4" },
-                { id: "EXM-006", subject: "Computer Science", code: "CSC-204", score: 95, grade: "A+", credits: 4, sem: "Sem 4" }
-              ];
+            if (!Array.isArray(s.exams)) {
+              s.exams = [];
               updated = true;
             }
             if (updated) {
@@ -687,15 +680,8 @@
                 s.transactions = [];
                 updated = true;
               }
-              if (s.id === "MSH-2026-0001" && (!s.exams || s.exams.length === 0)) {
-                s.exams = [
-                  { id: "EXM-001", subject: "Mathematics", code: "MAT-301", score: 85, grade: "A", credits: 4, sem: "Sem 4" },
-                  { id: "EXM-002", subject: "Physics", code: "PHY-302", score: 78, grade: "B+", credits: 4, sem: "Sem 4" },
-                  { id: "EXM-003", subject: "English", code: "ENG-101", score: 92, grade: "A+", credits: 3, sem: "Sem 4" },
-                  { id: "EXM-004", subject: "Moral Science", code: "ISL-201", score: 65, grade: "C", credits: 3, sem: "Sem 4" },
-                  { id: "EXM-005", subject: "Arabic Language", code: "ARB-102", score: 88, grade: "A", credits: 3, sem: "Sem 4" },
-                  { id: "EXM-006", subject: "Computer Science", code: "CSC-204", score: 95, grade: "A+", credits: 4, sem: "Sem 4" }
-                ];
+              if (!Array.isArray(s.exams)) {
+                s.exams = [];
                 updated = true;
               }
               if (updated) {
@@ -4683,9 +4669,11 @@
 
     function deleteExamForStudent(studentId, index) {
       const student = state.students.find(s => s.id === studentId);
-      if (student && student.exams[index]) {
+      if (student && Array.isArray(student.exams) && student.exams[index]) {
         if (confirm(`Are you sure you want to delete ${student.exams[index].subject} from ${student.name}'s records?`)) {
           student.exams.splice(index, 1);
+          student.lastUpdated = Date.now();
+          saveState();
           alert("Subject deleted successfully!");
           renderApp();
         }
