@@ -2323,6 +2323,12 @@
       return `
         <!-- HERO BANNER -->
         <div class="relative overflow-hidden glass-card rounded-3xl p-6 sm:p-8 shadow-anti-gravity anti-gravity-card border border-white bg-gradient-to-r from-white via-slate-50/60 to-brand-50/50 mb-6">
+          <div class="flex items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-100">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-slate-400">Student Account Selector</span>
+            <select onchange="switchStudentAccount(this.value)" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shadow-sm focus:ring-2 focus:ring-brand-500 cursor-pointer max-w-xs">
+              ${state.students.map(s => `<option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name} (${s.class || 'Genesis 01'})</option>`).join('')}
+            </select>
+          </div>
           <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div onclick="toggleModal('profile', true)" class="flex items-center space-x-4 sm:space-x-6 cursor-pointer hover:opacity-85 transition-opacity" title="Click to view details">
               <!-- Square Avatar Detail Trigger Block -->
@@ -2497,12 +2503,19 @@
         <div class="space-y-8">
           <!-- ACADEMIC PERFORMANCE HERO SECTION -->
           <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white space-y-6">
-            <div>
-              <span class="bg-brand-50 text-brand-600 text-xs px-3 py-1 rounded-full font-bold border border-brand-100">
-                ACADEMIC PERFORMANCE
-              </span>
-              <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Examinations & Marksheet</h2>
-              <p class="text-xs text-slate-400 font-semibold mt-1">Student Batch: <span class="text-brand-600 font-bold">${student.class || 'Genesis 02'}</span></p>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <span class="bg-brand-50 text-brand-600 text-xs px-3 py-1 rounded-full font-bold border border-brand-100">
+                  ACADEMIC PERFORMANCE
+                </span>
+                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Examinations & Marksheet</h2>
+                <p class="text-xs text-slate-400 font-semibold mt-1">Student Batch: <span class="text-brand-600 font-bold">${student.class || 'Genesis 02'}</span></p>
+              </div>
+
+              <!-- Student Switcher Dropdown -->
+              <select onchange="switchStudentAccount(this.value)" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shadow-sm focus:ring-2 focus:ring-brand-500 cursor-pointer self-start sm:self-auto">
+                ${state.students.map(s => `<option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name} (${s.class || 'Genesis 01'})</option>`).join('')}
+              </select>
             </div>
 
             <!-- DYNAMIC HERO STAT CARDS (RANK, GRADE & TOTAL MARKS) -->
@@ -2621,10 +2634,17 @@
               <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Attendance & Leave</h2>
             </div>
 
-            <button onclick="toggleModal('leave', true)" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-3 rounded-2xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105">
-              ${icon('plus', 'w-4 h-4')}
-              <span>Apply New Leave</span>
-            </button>
+            <div class="flex flex-wrap items-center gap-3">
+              <!-- Student Switcher Dropdown -->
+              <select onchange="switchStudentAccount(this.value)" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shadow-sm focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                ${state.students.map(s => `<option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name} (${s.class || 'Genesis 01'})</option>`).join('')}
+              </select>
+
+              <button onclick="toggleModal('leave', true)" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-3 rounded-2xl text-xs font-bold shadow-md shadow-brand-500/20 transition-all hover:scale-105">
+                ${icon('plus', 'w-4 h-4')}
+                <span>Apply New Leave</span>
+              </button>
+            </div>
           </div>
 
           <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm text-center max-w-xs mx-auto">
@@ -2765,6 +2785,11 @@
               </span>
               <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">${student.name}'s Fund</h2>
             </div>
+
+            <!-- Student Switcher Dropdown -->
+            <select onchange="switchStudentAccount(this.value)" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shadow-sm focus:ring-2 focus:ring-brand-500 cursor-pointer">
+              ${state.students.map(s => `<option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name} (${s.class || 'Genesis 01'})</option>`).join('')}
+            </select>
           </div>
 
           <!-- CASH IN, CASH OUT & NET BALANCE CARDS WITH DIRECTIONAL ARROWS -->
