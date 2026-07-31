@@ -929,6 +929,7 @@
                   state.students.push(JSON.parse(JSON.stringify(seed)));
                 }
               });
+              syncGlobalAcademicLeaves();
               saveStateLocalOnly();
             }
           }
@@ -4278,6 +4279,28 @@
       student.attendanceRate = Math.max(0, Math.min(100, rate));
     }
 
+    function syncGlobalAcademicLeaves() {
+      if (!Array.isArray(state.students)) return;
+      const academicLeaveDates = new Set();
+      
+      state.students.forEach(s => {
+        if (s.attendanceRecords) {
+          Object.keys(s.attendanceRecords).forEach(dKey => {
+            if (s.attendanceRecords[dKey] === "Academic Leave") {
+              academicLeaveDates.add(dKey);
+            }
+          });
+        }
+      });
+
+      academicLeaveDates.forEach(dKey => {
+        state.students.forEach(s => {
+          s.attendanceRecords = s.attendanceRecords || {};
+          s.attendanceRecords[dKey] = "Academic Leave";
+        });
+      });
+    }
+
     function toggleAttendanceStatus(studentId, dateKey) {
       if (state.role !== 'admin' && state.role !== 'controlpanel') return;
       const student = state.students.find(s => s.id === studentId);
@@ -4286,20 +4309,44 @@
       student.attendanceRecords = student.attendanceRecords || {};
       const current = student.attendanceRecords[dateKey] || "Present";
       
+      let nextStatus = "Present";
       if (current === "Present") {
-        student.attendanceRecords[dateKey] = "Absent";
+        nextStatus = "Absent";
       } else if (current === "Absent") {
-        student.attendanceRecords[dateKey] = "Half Day";
+        nextStatus = "Half Day";
       } else if (current === "Half Day") {
-        student.attendanceRecords[dateKey] = "Academic Leave";
+        nextStatus = "Academic Leave";
       } else {
-        student.attendanceRecords[dateKey] = "Present";
+        nextStatus = "Present";
       }
       
-      recalculateAttendanceRate(student);
-      recalculateStudentLeaves(student);
+      if (nextStatus === "Academic Leave") {
+        // Broadcast Academic Leave to ALL students
+        state.students.forEach(s => {
+          s.attendanceRecords = s.attendanceRecords || {};
+          s.attendanceRecords[dateKey] = "Academic Leave";
+          recalculateAttendanceRate(s);
+          recalculateStudentLeaves(s);
+          s.lastUpdated = Date.now();
+        });
+      } else if (current === "Academic Leave" && nextStatus === "Present") {
+        // Clearing Academic Leave clears it for ALL students
+        state.students.forEach(s => {
+          s.attendanceRecords = s.attendanceRecords || {};
+          if (s.attendanceRecords[dateKey] === "Academic Leave") {
+            s.attendanceRecords[dateKey] = "Present";
+          }
+          recalculateAttendanceRate(s);
+          recalculateStudentLeaves(s);
+          s.lastUpdated = Date.now();
+        });
+      } else {
+        student.attendanceRecords[dateKey] = nextStatus;
+        recalculateAttendanceRate(student);
+        recalculateStudentLeaves(student);
+        student.lastUpdated = Date.now();
+      }
       
-      student.lastUpdated = Date.now();
       saveState();
       renderApp();
     }
@@ -4325,13 +4372,19 @@
           const d = String(curr.getDate()).padStart(2, '0');
           const dateKey = `${y}-${m}-${d}`;
           
-          if (!student.attendanceRecords[dateKey] || student.attendanceRecords[dateKey] === "Academic Leave") {
-            student.attendanceRecords[dateKey] = "Academic Leave";
+          if (leave.category === "Academic Duty" || leave.category === "Academic Leave") {
+            // Apply Academic Leave to ALL students
+            state.students.forEach(s => {
+              s.attendanceRecords = s.attendanceRecords || {};
+              s.attendanceRecords[dateKey] = "Academic Leave";
+            });
+          } else {
+            if (!student.attendanceRecords[dateKey] || student.attendanceRecords[dateKey] === "Academic Leave") {
+              student.attendanceRecords[dateKey] = "Academic Leave";
+            }
           }
-          
-          curr.setDate(curr.getDate() + 1);
-        }
       });
+      syncGlobalAcademicLeaves();
     }
 
     function generateAttendanceDaysGrid(student, filterMonth) {
