@@ -258,12 +258,12 @@
 
       adminCredentials: {
         username: "admin",
-        password: "123",
+        password: "0000",
       },
 
       controlPanelCredentials: {
         username: "control panel",
-        password: "123",
+        password: "234",
       },
       
       role: "student",
@@ -4043,7 +4043,7 @@
           state.loginError = "";
           renderApp();
         } else {
-          state.loginError = `Invalid Admin Credentials! Use admin / 123`;
+          state.loginError = `Invalid Admin Credentials! Use admin / 0000`;
           renderApp();
         }
       } else if (state.loginRole === "controlpanel") {
