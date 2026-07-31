@@ -927,21 +927,14 @@
         }
       });
 
-      // 4. Sort students deterministically by official ID for identical view on Mobile & PC
+      // 4. Sort students deterministically
       uniqueStudents.sort((a, b) => (a.id || '').localeCompare(b.id || ''));
 
       state.students = uniqueStudents;
 
-      // 5. Clear manual attendance records and reset to clean automatic date & time attendance
-      state.students.forEach(s => {
-        s.attendanceRecords = {};
-        s.totalLeaveDays = 0;
-        recalculateAttendanceRate(s);
-      });
-
-      // 6. Ensure currentStudentId points to a valid student in the list
+      // 5. Ensure currentStudentId points to a valid student
       if (!state.students.some(s => s.id === state.currentStudentId)) {
-        state.currentStudentId = state.students[0] ? state.students[0].id : "MSH-2026-0001";
+        state.currentStudentId = state.students[0] ? state.students[0].id : "";
       }
     }
 
