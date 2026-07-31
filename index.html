@@ -904,7 +904,12 @@
                 s.transactions = [];
                 updated = true;
               }
-              if (!Array.isArray(s.exams)) {
+              if (Array.isArray(s.exams)) {
+                const legacyExamIds = ["EXM-001", "EXM-002", "EXM-003", "EXM-004", "EXM-005", "EXM-006", "EXM-011", "EXM-012", "EXM-013", "EXM-014", "EXM-021", "EXM-022", "EXM-031", "EXM-032", "EXM-041", "EXM-042", "EXM-051", "EXM-061", "EXM-071", "EXM-081", "EXM-091", "EXM-101", "EXM-111", "EXM-121", "EXM-131", "EXM-141", "EXM-151"];
+                const origExLen = s.exams.length;
+                s.exams = s.exams.filter(e => !legacyExamIds.includes(e.id));
+                if (s.exams.length !== origExLen) updated = true;
+              } else {
                 s.exams = [];
                 updated = true;
               }
