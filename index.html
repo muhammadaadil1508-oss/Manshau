@@ -302,12 +302,7 @@
           avatarInitials: "SW",
           avatarBg: "from-brand-600 to-sky-400",
           lastUpdated: Date.now(),
-          transactions: [
-            { id: "TXN-1001", date: "2026-07-28", description: "Semester Tuition Fee Payment", category: "Academic Fee", type: "Credit", amount: 45000 },
-            { id: "TXN-1002", date: "2026-07-20", description: "Merit Academic Scholarship Grant", category: "Scholarship", type: "Credit", amount: 15000 },
-            { id: "TXN-1003", date: "2026-07-15", description: "Lab & Library Security Deposit", category: "Facility", type: "Credit", amount: 5000 },
-            { id: "TXN-1004", date: "2026-07-10", description: "Textbook & Course Material Purchase", category: "Bookstore", type: "Debit", amount: 3500 }
-          ],
+          transactions: [],
           exams: [
             { id: "EXM-001", subject: "Mathematics", code: "MAT-301", score: 85, grade: "A", credits: 4, sem: "Sem 4" },
             { id: "EXM-002", subject: "Physics", code: "PHY-302", score: 78, grade: "B+", credits: 4, sem: "Sem 4" },
@@ -334,9 +329,7 @@
           avatarInitials: "RK",
           avatarBg: "from-purple-600 to-pink-500",
           lastUpdated: Date.now(),
-          transactions: [
-            { id: "TXN-2001", date: "2026-07-25", description: "Tuition Fee Payment", category: "Academic Fee", type: "Credit", amount: 48000 }
-          ],
+          transactions: [],
           exams: [
             { id: "EXM-011", subject: "Mathematics", code: "MAT-301", score: 92, grade: "A+", credits: 4, sem: "Sem 4" },
             { id: "EXM-012", subject: "Physics", code: "PHY-302", score: 86, grade: "A", credits: 4, sem: "Sem 4" },
@@ -862,7 +855,11 @@
               s.class = s.class.replace(/geenesis/gi, 'genesis');
               updated = true;
             }
-            if (!Array.isArray(s.transactions)) {
+            if (Array.isArray(s.transactions)) {
+              const origLen = s.transactions.length;
+              s.transactions = s.transactions.filter(t => !["TXN-1001", "TXN-1002", "TXN-1003", "TXN-1004", "TXN-2001"].includes(t.id));
+              if (s.transactions.length !== origLen) updated = true;
+            } else {
               s.transactions = [];
               updated = true;
             }
@@ -943,7 +940,11 @@
                 s.class = s.class.replace(/geenesis/gi, 'genesis');
                 updated = true;
               }
-              if (!Array.isArray(s.transactions)) {
+              if (Array.isArray(s.transactions)) {
+                const origLen = s.transactions.length;
+                s.transactions = s.transactions.filter(t => !["TXN-1001", "TXN-1002", "TXN-1003", "TXN-1004", "TXN-2001"].includes(t.id));
+                if (s.transactions.length !== origLen) updated = true;
+              } else {
                 s.transactions = [];
                 updated = true;
               }
