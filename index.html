@@ -722,7 +722,10 @@
           announcements: state.announcements,
           currentStudentId: state.currentStudentId,
           role: state.role,
-          isAuthenticated: state.isAuthenticated
+          isAuthenticated: state.isAuthenticated,
+          adminCredentials: state.adminCredentials,
+          controlPanelCredentials: state.controlPanelCredentials,
+          deletedStudentIds: state.deletedStudentIds
         }));
       } catch(e) {}
     }
@@ -945,6 +948,9 @@
           if (parsed.currentStudentId) state.currentStudentId = parsed.currentStudentId;
           if (parsed.role) state.role = parsed.role;
           if (parsed.isAuthenticated !== undefined) state.isAuthenticated = parsed.isAuthenticated;
+          if (parsed.adminCredentials) state.adminCredentials = parsed.adminCredentials;
+          if (parsed.controlPanelCredentials) state.controlPanelCredentials = parsed.controlPanelCredentials;
+          if (parsed.deletedStudentIds) state.deletedStudentIds = parsed.deletedStudentIds;
           
           lastFetchedStateStr = JSON.stringify({
             students: state.students,
@@ -981,6 +987,13 @@
         // 2. Save announcements
         await fsSetDoc(fsDoc(db, 'announcements', 'global'), {
           data: state.announcements
+        });
+
+        // 3. Save credentials and deleted user IDs
+        await fsSetDoc(fsDoc(db, 'system', 'credentials'), {
+          adminCredentials: state.adminCredentials,
+          controlPanelCredentials: state.controlPanelCredentials,
+          deletedStudentIds: state.deletedStudentIds
         });
 
         if (!isBackendActive) {
