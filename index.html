@@ -806,7 +806,7 @@
               <div class="flex items-center space-x-3 sm:space-x-4">
                 
                 <!-- DATABASE PERSISTENCE STATUS BADGE -->
-                ${state.role === 'admin' ? `
+                ${(state.role === 'admin' || state.role === 'controlpanel') ? `
                 <div id="dbStatusBadge" class="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-[10px] font-extrabold border shadow-sm ${
                   isBackendActive 
                     ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
@@ -854,7 +854,7 @@
                     class="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white hover:bg-slate-50 border-2 border-brand-500/80 shadow-sm transition-all hover:scale-105 p-0.5 flex flex-shrink-0 items-center justify-center group"
                     title="User Profile & Settings"
                   >
-                    ${state.role === 'admin' 
+                    ${(state.role === 'admin' || state.role === 'controlpanel') 
                       ? getAdminAvatarHtml("w-full h-full rounded-full") 
                       : getStudentAvatarHtml(currentStudent, "w-full h-full rounded-full object-cover", "text-xs")}
                     <span class="absolute -bottom-0.5 -right-0.5 bg-white rounded-full p-0.5 border border-slate-200 shadow-sm text-slate-400 group-hover:text-slate-600 flex items-center justify-center">
@@ -866,12 +866,12 @@
                   <div id="headerProfileMenu" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-anti-gravity-lg border border-slate-100 overflow-hidden z-50 animate-fade-in-up">
                     <div class="p-3 bg-gradient-to-r from-brand-50/60 to-slate-50 border-b border-slate-100">
                       <div class="flex items-center space-x-3">
-                        ${state.role === 'admin' 
+                        ${(state.role === 'admin' || state.role === 'controlpanel')
                           ? getAdminAvatarHtml("w-10 h-10 rounded-full ring-2 ring-indigo-500 shadow-sm") 
                           : getStudentAvatarHtml(currentStudent, "w-10 h-10 rounded-full object-cover ring-2 ring-brand-400 shadow-sm", "text-sm")}
                         <div class="overflow-hidden">
-                          <p class="font-extrabold text-slate-900 text-xs truncate">${state.role === 'admin' ? 'Administrator' : currentStudent.name}</p>
-                          <p class="text-[10px] text-slate-500 font-semibold truncate">${state.role === 'admin' ? 'System Controller' : (currentStudent.class || 'Student')} &bull; ${state.role === 'admin' ? 'Admin' : 'Student'}</p>
+                          <p class="font-extrabold text-slate-900 text-xs truncate">${state.role === 'admin' ? 'Administrator' : state.role === 'controlpanel' ? 'Control Panel' : currentStudent.name}</p>
+                          <p class="text-[10px] text-slate-500 font-semibold truncate">${state.role === 'admin' ? 'System Controller' : state.role === 'controlpanel' ? 'Genesis 01 Controller' : (currentStudent.class || 'Student')} &bull; ${state.role === 'admin' ? 'Admin' : state.role === 'controlpanel' ? 'Control' : 'Student'}</p>
                         </div>
                       </div>
                     </div>
@@ -893,6 +893,14 @@
                           <span>Admin Panel</span>
                         </div>
                         ${state.role === 'admin' ? '<span class="w-2 h-2 rounded-full bg-emerald-400"></span>' : ''}
+                      </button>
+
+                      <button onclick="setRole('controlpanel'); closeHeaderProfileMenu()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl font-bold ${state.role === 'controlpanel' ? 'bg-emerald-600 text-white' : 'text-slate-700 hover:bg-slate-50'} transition-colors text-left">
+                        <div class="flex items-center space-x-2.5">
+                          ${icon('layout-dashboard', 'w-4 h-4 text-emerald-500')}
+                          <span>Control Panel</span>
+                        </div>
+                        ${state.role === 'controlpanel' ? '<span class="w-2 h-2 rounded-full bg-emerald-400"></span>' : ''}
                       </button>
 
                       <div class="border-t border-slate-100 my-1"></div>
@@ -1771,9 +1779,13 @@
     // --- ADMIN MODULE 5: FINANCIAL LEDGER ---
     // --- CONTROL PANEL PORTAL ---
     function renderControlPanelPortal() {
-      const genesis01 = state.students.filter(s => (s.class || '') === 'Genesis 01');
-      const cpStudent = state.students.find(s => s.id === state.cpSelectedStudentId) || genesis01[0];
-      if (!cpStudent) return `<div class="text-center py-20 text-slate-400 font-bold">No Genesis 01 students found.</div>`;
+      const genesis01 = state.students.filter(s => {
+        const cls = (s.class || '').toLowerCase();
+        return cls.includes('01') || cls.includes('genesis 1');
+      });
+      const targetStudents = genesis01.length > 0 ? genesis01 : (state.students || []);
+      const cpStudent = targetStudents.find(s => s.id === state.cpSelectedStudentId) || targetStudents[0] || (state.students && state.students[0]);
+      if (!cpStudent) return `<div class="glass-card p-8 rounded-3xl text-center text-slate-400 font-bold">No student records found.</div>`;
 
       const fin = getFinancials(cpStudent);
       const netBalance = fin.totalCredits - fin.totalDebits;
@@ -1789,7 +1801,7 @@
               <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Institute Fund</h2>
             </div>
             <select onchange="state.cpSelectedStudentId=this.value;renderApp()" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shadow-sm">
-              ${genesis01.map(s => `<option value="${s.id}" ${s.id === cpStudent.id ? 'selected' : ''}>${s.name}</option>`).join('')}
+              ${targetStudents.map(s => `<option value="${s.id}" ${s.id === cpStudent.id ? 'selected' : ''}>${s.name} (${s.class || 'Genesis 01'})</option>`).join('')}
             </select>
           </div>
 
@@ -1896,7 +1908,7 @@
               </div>
               <div class="flex flex-wrap gap-2.5 items-center">
                 <select onchange="state.cpSelectedStudentId=this.value;renderApp()" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
-                  ${genesis01.map(s => `<option value="${s.id}" ${s.id === cpStudent.id ? 'selected' : ''}>${s.name}</option>`).join('')}
+                  ${targetStudents.map(s => `<option value="${s.id}" ${s.id === cpStudent.id ? 'selected' : ''}>${s.name} (${s.class || 'Genesis 01'})</option>`).join('')}
                 </select>
                 <select onchange="changeAttendanceFilterMonth(this.value)" class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
                   ${["August 2026","September 2026","October 2026","November 2026","December 2026","January 2027","February 2027","March 2027","April 2027","May 2027","June 2027","July 2027"].map(m => `
@@ -3893,7 +3905,7 @@
     }
 
     function toggleAttendanceStatus(studentId, dateKey) {
-      if (state.role !== 'admin') return;
+      if (state.role !== 'admin' && state.role !== 'controlpanel') return;
       const student = state.students.find(s => s.id === studentId);
       if (!student) return;
       
@@ -4155,7 +4167,7 @@
     }
 
     function toggleSpecificStudentStatus(studentId) {
-      if (state.role !== 'admin') return;
+      if (state.role !== 'admin' && state.role !== 'controlpanel') return;
       const student = state.students.find(s => s.id === studentId);
       if (student) {
         student.status = student.status === "Present" ? "On Leave" : "Present";
