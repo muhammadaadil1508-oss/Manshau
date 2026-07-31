@@ -4383,6 +4383,8 @@
               student.attendanceRecords[dateKey] = "Academic Leave";
             }
           }
+          curr.setDate(curr.getDate() + 1);
+        }
       });
       syncGlobalAcademicLeaves();
     }
