@@ -1777,126 +1777,185 @@
 
       const fin = getFinancials(cpStudent);
       const netBalance = fin.totalCredits - fin.totalDebits;
+      const cpTab = state.cpActiveTab || 'fund';
       const filterMonth = state.attendanceFilterMonth || 'August 2026';
 
-      return `
+      const fundSection = `
         <div class="space-y-6">
           <!-- HEADER -->
           <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <span class="bg-emerald-50 text-emerald-700 text-xs px-3 py-1 rounded-full font-bold border border-emerald-100 uppercase tracking-wider">Control Panel</span>
-              <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Genesis 01 — Fund &amp; Attendance</h2>
+              <span class="bg-emerald-50 text-emerald-700 text-xs px-3 py-1 rounded-full font-bold border border-emerald-100 uppercase tracking-wider">INSTITUTE FUND (₹)</span>
+              <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Institute Fund</h2>
             </div>
-            <!-- Student Switcher -->
             <select onchange="state.cpSelectedStudentId=this.value;renderApp()" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shadow-sm">
               ${genesis01.map(s => `<option value="${s.id}" ${s.id === cpStudent.id ? 'selected' : ''}>${s.name}</option>`).join('')}
             </select>
           </div>
 
-          <!-- FUND STATS -->
+          <!-- CASH IN / CASH OUT / NET BALANCE CARDS -->
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="p-5 rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md flex items-center justify-between">
               <div>
                 <p class="text-xs font-semibold opacity-90 uppercase tracking-wider">Cash In</p>
                 <p class="text-3xl font-black mt-1">${formatINR(fin.totalCredits)}</p>
               </div>
-              <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">${icon('arrow-down-left','w-6 h-6')}</div>
+              <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white">${icon('arrow-down-left','w-6 h-6')}</div>
             </div>
             <div class="p-5 rounded-3xl bg-gradient-to-br from-rose-500 to-pink-600 text-white shadow-md flex items-center justify-between">
               <div>
                 <p class="text-xs font-semibold opacity-90 uppercase tracking-wider">Cash Out</p>
                 <p class="text-3xl font-black mt-1">${formatINR(fin.totalDebits)}</p>
               </div>
-              <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">${icon('arrow-up-right','w-6 h-6')}</div>
+              <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white">${icon('arrow-up-right','w-6 h-6')}</div>
             </div>
             <div class="p-5 rounded-3xl bg-gradient-to-br from-brand-600 to-blue-700 text-white shadow-md flex items-center justify-between">
               <div>
-                <p class="text-xs font-semibold opacity-90 uppercase tracking-wider">Net Balance</p>
+                <p class="text-xs font-semibold opacity-90 uppercase tracking-wider">Net Total Balance</p>
                 <p class="text-3xl font-black mt-1">${formatINR(netBalance)}</p>
               </div>
-              <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">${icon('wallet','w-6 h-6')}</div>
+              <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white">${icon('wallet','w-6 h-6')}</div>
             </div>
           </div>
 
-          <!-- FUND FORM + HISTORY -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Add Transaction -->
-            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-              <h3 class="text-base font-extrabold text-slate-900 mb-4 flex items-center space-x-2">
-                ${icon('landmark','w-5 h-5 text-emerald-600')}
-                <span>Add Transaction — ${cpStudent.name}</span>
-              </h3>
-              <form onsubmit="cpAddTransaction(event,'${cpStudent.id}')" class="space-y-3 text-xs">
-                <div>
-                  <label class="block font-bold text-slate-700 mb-1">Transaction Type</label>
-                  <select id="cpTxnType" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-bold">
-                    <option value="Credit">+ Cash In (INR)</option>
-                    <option value="Debit">- Cash Out (INR)</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="block font-bold text-slate-700 mb-1">Amount (₹)</label>
-                  <input type="number" id="cpTxnAmount" required placeholder="2500" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
-                </div>
-                <div>
-                  <label class="block font-bold text-slate-700 mb-1">Description <span class="text-slate-400 font-normal">(optional)</span></label>
-                  <input type="text" id="cpTxnDesc" placeholder="e.g. Tuition Fee Payment" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
-                </div>
-                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 rounded-xl transition-all shadow-md shadow-emerald-500/20">
-                  Add Transaction to Fund (₹)
-                </button>
-              </form>
-            </div>
+          <!-- ADD TRANSACTION -->
+          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+            <h3 class="text-base font-extrabold text-slate-900 mb-4 flex items-center space-x-2">
+              ${icon('landmark','w-5 h-5 text-emerald-600')}
+              <span>Add Transaction for ${cpStudent.name}</span>
+            </h3>
+            <form onsubmit="cpAddTransaction(event,'${cpStudent.id}')" class="space-y-3 text-xs">
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Transaction Type</label>
+                <select id="cpTxnType" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 font-bold">
+                  <option value="Credit">+ Cash In (INR)</option>
+                  <option value="Debit">- Cash Out (INR)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Amount (₹)</label>
+                <input type="number" id="cpTxnAmount" required placeholder="2500" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
+              </div>
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Description <span class="text-slate-400 font-normal">(optional)</span></label>
+                <input type="text" id="cpTxnDesc" placeholder="e.g. Tuition Fee Payment" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
+              </div>
+              <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 rounded-xl transition-all shadow-md shadow-emerald-500/20">
+                Add Transaction to Fund (₹)
+              </button>
+            </form>
+          </div>
 
-            <!-- Fund History -->
-            <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-              <h3 class="text-base font-extrabold text-slate-900 mb-4">${cpStudent.name}'s Fund History</h3>
-              <div class="space-y-3 text-xs max-h-[400px] overflow-y-auto pr-1">
-                ${(!cpStudent.transactions || cpStudent.transactions.length === 0) ? `
-                  <p class="text-slate-400 font-bold text-center py-8">No transactions recorded.</p>
-                ` : cpStudent.transactions.map((t, tIdx) => `
-                  <div class="p-3.5 rounded-2xl bg-white border border-slate-100 flex items-center justify-between gap-2">
-                    <div class="flex-1 min-w-0">
-                      <p class="font-bold text-slate-800 truncate">${t.description || (t.type === 'Credit' ? 'Cash In' : 'Cash Out')}</p>
-                      <p class="text-[10px] text-slate-400 font-semibold mt-0.5">${t.date} &bull; <span class="${t.type === 'Credit' ? 'text-emerald-600' : 'text-rose-600'}">${t.type === 'Credit' ? 'Cash In' : 'Cash Out'}</span></p>
-                    </div>
-                    <div class="flex items-center space-x-2 flex-shrink-0">
-                      <span class="font-black text-sm ${t.type === 'Credit' ? 'text-emerald-600' : 'text-rose-600'}">${t.type === 'Credit' ? '+' : '-'}${formatINR(t.amount)}</span>
-                      <button onclick="cpDeleteTransaction('${cpStudent.id}',${tIdx})" class="p-1.5 rounded-lg hover:bg-rose-50 text-rose-400 hover:text-rose-600 transition-colors" title="Delete">
-                        ${icon('trash-2','w-3.5 h-3.5')}
-                      </button>
-                    </div>
+          <!-- FUND HISTORY -->
+          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+            <h3 class="text-base font-extrabold text-slate-900 mb-4">${cpStudent.name}'s Fund History</h3>
+            <div class="space-y-3 text-xs max-h-[400px] overflow-y-auto pr-1">
+              ${(!cpStudent.transactions || cpStudent.transactions.length === 0) ? `
+                <p class="text-slate-400 font-bold text-center py-8">No transactions recorded for ${cpStudent.name}.</p>
+              ` : cpStudent.transactions.map((t, tIdx) => `
+                <div class="p-3.5 rounded-2xl bg-white border border-slate-100 flex items-center justify-between shadow-xs gap-2">
+                  <div class="flex-1 min-w-0">
+                    <p class="font-bold text-slate-800 truncate">${t.description || (t.type === 'Credit' ? 'Cash In' : 'Cash Out')}</p>
+                    <p class="text-[10px] text-slate-400 font-semibold mt-0.5">${t.date} &bull; <span class="${t.type === 'Credit' ? 'text-emerald-600' : 'text-rose-600'}">${t.type === 'Credit' ? 'Cash In' : 'Cash Out'}</span></p>
                   </div>
-                `).join('')}
+                  <div class="flex items-center space-x-2 flex-shrink-0">
+                    <span class="font-black text-sm ${t.type === 'Credit' ? 'text-emerald-600' : 'text-rose-600'}">${t.type === 'Credit' ? '+' : '-'}${formatINR(t.amount)}</span>
+                    <button onclick="cpDeleteTransaction('${cpStudent.id}',${tIdx})" class="p-1.5 rounded-lg hover:bg-rose-50 text-rose-400 hover:text-rose-600 transition-colors" title="Delete">
+                      ${icon('trash-2','w-3.5 h-3.5')}
+                    </button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+
+      const attendanceSection = `
+        <div class="space-y-6">
+          <!-- ATTENDANCE HEADER -->
+          <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <span class="bg-amber-50 text-amber-600 text-xs px-3 py-1 rounded-full font-bold border border-amber-100 uppercase tracking-wider">ATTENDANCE REGISTER</span>
+              <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Daily Attendance</h2>
+            </div>
+          </div>
+
+          <!-- ATTENDANCE CALENDAR CARD -->
+          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
+              <div>
+                <h3 class="text-base font-extrabold text-slate-900">Daily Attendance Register for ${cpStudent.name}</h3>
+                <div class="flex flex-wrap gap-4 mt-2 text-[10px] font-bold text-slate-500">
+                  <div class="flex items-center space-x-1.5"><div class="w-3 h-3 rounded bg-emerald-500"></div><span>Present</span></div>
+                  <div class="flex items-center space-x-1.5"><div class="w-3 h-3 rounded bg-rose-500"></div><span>Absent</span></div>
+                  <div class="flex items-center space-x-1.5"><div class="w-3 h-3 rounded bg-amber-500"></div><span>Half Day</span></div>
+                  <div class="flex items-center space-x-1.5"><div class="w-3 h-3 rounded bg-slate-900"></div><span class="text-slate-900 font-extrabold">Academic Leave</span></div>
+                  <div class="flex items-center space-x-1.5"><div class="w-3 h-3 rounded bg-white border border-slate-200"></div><span>Upcoming Dates</span></div>
+                </div>
+              </div>
+              <div class="flex flex-wrap gap-2.5 items-center">
+                <select onchange="state.cpSelectedStudentId=this.value;renderApp()" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+                  ${genesis01.map(s => `<option value="${s.id}" ${s.id === cpStudent.id ? 'selected' : ''}>${s.name}</option>`).join('')}
+                </select>
+                <select onchange="changeAttendanceFilterMonth(this.value)" class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
+                  ${["August 2026","September 2026","October 2026","November 2026","December 2026","January 2027","February 2027","March 2027","April 2027","May 2027","June 2027","July 2027"].map(m => `
+                    <option value="${m}" ${filterMonth === m ? 'selected' : ''}>${m}</option>
+                  `).join('')}
+                </select>
               </div>
             </div>
-          </div>
-
-          <!-- ATTENDANCE -->
-          <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
-              <h3 class="text-base font-extrabold text-slate-900">${cpStudent.name} — Attendance</h3>
-              <select onchange="changeAttendanceFilterMonth(this.value)" class="p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shadow-sm">
-                ${["August 2026","September 2026","October 2026","November 2026","December 2026","January 2027","February 2027","March 2027"].map(m => `
-                  <option value="${m}" ${filterMonth === m ? 'selected' : ''}>${m}</option>
-                `).join('')}
-              </select>
-            </div>
-            <!-- Legend -->
-            <div class="flex flex-wrap gap-3 mb-4 text-[10px] font-bold">
-              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-500 inline-block"></span>Present</span>
-              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-rose-500 inline-block"></span>Absent</span>
-              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-500 inline-block"></span>Half Day</span>
-              <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-slate-900 inline-block"></span>Academic Leave</span>
-            </div>
             <!-- Day headers -->
-            <div class="grid grid-cols-7 gap-1 mb-1 text-center text-[9px] font-extrabold text-slate-400 uppercase tracking-widest">
-              <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+            <div class="grid grid-cols-7 gap-2 mb-3 mt-4">
+              <div class="py-2 rounded-xl bg-blue-50/60 text-blue-600 font-extrabold text-[11px] text-center border border-blue-100/70 tracking-wider">SUN</div>
+              <div class="py-2 rounded-xl bg-blue-50/60 text-blue-600 font-extrabold text-[11px] text-center border border-blue-100/70 tracking-wider">MON</div>
+              <div class="py-2 rounded-xl bg-blue-50/60 text-blue-600 font-extrabold text-[11px] text-center border border-blue-100/70 tracking-wider">TUE</div>
+              <div class="py-2 rounded-xl bg-blue-50/60 text-blue-600 font-extrabold text-[11px] text-center border border-blue-100/70 tracking-wider">WED</div>
+              <div class="py-2 rounded-xl bg-blue-50/60 text-blue-600 font-extrabold text-[11px] text-center border border-blue-100/70 tracking-wider">THU</div>
+              <div class="py-2 rounded-xl bg-blue-50/60 text-blue-600 font-extrabold text-[11px] text-center border border-blue-100/70 tracking-wider">FRI</div>
+              <div class="py-2 rounded-xl bg-blue-50/60 text-blue-600 font-extrabold text-[11px] text-center border border-blue-100/70 tracking-wider">SAT</div>
             </div>
-            <div class="grid grid-cols-7 gap-1">
+            <!-- Calendar grid -->
+            <div class="grid grid-cols-7 gap-2">
               ${generateAttendanceDaysGrid(cpStudent, filterMonth)}
             </div>
           </div>
+        </div>
+      `;
+
+      return `
+        <div class="max-w-7xl mx-auto w-full">
+          <div class="w-full">
+            ${cpTab === 'fund' ? fundSection : attendanceSection}
+          </div>
+
+          <!-- STICKY FOOTER NAV (same style as admin) -->
+          <nav class="admin-sticky-footer fixed bottom-0 left-0 right-0 p-2.5 shadow-2xl flex justify-around items-center z-40 w-full">
+            <div class="max-w-4xl mx-auto w-full flex justify-start sm:justify-around items-center overflow-x-auto scrollbar-none gap-2 px-2 py-0.5">
+              ${[
+                { id: 'fund',       label: 'Institute Fund', labelMobile: 'Fund',       iconName: 'landmark'          },
+                { id: 'attendance', label: 'Attendance',     labelMobile: 'Attendance', iconName: 'check-square'       },
+              ].map(item => {
+                const isActive = cpTab === item.id;
+                return `
+                  <button
+                    onclick="state.cpActiveTab='${item.id}';renderApp()"
+                    class="whitespace-nowrap flex-shrink-0 flex items-center space-x-1.5 px-3 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all duration-300 nav-item-lift ${
+                      isActive
+                        ? 'bg-gradient-to-r from-brand-600 to-brand-500 text-white shadow-md font-bold'
+                        : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                    }"
+                  >
+                    ${icon(item.iconName, `w-3.5 h-3.5 md:w-4 md:h-4 ${isActive ? 'text-white' : 'text-slate-400'}`)}
+                    <span>
+                      <span class="hidden md:inline">${item.label}</span>
+                      <span class="inline md:hidden">${item.labelMobile}</span>
+                    </span>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          </nav>
         </div>
       `;
     }
