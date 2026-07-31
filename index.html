@@ -623,7 +623,10 @@
         editSubject: false,
         editBroadcast: false,
         editLeave: false,
+        roleAuth: false
       },
+      roleAuthTarget: 'admin',
+      roleAuthError: '',
       addSubjectStudentId: "",
       editSubjectStudentId: "",
       editSubjectIndex: -1,
@@ -1113,7 +1116,7 @@
                         ${state.role === 'student' ? '<span class="w-2 h-2 rounded-full bg-brand-600"></span>' : ''}
                       </button>
 
-                      <button onclick="setRole('admin'); closeHeaderProfileMenu()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl font-bold ${state.role === 'admin' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-50'} transition-colors text-left">
+                      <button onclick="openRoleAuthModal('admin'); closeHeaderProfileMenu()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl font-bold ${state.role === 'admin' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-50'} transition-colors text-left">
                         <div class="flex items-center space-x-2.5">
                           ${icon('shield', 'w-4 h-4 text-brand-500')}
                           <span>Admin Panel</span>
@@ -1121,7 +1124,7 @@
                         ${state.role === 'admin' ? '<span class="w-2 h-2 rounded-full bg-emerald-400"></span>' : ''}
                       </button>
 
-                      <button onclick="setRole('controlpanel'); closeHeaderProfileMenu()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl font-bold ${state.role === 'controlpanel' ? 'bg-emerald-600 text-white' : 'text-slate-700 hover:bg-slate-50'} transition-colors text-left">
+                      <button onclick="openRoleAuthModal('controlpanel'); closeHeaderProfileMenu()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl font-bold ${state.role === 'controlpanel' ? 'bg-emerald-600 text-white' : 'text-slate-700 hover:bg-slate-50'} transition-colors text-left">
                         <div class="flex items-center space-x-2.5">
                           ${icon('layout-dashboard', 'w-4 h-4 text-emerald-500')}
                           <span>Control Panel</span>
@@ -3200,6 +3203,64 @@
     function renderModals() {
       let html = '';
 
+      // ROLE AUTHENTICATION SIGN-IN MODAL WINDOW
+      if (state.modals.roleAuth) {
+        const isAdmin = state.roleAuthTarget === 'admin';
+        const title = isAdmin ? 'Admin Portal Authentication' : 'Control Panel Authentication';
+        const subtitle = isAdmin ? 'System Control Access' : 'Genesis 01 Batch Control Access';
+        const defaultUser = isAdmin ? 'admin' : 'control panel';
+
+        html += `
+          <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
+            <div class="glass-card w-full max-w-md rounded-3xl p-6 sm:p-8 shadow-anti-gravity-lg border border-white bg-white/95">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                <div class="flex items-center space-x-3">
+                  <div class="w-10 h-10 rounded-2xl ${isAdmin ? 'bg-slate-900 text-emerald-400' : 'bg-brand-600 text-white'} shadow-md flex items-center justify-center">
+                    ${icon(isAdmin ? 'shield' : 'sliders', 'w-5 h-5')}
+                  </div>
+                  <div>
+                    <h3 class="text-base font-extrabold text-slate-900">${title}</h3>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">${subtitle}</p>
+                  </div>
+                </div>
+                <button onclick="closeRoleAuthModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-xl hover:bg-slate-100">
+                  ${icon('x', 'w-5 h-5')}
+                </button>
+              </div>
+
+              <form onsubmit="handleRoleAuthSubmit(event)" class="space-y-4">
+                ${state.roleAuthError ? `
+                  <div class="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center space-x-2">
+                    ${icon('alert-circle', 'w-4 h-4 text-rose-500 flex-shrink-0')}
+                    <span>${state.roleAuthError}</span>
+                  </div>
+                ` : ''}
+
+                <div>
+                  <label class="block text-[11px] font-extrabold uppercase text-slate-500 mb-1">Username</label>
+                  <input type="text" id="roleAuthUsername" value="${defaultUser}" required class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white font-bold text-xs sm:text-sm text-slate-900 shadow-sm focus:ring-2 focus:ring-brand-500 focus:outline-none" />
+                </div>
+
+                <div>
+                  <label class="block text-[11px] font-extrabold uppercase text-slate-500 mb-1">Password</label>
+                  <input type="password" id="roleAuthPassword" placeholder="••••••••" required class="w-full px-4 py-3 rounded-xl border border-slate-200 bg-white font-bold text-xs sm:text-sm text-slate-900 shadow-sm focus:ring-2 focus:ring-brand-500 focus:outline-none" />
+                </div>
+
+                <div class="pt-2 flex items-center justify-end space-x-2">
+                  <button type="button" onclick="closeRoleAuthModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50">
+                    Cancel
+                  </button>
+                  <button type="submit" class="px-5 py-2.5 rounded-xl ${isAdmin ? 'bg-slate-900 hover:bg-slate-800' : 'bg-brand-600 hover:bg-brand-700'} text-white font-extrabold text-xs shadow-md flex items-center space-x-1.5">
+                    ${icon('lock', 'w-3.5 h-3.5')}
+                    <span>Sign In & Access</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        `;
+      }
+
       // ADD NEW STUDENT USER MODAL
       if (state.modals.addStudent) {
         html += `
@@ -4395,12 +4456,56 @@
       renderApp();
     }
 
+    function openRoleAuthModal(targetRole) {
+      state.roleAuthTarget = targetRole;
+      state.roleAuthError = '';
+      state.modals.roleAuth = true;
+      renderApp();
+    }
+
+    function closeRoleAuthModal() {
+      state.modals.roleAuth = false;
+      state.roleAuthError = '';
+      renderApp();
+    }
+
+    function handleRoleAuthSubmit(e) {
+      e.preventDefault();
+      const uEl = document.getElementById('roleAuthUsername');
+      const pEl = document.getElementById('roleAuthPassword');
+      const u = uEl ? uEl.value.trim() : '';
+      const p = pEl ? pEl.value.trim() : '';
+
+      if (state.roleAuthTarget === 'admin') {
+        if (u === state.adminCredentials.username && p === state.adminCredentials.password) {
+          state.isAuthenticated = true;
+          state.role = 'admin';
+          state.loginRole = 'admin';
+          state.roleAuthError = '';
+          state.modals.roleAuth = false;
+          renderApp();
+        } else {
+          state.roleAuthError = 'Invalid Admin Credentials! Use admin / 0000';
+          renderApp();
+        }
+      } else if (state.roleAuthTarget === 'controlpanel') {
+        if (u === state.controlPanelCredentials.username && p === state.controlPanelCredentials.password) {
+          state.isAuthenticated = true;
+          state.role = 'controlpanel';
+          state.loginRole = 'controlpanel';
+          state.roleAuthError = '';
+          state.modals.roleAuth = false;
+          renderApp();
+        } else {
+          state.roleAuthError = 'Invalid Control Panel Credentials! Use control panel / 234';
+          renderApp();
+        }
+      }
+    }
+
     function setRole(role) {
       if (role === 'admin' || role === 'controlpanel') {
-        state.isAuthenticated = false;
-        state.loginRole = role;
-        state.loginError = "";
-        renderApp();
+        openRoleAuthModal(role);
       } else {
         state.role = role;
         state.loginRole = role;
