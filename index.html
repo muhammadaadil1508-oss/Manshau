@@ -733,20 +733,36 @@
     function setupRealtimeSync() {
       if (!db || !fsCollection || !fsOnSnapshot || !fsDoc) return;
 
-      // 1. Listen to announcements updates
+      // 1. Listen to Master System Credentials & Deletion List for 100% Mobile & PC Sync
+      fsOnSnapshot(fsDoc(db, 'system', 'credentials'), (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.adminCredentials) state.adminCredentials = data.adminCredentials;
+          if (data.controlPanelCredentials) state.controlPanelCredentials = data.controlPanelCredentials;
+          if (data.deletedStudentIds && Array.isArray(data.deletedStudentIds)) {
+            state.deletedStudentIds = data.deletedStudentIds;
+          }
+          sanitizeStudentsRoster();
+          if (!isUserActivelyEditing()) renderApp();
+        }
+      }, (error) => {});
+
+      // 2. Listen to announcements updates
       fsOnSnapshot(fsDoc(db, 'announcements', 'global'), (docSnap) => {
         const announcements = docSnap.exists() ? (docSnap.data().data || []) : [];
 
-        // 2. Listen to users updates
+        // 3. Listen to users updates
         fsOnSnapshot(fsCollection(db, 'users'), (querySnapshot) => {
           const dbStudents = [];
           querySnapshot.forEach((doc) => {
             const docData = doc.data();
-            dbStudents.push({
-              id: doc.id,
-              data: docData.data,
-              last_updated: docData.last_updated
-            });
+            if (docData && docData.data) {
+              dbStudents.push({
+                id: doc.id,
+                data: docData.data,
+                last_updated: docData.last_updated
+              });
+            }
           });
 
           handleIncomingSync(dbStudents, announcements);
@@ -911,16 +927,19 @@
         }
       });
 
+      // 4. Sort students deterministically by official ID for identical view on Mobile & PC
+      uniqueStudents.sort((a, b) => (a.id || '').localeCompare(b.id || ''));
+
       state.students = uniqueStudents;
 
-      // Clear all manual attendance records and reset to clean automatic date & time attendance
+      // 5. Clear manual attendance records and reset to clean automatic date & time attendance
       state.students.forEach(s => {
         s.attendanceRecords = {};
         s.totalLeaveDays = 0;
         recalculateAttendanceRate(s);
       });
 
-      // 4. Ensure currentStudentId points to a valid student in the list
+      // 6. Ensure currentStudentId points to a valid student in the list
       if (!state.students.some(s => s.id === state.currentStudentId)) {
         state.currentStudentId = state.students[0] ? state.students[0].id : "MSH-2026-0001";
       }
