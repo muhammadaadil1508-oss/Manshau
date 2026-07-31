@@ -1670,6 +1670,11 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
+              <!-- Student Switcher -->
+              <select onchange="switchStudentAccount(this.value)" class="p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shadow-sm focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                ${state.students.map(s => `<option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name} (${s.class || 'Genesis 01'})</option>`).join('')}
+              </select>
+
               <!-- Semester Selector -->
               <select onchange="changeSelectedSemester(this.value)" class="p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shadow-sm">
                 ${["Sem 1", "Sem 2", "Sem 3", "Sem 4"].map(sem => `
@@ -1759,11 +1764,18 @@
 
       return `
         <div class="space-y-8">
-          <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white">
-            <span class="bg-amber-50 text-amber-600 text-xs px-3 py-1 rounded-full font-bold border border-amber-100">
-              OFFICIAL ABSENCE QUEUE
-            </span>
-            <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Leave & Approvals</h2>
+          <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-anti-gravity border border-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <span class="bg-amber-50 text-amber-600 text-xs px-3 py-1 rounded-full font-bold border border-amber-100">
+                OFFICIAL ABSENCE QUEUE
+              </span>
+              <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight mt-2">Leave & Approvals</h2>
+            </div>
+
+            <!-- Student Switcher -->
+            <select onchange="switchStudentAccount(this.value)" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shadow-sm focus:ring-2 focus:ring-brand-500 cursor-pointer">
+              ${state.students.map(s => `<option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name} (${s.class || 'Genesis 01'})</option>`).join('')}
+            </select>
           </div>
 
           <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
@@ -2220,10 +2232,8 @@
             </div>
 
             <!-- Student Switcher -->
-            <select onchange="switchStudentAccount(this.value)" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shadow-sm">
-              ${state.students.map(s => `
-                <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name}</option>
-              `).join('')}
+            <select onchange="switchStudentAccount(this.value)" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shadow-sm focus:ring-2 focus:ring-brand-500 cursor-pointer">
+              ${state.students.map(s => `<option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name} (${s.class || 'Genesis 01'})</option>`).join('')}
             </select>
           </div>
 
