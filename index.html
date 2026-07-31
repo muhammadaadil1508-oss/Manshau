@@ -4396,32 +4396,14 @@
     }
 
     function setRole(role) {
-      if (role === 'admin') {
-        const pass = prompt("Enter Admin Password:");
-        if (pass === null) return;
-        if (pass.trim() === state.adminCredentials.password) {
-          state.isAuthenticated = true;
-          state.role = "admin";
-          state.loginRole = "admin";
-          state.loginError = "";
-          renderApp();
-        } else {
-          alert("Incorrect Admin Password!");
-        }
-      } else if (role === 'controlpanel') {
-        const pass = prompt("Enter Control Panel Password:");
-        if (pass === null) return;
-        if (pass.trim() === state.controlPanelCredentials.password) {
-          state.isAuthenticated = true;
-          state.role = "controlpanel";
-          state.loginRole = "controlpanel";
-          state.loginError = "";
-          renderApp();
-        } else {
-          alert("Incorrect Control Panel Password!");
-        }
+      if (role === 'admin' || role === 'controlpanel') {
+        state.isAuthenticated = false;
+        state.loginRole = role;
+        state.loginError = "";
+        renderApp();
       } else {
         state.role = role;
+        state.loginRole = role;
         renderApp();
       }
     }
