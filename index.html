@@ -1393,13 +1393,6 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2">
-              <!-- Student Switcher -->
-              <select onchange="switchStudentAccount(this.value)" class="p-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shadow-sm">
-                ${state.students.map(s => `
-                  <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>${s.name}</option>
-                `).join('')}
-              </select>
-
               <!-- Semester Selector -->
               <select onchange="changeSelectedSemester(this.value)" class="p-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 shadow-sm">
                 ${["Sem 1", "Sem 2", "Sem 3", "Sem 4"].map(sem => `
@@ -2052,28 +2045,6 @@
     // --- VIEW 1: DASHBOARD ---
     function renderDashboardView(student, fin) {
       return `
-        <!-- DEDICATED PROFILE SWITCHER HERO SECTION -->
-        <div class="glass-card rounded-3xl p-4 shadow-anti-gravity border border-white bg-gradient-to-r from-brand-50/40 via-white to-slate-50/50 mb-6">
-          <div class="flex items-center space-x-3 w-full">
-            <div class="w-10 h-10 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold flex-shrink-0">
-              ${icon('users', 'w-5 h-5')}
-            </div>
-            
-            <div class="relative w-full">
-              <select 
-                onchange="switchStudentAccount(this.value)"
-                class="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer shadow-sm"
-              >
-                ${state.students.map(s => `
-                  <option value="${s.id}" ${s.id === student.id ? 'selected' : ''}>
-                    Switch Profile: ${s.name}
-                  </option>
-                `).join('')}
-              </select>
-            </div>
-          </div>
-        </div>
-
         <!-- HERO BANNER -->
         <div class="relative overflow-hidden glass-card rounded-3xl p-6 sm:p-8 shadow-anti-gravity anti-gravity-card border border-white bg-gradient-to-r from-white via-slate-50/60 to-brand-50/50 mb-6">
           <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
