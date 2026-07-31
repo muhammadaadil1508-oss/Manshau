@@ -4433,6 +4433,14 @@
       return dayCounts[month] || 30;
     }
 
+    function getTodayDateKey() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
     function recalculateAttendanceRate(student) {
       if (!student) return;
       student.attendanceRecords = student.attendanceRecords || {};
@@ -4443,21 +4451,30 @@
       const mName = parts[0];
       const year = parts[1] || '2026';
       const mIdx = MONTH_MAP[mName] || '08';
+      const todayKey = getTodayDateKey();
       
+      let totalPassedDays = 0;
       let absentCount = 0;
       let halfDayCount = 0;
       
       for (let d = 1; d <= daysCount; d++) {
         const dStr = d < 10 ? `0${d}` : `${d}`;
         const dateKey = `${year}-${mIdx}-${dStr}`;
-        const status = student.attendanceRecords[dateKey] || "Present";
-        if (status === "Absent") absentCount += 1.0;
-        else if (status === "Half Day") halfDayCount += 0.5;
+        if (dateKey <= todayKey) {
+          totalPassedDays++;
+          const status = student.attendanceRecords[dateKey] || "Present";
+          if (status === "Absent") absentCount += 1.0;
+          else if (status === "Half Day") halfDayCount += 0.5;
+        }
       }
       
-      const presentDays = Math.max(0, daysCount - absentCount - halfDayCount);
-      const rate = parseFloat(((presentDays / daysCount) * 100).toFixed(1));
-      student.attendanceRate = Math.max(0, Math.min(100, rate));
+      if (totalPassedDays === 0) {
+        student.attendanceRate = 100.0;
+      } else {
+        const presentDays = Math.max(0, totalPassedDays - absentCount - halfDayCount);
+        const rate = parseFloat(((presentDays / totalPassedDays) * 100).toFixed(1));
+        student.attendanceRate = Math.max(0, Math.min(100, rate));
+      }
     }
 
     function syncGlobalAcademicLeaves() {
@@ -4592,14 +4609,19 @@
       }
 
       const isAdmin = state.role === 'admin' || state.role === 'controlpanel';
+      const todayKey = getTodayDateKey();
 
       for (let d = 1; d <= daysCount; d++) {
         const dStr = d < 10 ? `0${d}` : `${d}`;
         const dateKey = `${year}-${mIdx}-${dStr}`;
-        const status = student.attendanceRecords[dateKey] || "Present";
+        const isPastOrToday = dateKey <= todayKey;
+        const recordedStatus = student.attendanceRecords[dateKey];
+        const status = recordedStatus ? recordedStatus : (isPastOrToday ? "Present" : "");
         
-        let statusClass = "bg-emerald-500 text-white border-emerald-500 shadow-sm";
-        if (status === "Absent") {
+        let statusClass = "bg-white border-slate-200 text-slate-700";
+        if (status === "Present") {
+          statusClass = "bg-emerald-500 text-white border-emerald-500 shadow-sm";
+        } else if (status === "Absent") {
           statusClass = "bg-rose-500 text-white border-rose-500 shadow-sm";
         } else if (status === "Half Day") {
           statusClass = "bg-amber-500 text-white border-amber-500 shadow-sm";
@@ -4612,7 +4634,7 @@
             <button
               onclick="toggleAttendanceStatus('${student.id}', '${dateKey}')"
               class="flex items-center justify-center rounded-xl border text-center transition-all hover:scale-105 active:scale-95 cursor-pointer h-10 w-full font-black text-sm ${statusClass}"
-              title="${dateKey} - ${status}"
+              title="${dateKey} - ${status || 'Upcoming Dates'}"
             >
               ${d}
             </button>
@@ -4621,7 +4643,7 @@
           html += `
             <div
               class="flex items-center justify-center rounded-xl border text-center cursor-default h-10 w-full font-black text-sm ${statusClass}"
-              title="${dateKey} - ${status}"
+              title="${dateKey} - ${status || 'Upcoming Dates'}"
             >
               ${d}
             </div>
@@ -4637,6 +4659,7 @@
       const mName = parts[0];
       const year = parts[1];
       const mIdx = MONTH_MAP[mName];
+      const todayKey = getTodayDateKey();
       
       student.attendanceRecords = student.attendanceRecords || {};
       
@@ -4644,10 +4667,14 @@
       for (let d = 1; d <= daysCount; d++) {
         const dStr = d < 10 ? `0${d}` : `${d}`;
         const dateKey = `${year}-${mIdx}-${dStr}`;
-        const status = student.attendanceRecords[dateKey] || "Present";
+        const isPastOrToday = dateKey <= todayKey;
+        const recordedStatus = student.attendanceRecords[dateKey];
+        const status = recordedStatus ? recordedStatus : (isPastOrToday ? "Present" : "");
         
-        let statusClass = "bg-emerald-500 text-white border-emerald-500 shadow-sm";
-        if (status === "Absent") {
+        let statusClass = "bg-white border-slate-200 text-slate-700";
+        if (status === "Present") {
+          statusClass = "bg-emerald-500 text-white border-emerald-500 shadow-sm";
+        } else if (status === "Absent") {
           statusClass = "bg-rose-500 text-white border-rose-500 shadow-sm";
         } else if (status === "Half Day") {
           statusClass = "bg-amber-500 text-white border-amber-500 shadow-sm";
@@ -4658,7 +4685,7 @@
         html += `
           <div
             class="flex items-center justify-center rounded-xl border text-center cursor-default h-10 w-full font-black text-sm ${statusClass}"
-            title="${dateKey} - ${status}"
+            title="${dateKey} - ${status || 'Upcoming Dates'}"
           >
             ${d}
           </div>
