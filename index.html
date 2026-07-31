@@ -633,7 +633,8 @@
       editingStudentId: "",
       editingBroadcastId: null,
       editingLeaveStudentId: null,
-      editingLeaveId: null
+      editingLeaveId: null,
+      deletedStudentIds: []
     };
 
     const STORAGE_KEY = "manshau_erp_state_v8";
@@ -922,13 +923,20 @@
               return s;
             });
 
-            // Ensure all 16 official student accounts are present
+            if (parsed.deletedStudentIds && Array.isArray(parsed.deletedStudentIds)) {
+              state.deletedStudentIds = parsed.deletedStudentIds;
+            } else {
+              state.deletedStudentIds = state.deletedStudentIds || [];
+            }
+
+            // Ensure official seed accounts are present EXCEPT permanently deleted ones
             if (Array.isArray(state.students)) {
               INITIAL_SEED_STUDENTS.forEach(seed => {
-                if (!state.students.some(s => s.id === seed.id || s.name === seed.name)) {
+                if (!state.deletedStudentIds.includes(seed.id) && !state.students.some(s => s.id === seed.id)) {
                   state.students.push(JSON.parse(JSON.stringify(seed)));
                 }
               });
+              state.students = state.students.filter(s => !state.deletedStudentIds.includes(s.id));
               syncGlobalAcademicLeaves();
               saveStateLocalOnly();
             }
@@ -4829,11 +4837,17 @@
         return;
       }
       const student = state.students.find(s => s.id === studentId);
-      if (confirm(`Are you sure you want to delete student user "${student ? student.name : studentId}"?`)) {
+      if (confirm(`Are you sure you want to delete student user "${student ? student.name : studentId}" permanently?`)) {
+        state.deletedStudentIds = state.deletedStudentIds || [];
+        if (!state.deletedStudentIds.includes(studentId)) {
+          state.deletedStudentIds.push(studentId);
+        }
         state.students = state.students.filter(s => s.id !== studentId);
         if (state.currentStudentId === studentId) {
           state.currentStudentId = state.students[0].id;
         }
+
+        saveState();
 
         try {
           if (db && fsDoc && fsDeleteDoc) {
@@ -4843,7 +4857,7 @@
           console.error("Failed to delete student from Firebase:", e);
         }
 
-        alert("Student user deleted successfully!");
+        alert(`Student user "${student ? student.name : studentId}" permanently deleted!`);
         renderApp();
       }
     }
