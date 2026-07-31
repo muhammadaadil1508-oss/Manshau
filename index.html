@@ -862,35 +862,7 @@
                       </div>
                     </div>
 
-                    <div class="p-1.5 space-y-0.5 text-xs">
-                      <p class="px-3 pt-1 pb-0.5 text-[9px] uppercase font-extrabold text-slate-400 tracking-wider">Switch View</p>
-
-                      <button onclick="setRole('student'); closeHeaderProfileMenu()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl font-bold ${state.role === 'student' ? 'bg-brand-50 text-brand-600' : 'text-slate-700 hover:bg-slate-50'} transition-colors text-left">
-                        <div class="flex items-center space-x-2.5">
-                          ${icon('user-check', 'w-4 h-4 text-brand-500')}
-                          <span>Student View</span>
-                        </div>
-                        ${state.role === 'student' ? '<span class="w-2 h-2 rounded-full bg-brand-600"></span>' : ''}
-                      </button>
-
-                      <button onclick="setRole('admin'); closeHeaderProfileMenu()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl font-bold ${state.role === 'admin' ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-50'} transition-colors text-left">
-                        <div class="flex items-center space-x-2.5">
-                          ${icon('shield', 'w-4 h-4 text-brand-500')}
-                          <span>Admin Panel</span>
-                        </div>
-                        ${state.role === 'admin' ? '<span class="w-2 h-2 rounded-full bg-emerald-400"></span>' : ''}
-                      </button>
-
-                      <button onclick="setRole('controlpanel'); closeHeaderProfileMenu()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl font-bold ${state.role === 'controlpanel' ? 'bg-emerald-600 text-white' : 'text-slate-700 hover:bg-slate-50'} transition-colors text-left">
-                        <div class="flex items-center space-x-2.5">
-                          ${icon('layout-dashboard', 'w-4 h-4 text-emerald-500')}
-                          <span>Control Panel</span>
-                        </div>
-                        ${state.role === 'controlpanel' ? '<span class="w-2 h-2 rounded-full bg-emerald-400"></span>' : ''}
-                      </button>
-
-                      <div class="border-t border-slate-100 my-1"></div>
-
+                    <div class="p-1.5 text-xs">
                       <button onclick="logout(); closeHeaderProfileMenu()" class="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl font-bold text-rose-600 hover:bg-rose-50 transition-colors text-left">
                         ${icon('log-out', 'w-4 h-4 text-rose-500')}
                         <span>Log Out</span>
