@@ -770,6 +770,15 @@
           // Optimistic merge: compare timestamps before overwriting local state
           dbStudents.forEach(row => {
             const dbStud = row.data;
+            if (!dbStud || !dbStud.id) return;
+
+            if (state.deletedStudentIds && state.deletedStudentIds.includes(dbStud.id)) {
+              if (db && fsDoc && fsDeleteDoc) {
+                fsDeleteDoc(fsDoc(db, 'users', dbStud.id)).catch(() => {});
+              }
+              return;
+            }
+
             const localIndex = state.students.findIndex(s => s.id === dbStud.id);
             if (localIndex > -1) {
               const localStud = state.students[localIndex];
@@ -783,9 +792,7 @@
             }
           });
           
-          // Delete students that are not in database
-          const dbIds = dbStudents.map(s => s.id);
-          state.students = state.students.filter(s => dbIds.includes(s.id));
+          sanitizeStudentsRoster();
 
           // Recalculate attendance rates, fix class names, ensure arrays are initialized
           let needsRemoteUpdate = false;
@@ -868,37 +875,65 @@
 
     const INITIAL_SEED_STUDENTS = JSON.parse(JSON.stringify(state.students));
 
+    function sanitizeStudentsRoster() {
+      if (!Array.isArray(state.students)) {
+        state.students = JSON.parse(JSON.stringify(INITIAL_SEED_STUDENTS));
+      }
+      state.deletedStudentIds = state.deletedStudentIds || [];
+
+      // 1. Strict Filter out permanently deleted IDs
+      let clean = state.students.filter(s => s && s.id && !state.deletedStudentIds.includes(s.id));
+
+      // 2. Strict Deduplicate by ID and Username
+      const seenIds = new Set();
+      const seenUsernames = new Set();
+      const uniqueStudents = [];
+
+      clean.forEach(s => {
+        const idKey = (s.id || '').trim().toLowerCase();
+        const userKey = (s.username || '').trim().toLowerCase();
+
+        if (idKey && !seenIds.has(idKey) && (!userKey || !seenUsernames.has(userKey))) {
+          seenIds.add(idKey);
+          if (userKey) seenUsernames.add(userKey);
+          uniqueStudents.push(s);
+        }
+      });
+
+      // 3. Fill missing official seed accounts EXCEPT permanently deleted ones
+      INITIAL_SEED_STUDENTS.forEach(seed => {
+        if (!state.deletedStudentIds.includes(seed.id)) {
+          const seedIdKey = seed.id.toLowerCase();
+          if (!seenIds.has(seedIdKey)) {
+            uniqueStudents.push(JSON.parse(JSON.stringify(seed)));
+            seenIds.add(seedIdKey);
+          }
+        }
+      });
+
+      state.students = uniqueStudents;
+
+      // 4. Ensure currentStudentId points to a valid student in the list
+      if (!state.students.some(s => s.id === state.currentStudentId)) {
+        state.currentStudentId = state.students[0] ? state.students[0].id : "MSH-2026-0001";
+      }
+    }
+
     async function loadState() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
+          if (parsed.deletedStudentIds && Array.isArray(parsed.deletedStudentIds)) {
+            state.deletedStudentIds = parsed.deletedStudentIds;
+          } else {
+            state.deletedStudentIds = state.deletedStudentIds || [];
+          }
+
           if (parsed.students) {
             state.students = parsed.students.map(s => {
               let updated = false;
-              
-              // Re-calculate or default attendance rate
               s.attendanceRecords = s.attendanceRecords || {};
-              const recordCount = Object.keys(s.attendanceRecords).length;
-              if (recordCount === 0) {
-                if (s.attendanceRate !== 0.0) {
-                  s.attendanceRate = 0.0;
-                  updated = true;
-                }
-              } else {
-                const vals = Object.values(s.attendanceRecords);
-                const presents = vals.reduce((acc, v) => {
-                  if (v === "Present") return acc + 1.0;
-                  if (v === "Half Day") return acc + 0.5;
-                  return acc;
-                }, 0);
-                const rate = parseFloat(((presents / recordCount) * 100).toFixed(1));
-                if (s.attendanceRate !== rate) {
-                  s.attendanceRate = rate;
-                  updated = true;
-                }
-              }
-
               if (s.class && s.class.toLowerCase().includes('geenesis')) {
                 s.class = s.class.replace(/geenesis/gi, 'genesis');
                 updated = true;
@@ -925,25 +960,12 @@
               }
               return s;
             });
-
-            if (parsed.deletedStudentIds && Array.isArray(parsed.deletedStudentIds)) {
-              state.deletedStudentIds = parsed.deletedStudentIds;
-            } else {
-              state.deletedStudentIds = state.deletedStudentIds || [];
-            }
-
-            // Ensure official seed accounts are present EXCEPT permanently deleted ones
-            if (Array.isArray(state.students)) {
-              INITIAL_SEED_STUDENTS.forEach(seed => {
-                if (!state.deletedStudentIds.includes(seed.id) && !state.students.some(s => s.id === seed.id)) {
-                  state.students.push(JSON.parse(JSON.stringify(seed)));
-                }
-              });
-              state.students = state.students.filter(s => !state.deletedStudentIds.includes(s.id));
-              syncGlobalAcademicLeaves();
-              saveStateLocalOnly();
-            }
           }
+
+          sanitizeStudentsRoster();
+          syncGlobalAcademicLeaves();
+          saveStateLocalOnly();
+
           if (parsed.announcements) state.announcements = parsed.announcements;
           if (parsed.currentStudentId) state.currentStudentId = parsed.currentStudentId;
           if (parsed.role) state.role = parsed.role;
@@ -957,6 +979,8 @@
             announcements: state.announcements
           });
         } catch(e) {}
+      } else {
+        sanitizeStudentsRoster();
       }
 
       await syncWithServer();
