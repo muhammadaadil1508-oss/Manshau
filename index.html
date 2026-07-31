@@ -983,6 +983,8 @@
     }
 
     async function saveState() {
+      saveStateLocalOnly();
+
       if (!db || !fsDoc || !fsSetDoc) return;
 
       const stateObj = {
@@ -990,7 +992,6 @@
         announcements: state.announcements
       };
 
-      saveStateLocalOnly();
       lastFetchedStateStr = JSON.stringify(stateObj);
 
       try {
@@ -1717,8 +1718,8 @@
                         </span>
                       </td>
                       <td class="py-2.5 px-1 text-right space-x-1.5">
-                        <button onclick="editExamScoreForStudent('${student.id}', ${idx})" class="text-brand-600 hover:text-brand-800 font-bold text-xs">Edit</button>
-                        <button onclick="deleteExamForStudent('${student.id}', ${idx})" class="text-rose-600 hover:text-rose-800 font-bold text-xs">Delete</button>
+                        <button onclick="editExamScoreForStudent('${student.id}', '${item.id || item.subject}')" class="text-brand-600 hover:text-brand-800 font-bold text-xs">Edit</button>
+                        <button onclick="deleteExamForStudent('${student.id}', '${item.id || item.subject}')" class="text-rose-600 hover:text-rose-800 font-bold text-xs">Delete</button>
                       </td>
                     </tr>
                   `).join('')}
@@ -2114,8 +2115,8 @@
                         </span>
                       </td>
                       <td class="py-3 px-3 text-right space-x-2">
-                        <button onclick="editExamScoreForStudent('${cpStudent.id}', ${idx})" class="px-3 py-1.5 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-600 font-bold text-xs border border-brand-100 transition-colors">Edit</button>
-                        <button onclick="deleteExamForStudent('${cpStudent.id}', ${idx})" class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs border border-rose-100 transition-colors">Delete</button>
+                        <button onclick="editExamScoreForStudent('${cpStudent.id}', '${item.id || item.subject}')" class="px-3 py-1.5 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-600 font-bold text-xs border border-brand-100 transition-colors">Edit</button>
+                        <button onclick="deleteExamForStudent('${cpStudent.id}', '${item.id || item.subject}')" class="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs border border-rose-100 transition-colors">Delete</button>
                       </td>
                     </tr>
                   `).join('')}
@@ -4984,9 +4985,21 @@
       });
     }
 
-    function editExamScoreForStudent(studentId, index) {
+    function editExamScoreForStudent(studentId, identifier) {
+      const student = state.students.find(s => s.id === studentId);
+      if (!student || !Array.isArray(student.exams)) return;
+
+      let realIndex = -1;
+      if (typeof identifier === 'string') {
+        realIndex = student.exams.findIndex(e => e.id === identifier || e.subject === identifier);
+      }
+      if (realIndex === -1 && typeof identifier === 'number') {
+        realIndex = identifier;
+      }
+      if (realIndex === -1) return;
+
       state.editSubjectStudentId = studentId;
-      state.editSubjectIndex = index;
+      state.editSubjectIndex = realIndex;
       state.modals.editSubject = true;
       renderApp();
       setTimeout(() => {
@@ -5045,7 +5058,15 @@
       const percentage = getPercentageFromScore(score);
 
       if (!student.exams) student.exams = [];
-      student.exams.push({ subject, code: '', score, grade, percentage, sem: state.selectedSem || 'Sem 1' });
+      student.exams.push({ 
+        id: `EXM-${Math.floor(10000 + Math.random() * 90000)}`,
+        subject, 
+        code: `SUB-${Math.floor(100 + Math.random() * 900)}`, 
+        score, 
+        grade, 
+        percentage, 
+        sem: state.selectedSem || 'Sem 4' 
+      });
 
       state.modals.addSubject = false;
       state.addSubjectStudentId = '';
@@ -5054,14 +5075,25 @@
       renderApp();
     }
 
-    function deleteExamForStudent(studentId, index) {
+    function deleteExamForStudent(studentId, identifier) {
       const student = state.students.find(s => s.id === studentId);
-      if (student && Array.isArray(student.exams) && student.exams[index]) {
-        if (confirm(`Are you sure you want to delete ${student.exams[index].subject} from ${student.name}'s records?`)) {
-          student.exams.splice(index, 1);
+      if (!student || !Array.isArray(student.exams)) return;
+
+      let realIndex = -1;
+      if (typeof identifier === 'string') {
+        realIndex = student.exams.findIndex(e => e.id === identifier || e.subject === identifier);
+      }
+      if (realIndex === -1 && typeof identifier === 'number') {
+        realIndex = identifier;
+      }
+
+      if (realIndex > -1 && student.exams[realIndex]) {
+        const deletedSubject = student.exams[realIndex].subject;
+        if (confirm(`Are you sure you want to delete "${deletedSubject}" from ${student.name}'s records?`)) {
+          student.exams.splice(realIndex, 1);
           student.lastUpdated = Date.now();
           saveState();
-          alert("Subject deleted successfully!");
+          alert(`"${deletedSubject}" deleted successfully for all views!`);
           renderApp();
         }
       }
