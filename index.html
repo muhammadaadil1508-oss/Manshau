@@ -609,7 +609,7 @@
 
       announcements: [
         { id: 1, title: "Final Semester Examination Timetable Released", date: "Today, 02:30 PM", category: "Academic", urgency: "High", read: false, content: "The schedule for Mid-Term Assessment & Final Papers has been published on the student portal. Download your hall ticket by Friday." },
-        { id: 2, title: "Annual Science & Tech Fest 'Antigravity 2026' Registrations Open", date: "Yesterday, 11:15 AM", category: "Event", urgency: "Normal", read: false, content: "Participate in AI coding hackathons, robotics challenges, and paper presentations. Cash prizes worth â‚¹50,000." },
+        { id: 2, title: "Annual Science & Tech Fest 'Antigravity 2026' Registrations Open", date: "Yesterday, 11:15 AM", category: "Event", urgency: "Normal", read: false, content: "Participate in AI coding hackathons, robotics challenges, and paper presentations. Cash prizes worth ₹50,000." },
         { id: 3, title: "Campus Central Library Timings Extended", date: "July 03, 09:00 AM", category: "Facility", urgency: "Normal", read: true, content: "During examination weeks, the library will remain open 24/7 with tea & study pod facilities available." }
       ],
 
@@ -639,7 +639,7 @@
 
     const STORAGE_KEY = "manshau_erp_state_v8";
 
-    // Firebase à´•àµà´²à´¯à´¨àµà´±àµ à´†à´°à´‚à´­à´¿à´•àµà´•àµà´¨àµà´¨àµ
+    // Firebase Client Initialization Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyAErR-u6nKGhele8Re9rrH7oKpZi98mBz0",
       authDomain: "manshau-408d3.firebaseapp.com",
@@ -1927,7 +1927,7 @@
                 <div class="p-4 rounded-2xl bg-white border border-slate-100 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <p class="font-bold text-slate-800 text-sm">${l.reason} <span class="text-brand-600 font-semibold">(${l.studentName})</span></p>
-                    <p class="text-[11px] text-slate-500 mt-0.5">${l.startDate} to ${l.endDate} (${l.category}) â€¢ Applied On: ${l.appliedOn}</p>
+                    <p class="text-[11px] text-slate-500 mt-0.5">${l.startDate} to ${l.endDate} (${l.category}) • Applied On: ${l.appliedOn}</p>
                     <span class="inline-block mt-2 px-3 py-0.5 rounded-full text-[10px] font-bold ${
                       l.status === "Approved" ? "bg-emerald-100 text-emerald-700 border border-emerald-200" :
                       l.status === "Pending" ? "bg-amber-100 text-amber-700 border border-amber-200" : "bg-rose-100 text-rose-700 border border-rose-200"
@@ -4264,7 +4264,7 @@
           });
         }
 
-        // Bank Chart (INR â‚¹)
+        // Bank Chart (INR ₹)
         const bankCanvas = document.getElementById("bankCanvas");
         if (bankCanvas) {
           if (chartInstances.bank) chartInstances.bank.destroy();
@@ -4274,14 +4274,14 @@
               labels: ['Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'],
               datasets: [
                 { 
-                  label: 'Credits (â‚¹)', 
+                  label: 'Credits (₹)', 
                   data: [500, 800, 350, 900, 400, 750, fin.totalCredits], 
                   backgroundColor: '#0f172a',
                   borderRadius: 4,
                   barPercentage: 0.6
                 },
                 { 
-                  label: 'Debits (â‚¹)', 
+                  label: 'Debits (₹)', 
                   data: [200, 450, 150, 600, 300, 420, fin.totalDebits], 
                   backgroundColor: '#cbd5e1',
                   borderRadius: 4,
@@ -5366,7 +5366,7 @@
         <div class="relative z-10 text-center border-b-2 border-slate-200 pb-6 mb-6">
           <h1 class="text-3xl font-extrabold tracking-tight text-brand-900 uppercase">Manshau Alfaris Educational Institute</h1>
           <p class="text-xs uppercase tracking-widest text-slate-500 font-extrabold mt-1">Official Academic Examination Registry</p>
-          <p class="text-[10px] text-slate-400 mt-0.5">Central Campus Office â€¢ Registry Code: MAEI-2026-X1</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">Central Campus Office • Registry Code: MAEI-2026-X1</p>
         </div>
       `;
 
