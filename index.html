@@ -1072,7 +1072,26 @@
     }
 
     function getCurrentStudent() {
-      return state.students.find(s => s.id === state.currentStudentId) || state.students[0];
+      if (!Array.isArray(state.students) || state.students.length === 0) {
+        sanitizeStudentsRoster();
+      }
+      const found = (state.students || []).find(s => s && s.id === state.currentStudentId);
+      return found || (state.students && state.students[0]) || (typeof INITIAL_SEED_STUDENTS !== 'undefined' ? INITIAL_SEED_STUDENTS[0] : null) || {
+        id: "MSH-2026-0001",
+        name: "Ziyan",
+        username: "ziyan",
+        class: "Genesis 01",
+        school: "Manshau Alfaris",
+        phone: "+919800000001",
+        age: 15,
+        attendanceRate: 100.0,
+        totalLeaveDays: 0,
+        avatarInitials: "ZY",
+        avatarBg: "from-brand-600 to-sky-400",
+        transactions: [],
+        exams: [],
+        leaves: []
+      };
     }
 
     function getFinancials(studentObj) {
@@ -1088,15 +1107,16 @@
     // --- MAIN APP CONTROLLER ---
     function renderApp() {
       try {
-        saveState();
+        saveStateLocalOnly();
         const container = document.getElementById("app");
+        if (!container) return;
 
         if (!state.isAuthenticated) {
           container.innerHTML = renderLoginWindow();
           return;
         }
 
-        const unreadCount = state.announcements.filter(a => !a.read).length;
+        const unreadCount = (Array.isArray(state.announcements) ? state.announcements : []).filter(a => a && !a.read).length;
         const currentStudent = getCurrentStudent();
         const fin = getFinancials(currentStudent);
 
@@ -1246,6 +1266,21 @@
         setTimeout(initCharts, 50);
       } catch(err) {
         console.error("Render error caught:", err);
+        const container = document.getElementById("app");
+        if (container) {
+          container.innerHTML = `
+            <div class="min-h-screen bg-slate-900 flex items-center justify-center p-6 text-white text-center">
+              <div class="max-w-md bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl space-y-4">
+                <div class="w-12 h-12 rounded-full bg-rose-500/20 text-rose-400 mx-auto flex items-center justify-center font-black text-xl">!</div>
+                <h2 class="text-xl font-black">Application Render Recovery</h2>
+                <p class="text-xs text-slate-400">An unexpected rendering issue occurred. Click below to reload the app interface.</p>
+                <button onclick="location.reload()" class="w-full py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl text-xs transition-all">
+                  Reload Application
+                </button>
+              </div>
+            </div>
+          `;
+        }
       }
     }
 
