@@ -757,17 +757,16 @@
           querySnapshot.forEach((doc) => {
             const docData = doc.data();
             if (docData && docData.data) {
-              if (OFFICIAL_STUDENT_IDS.has(doc.id.trim().toLowerCase())) {
+              if (state.deletedStudentIds && state.deletedStudentIds.includes(doc.id)) {
+                if (db && fsDoc && fsDeleteDoc) {
+                  fsDeleteDoc(fsDoc(db, 'users', doc.id)).catch(() => {});
+                }
+              } else {
                 dbStudents.push({
                   id: doc.id,
                   data: docData.data,
                   last_updated: docData.last_updated
                 });
-              } else {
-                // Automatically purge any extra/dynamic student doc from Firebase Firestore
-                if (db && fsDoc && fsDeleteDoc) {
-                  fsDeleteDoc(fsDoc(db, 'users', doc.id)).catch(() => {});
-                }
               }
             }
           });
@@ -897,7 +896,6 @@
     }
 
     const INITIAL_SEED_STUDENTS = JSON.parse(JSON.stringify(state.students));
-    const OFFICIAL_STUDENT_IDS = new Set(INITIAL_SEED_STUDENTS.map(s => s.id.toLowerCase()));
 
     function sanitizeStudentsRoster() {
       if (!Array.isArray(state.students)) {
@@ -905,8 +903,8 @@
       }
       state.deletedStudentIds = state.deletedStudentIds || [];
 
-      // 1. Strict Filter out permanently deleted IDs AND any non-official dynamic student records
-      let clean = state.students.filter(s => s && s.id && OFFICIAL_STUDENT_IDS.has(s.id.trim().toLowerCase()) && !state.deletedStudentIds.includes(s.id));
+      // 1. Strict Filter out permanently deleted IDs
+      let clean = state.students.filter(s => s && s.id && !state.deletedStudentIds.includes(s.id));
 
       // 2. Strict Deduplicate by ID and Username
       const seenIds = new Set();
@@ -935,14 +933,14 @@
         }
       });
 
-      // 4. Sort students deterministically by ID (MSH-2026-0001 to MSH-2026-0016)
+      // 4. Sort students deterministically by ID
       uniqueStudents.sort((a, b) => (a.id || '').localeCompare(b.id || ''));
 
       state.students = uniqueStudents;
 
-      // 5. Ensure currentStudentId points to a valid official student
+      // 5. Ensure currentStudentId points to a valid student
       if (!state.students.some(s => s.id === state.currentStudentId)) {
-        state.currentStudentId = state.students[0] ? state.students[0].id : "MSH-2026-0001";
+        state.currentStudentId = state.students[0] ? state.students[0].id : "";
       }
     }
 
@@ -959,29 +957,19 @@
     }
 
     async function loadState() {
-      // Clear legacy/other local storage state keys if present
-      try {
-        for (let i = localStorage.length - 1; i >= 0; i--) {
-          const k = localStorage.key(i);
-          if (k && k.startsWith('manshau_erp_state') && k !== STORAGE_KEY) {
-            localStorage.removeItem(k);
-          }
-        }
-      } catch(e) {}
-
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
           if (parsed.deletedStudentIds && Array.isArray(parsed.deletedStudentIds)) {
-            state.deletedStudentIds = parsed.deletedStudentIds.filter(id => OFFICIAL_STUDENT_IDS.has(id.toLowerCase()));
+            state.deletedStudentIds = parsed.deletedStudentIds;
           } else {
-            state.deletedStudentIds = [];
+            state.deletedStudentIds = state.deletedStudentIds || [];
           }
 
           if (parsed.students && Array.isArray(parsed.students)) {
             state.students = parsed.students
-              .filter(s => s && s.id && OFFICIAL_STUDENT_IDS.has(s.id.trim().toLowerCase()))
+              .filter(s => s && s.id && !state.deletedStudentIds.includes(s.id))
               .map(s => {
                 let updated = false;
                 s.attendanceRecords = s.attendanceRecords || {};
@@ -1018,13 +1006,12 @@
           saveStateLocalOnly();
 
           if (parsed.announcements) state.announcements = parsed.announcements;
-          if (parsed.currentStudentId && OFFICIAL_STUDENT_IDS.has(parsed.currentStudentId.toLowerCase())) {
-            state.currentStudentId = parsed.currentStudentId;
-          }
+          if (parsed.currentStudentId) state.currentStudentId = parsed.currentStudentId;
           if (parsed.role) state.role = parsed.role;
           if (parsed.isAuthenticated !== undefined) state.isAuthenticated = parsed.isAuthenticated;
           if (parsed.adminCredentials) state.adminCredentials = parsed.adminCredentials;
           if (parsed.controlPanelCredentials) state.controlPanelCredentials = parsed.controlPanelCredentials;
+          if (parsed.deletedStudentIds) state.deletedStudentIds = parsed.deletedStudentIds;
           
           lastFetchedStateStr = JSON.stringify({
             students: state.students,
@@ -3537,15 +3524,9 @@
                     </div>
                   </div>
 
-                  <div class="grid grid-cols-2 gap-3">
-                    <div>
-                      <label class="block font-bold text-slate-700 mb-1">Age</label>
-                      <input type="number" id="newStudAge" required min="1" max="120" placeholder="e.g. 14" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
-                    </div>
-                    <div>
-                      <label class="block font-bold text-slate-700 mb-1">Academic Program</label>
-                      <input type="text" id="newStudProgram" required placeholder="Genesis 02" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
-                    </div>
+                  <div>
+                    <label class="block font-bold text-slate-700 mb-1">Age</label>
+                    <input type="number" id="newStudAge" required min="1" max="120" placeholder="e.g. 14" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200" />
                   </div>
 
                   <div>
@@ -4989,11 +4970,19 @@
           if (db && fsDoc && fsDeleteDoc) {
             await fsDeleteDoc(fsDoc(db, 'users', studentId));
           }
+          if (db && fsDoc && fsSetDoc) {
+            await fsSetDoc(fsDoc(db, 'system', 'credentials'), {
+              adminCredentials: state.adminCredentials,
+              controlPanelCredentials: state.controlPanelCredentials,
+              deletedStudentIds: state.deletedStudentIds
+            });
+          }
         } catch(e) {
           console.error("Failed to delete student from Firebase:", e);
         }
 
-        saveState();
+        saveStateLocalOnly();
+        await saveState();
         alert(`Student user "${student ? student.name : studentId}" permanently deleted!`);
         renderApp();
       }
@@ -5057,7 +5046,7 @@
       const phone = document.getElementById("newStudPhone").value.trim();
       const age = parseInt(document.getElementById("newStudAge").value) || 0;
       const photoUrl = document.getElementById("newStudPhotoUrl").value;
-      const program = document.getElementById("newStudProgram").value.trim();
+      const program = className;
       const username = document.getElementById("newStudUser").value.trim();
       const password = document.getElementById("newStudPass").value.trim();
       const smsPref = document.getElementById("newStudSmsPref").checked;
@@ -5093,6 +5082,22 @@
       };
 
       state.students.push(newStudent);
+
+      // Explicitly write new student doc to Firestore immediately
+      try {
+        if (db && fsDoc && fsSetDoc) {
+          await fsSetDoc(fsDoc(db, 'users', newStudent.id), {
+            data: newStudent,
+            last_updated: newStudent.lastUpdated
+          });
+        }
+      } catch (err) {
+        console.error("Failed to write new student to Firestore:", err);
+      }
+
+      saveStateLocalOnly();
+      await saveState();
+
       toggleModal('addStudent', false);
       alert(`Student account created successfully!\nName: ${name}\nUsername: ${username}\nPassword: ${password}`);
       renderApp();
