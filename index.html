@@ -637,6 +637,7 @@
       deletedStudentIds: []
     };
 
+    const INITIAL_SEED_STUDENTS = JSON.parse(JSON.stringify(state.students));
     const STORAGE_KEY = "manshau_erp_state_v8";
 
     // Firebase Client Initialization Configuration
@@ -894,8 +895,6 @@
     async function syncWithServer() {
       // Real-time syncing is handled live by Firebase Firestore snapshot listeners!
     }
-
-    const INITIAL_SEED_STUDENTS = JSON.parse(JSON.stringify(state.students));
 
     function sanitizeStudentsRoster() {
       if (!Array.isArray(state.students)) {
