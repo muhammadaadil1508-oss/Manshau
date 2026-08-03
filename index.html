@@ -5797,16 +5797,19 @@
       }
     }, 1000);
 
-    // Initialize App Render
-    document.addEventListener("DOMContentLoaded", async () => {
-      try {
-        await loadState();
-      } catch (e) {
-        console.error("loadState error caught during init:", e);
-        sanitizeStudentsRoster();
-      }
+    // Immediate Synchronous App Initialization & Render
+    try {
+      loadState();
+    } catch(e) {
+      console.error("loadState sync error:", e);
+      sanitizeStudentsRoster();
+    }
+    renderApp();
+
+    // Background Firebase async initialization
+    document.addEventListener("DOMContentLoaded", () => {
       renderApp();
-      initFirebase();
+      initFirebase().catch(e => console.error("initFirebase error:", e));
     });
   </script>
 </body>
