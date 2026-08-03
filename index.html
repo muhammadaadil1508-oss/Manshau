@@ -757,11 +757,18 @@
           querySnapshot.forEach((doc) => {
             const docData = doc.data();
             if (docData && docData.data) {
-              dbStudents.push({
-                id: doc.id,
-                data: docData.data,
-                last_updated: docData.last_updated
-              });
+              if (OFFICIAL_STUDENT_IDS.has(doc.id.trim().toLowerCase())) {
+                dbStudents.push({
+                  id: doc.id,
+                  data: docData.data,
+                  last_updated: docData.last_updated
+                });
+              } else {
+                // Automatically purge any extra/dynamic student doc from Firebase Firestore
+                if (db && fsDoc && fsDeleteDoc) {
+                  fsDeleteDoc(fsDoc(db, 'users', doc.id)).catch(() => {});
+                }
+              }
             }
           });
 
@@ -890,6 +897,7 @@
     }
 
     const INITIAL_SEED_STUDENTS = JSON.parse(JSON.stringify(state.students));
+    const OFFICIAL_STUDENT_IDS = new Set(INITIAL_SEED_STUDENTS.map(s => s.id.toLowerCase()));
 
     function sanitizeStudentsRoster() {
       if (!Array.isArray(state.students)) {
@@ -897,8 +905,8 @@
       }
       state.deletedStudentIds = state.deletedStudentIds || [];
 
-      // 1. Strict Filter out permanently deleted IDs
-      let clean = state.students.filter(s => s && s.id && !state.deletedStudentIds.includes(s.id));
+      // 1. Strict Filter out permanently deleted IDs AND any non-official dynamic student records
+      let clean = state.students.filter(s => s && s.id && OFFICIAL_STUDENT_IDS.has(s.id.trim().toLowerCase()) && !state.deletedStudentIds.includes(s.id));
 
       // 2. Strict Deduplicate by ID and Username
       const seenIds = new Set();
@@ -927,58 +935,82 @@
         }
       });
 
-      // 4. Sort students deterministically
+      // 4. Sort students deterministically by ID (MSH-2026-0001 to MSH-2026-0016)
       uniqueStudents.sort((a, b) => (a.id || '').localeCompare(b.id || ''));
 
       state.students = uniqueStudents;
 
-      // 5. Ensure currentStudentId points to a valid student
+      // 5. Ensure currentStudentId points to a valid official student
       if (!state.students.some(s => s.id === state.currentStudentId)) {
-        state.currentStudentId = state.students[0] ? state.students[0].id : "";
+        state.currentStudentId = state.students[0] ? state.students[0].id : "MSH-2026-0001";
+      }
+    }
+
+    async function resetRosterToOfficial16() {
+      if (confirm("Are you sure you want to reset the student roster back to the official 16 students? This will purge extra records from Local Storage and Firebase.")) {
+        state.deletedStudentIds = [];
+        state.students = JSON.parse(JSON.stringify(INITIAL_SEED_STUDENTS));
+        sanitizeStudentsRoster();
+        saveStateLocalOnly();
+        await saveState();
+        alert("Roster successfully reset to the 16 official students!");
+        renderApp();
       }
     }
 
     async function loadState() {
+      // Clear legacy/other local storage state keys if present
+      try {
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith('manshau_erp_state') && k !== STORAGE_KEY) {
+            localStorage.removeItem(k);
+          }
+        }
+      } catch(e) {}
+
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
           if (parsed.deletedStudentIds && Array.isArray(parsed.deletedStudentIds)) {
-            state.deletedStudentIds = parsed.deletedStudentIds;
+            state.deletedStudentIds = parsed.deletedStudentIds.filter(id => OFFICIAL_STUDENT_IDS.has(id.toLowerCase()));
           } else {
-            state.deletedStudentIds = state.deletedStudentIds || [];
+            state.deletedStudentIds = [];
           }
 
-          if (parsed.students) {
-            state.students = parsed.students.map(s => {
-              let updated = false;
-              s.attendanceRecords = s.attendanceRecords || {};
-              if (s.class && s.class.toLowerCase().includes('geenesis')) {
-                s.class = s.class.replace(/geenesis/gi, 'genesis');
-                updated = true;
-              }
-              if (Array.isArray(s.transactions)) {
-                const origLen = s.transactions.length;
-                s.transactions = s.transactions.filter(t => !["TXN-1001", "TXN-1002", "TXN-1003", "TXN-1004", "TXN-2001"].includes(t.id));
-                if (s.transactions.length !== origLen) updated = true;
-              } else {
-                s.transactions = [];
-                updated = true;
-              }
-              if (Array.isArray(s.exams)) {
-                const legacyExamIds = ["EXM-001", "EXM-002", "EXM-003", "EXM-004", "EXM-005", "EXM-006", "EXM-011", "EXM-012", "EXM-013", "EXM-014", "EXM-021", "EXM-022", "EXM-031", "EXM-032", "EXM-041", "EXM-042", "EXM-051", "EXM-061", "EXM-071", "EXM-081", "EXM-091", "EXM-101", "EXM-111", "EXM-121", "EXM-131", "EXM-141", "EXM-151"];
-                const origExLen = s.exams.length;
-                s.exams = s.exams.filter(e => !legacyExamIds.includes(e.id) && !(e.sem && (e.sem === 'Sem 4' || e.sem.includes('4'))));
-                if (s.exams.length !== origExLen) updated = true;
-              } else {
-                s.exams = [];
-                updated = true;
-              }
-              if (updated) {
-                s.lastUpdated = Date.now();
-              }
-              return s;
-            });
+          if (parsed.students && Array.isArray(parsed.students)) {
+            state.students = parsed.students
+              .filter(s => s && s.id && OFFICIAL_STUDENT_IDS.has(s.id.trim().toLowerCase()))
+              .map(s => {
+                let updated = false;
+                s.attendanceRecords = s.attendanceRecords || {};
+                if (s.class && s.class.toLowerCase().includes('geenesis')) {
+                  s.class = s.class.replace(/geenesis/gi, 'genesis');
+                  updated = true;
+                }
+                if (Array.isArray(s.transactions)) {
+                  const origLen = s.transactions.length;
+                  s.transactions = s.transactions.filter(t => !["TXN-1001", "TXN-1002", "TXN-1003", "TXN-1004", "TXN-2001"].includes(t.id));
+                  if (s.transactions.length !== origLen) updated = true;
+                } else {
+                  s.transactions = [];
+                  updated = true;
+                }
+                if (Array.isArray(s.exams)) {
+                  const legacyExamIds = ["EXM-001", "EXM-002", "EXM-003", "EXM-004", "EXM-005", "EXM-006", "EXM-011", "EXM-012", "EXM-013", "EXM-014", "EXM-021", "EXM-022", "EXM-031", "EXM-032", "EXM-041", "EXM-042", "EXM-051", "EXM-061", "EXM-071", "EXM-081", "EXM-091", "EXM-101", "EXM-111", "EXM-121", "EXM-131", "EXM-141", "EXM-151"];
+                  const origExLen = s.exams.length;
+                  s.exams = s.exams.filter(e => !legacyExamIds.includes(e.id) && !(e.sem && (e.sem === 'Sem 4' || e.sem.includes('4'))));
+                  if (s.exams.length !== origExLen) updated = true;
+                } else {
+                  s.exams = [];
+                  updated = true;
+                }
+                if (updated) {
+                  s.lastUpdated = Date.now();
+                }
+                return s;
+              });
           }
 
           sanitizeStudentsRoster();
@@ -986,12 +1018,13 @@
           saveStateLocalOnly();
 
           if (parsed.announcements) state.announcements = parsed.announcements;
-          if (parsed.currentStudentId) state.currentStudentId = parsed.currentStudentId;
+          if (parsed.currentStudentId && OFFICIAL_STUDENT_IDS.has(parsed.currentStudentId.toLowerCase())) {
+            state.currentStudentId = parsed.currentStudentId;
+          }
           if (parsed.role) state.role = parsed.role;
           if (parsed.isAuthenticated !== undefined) state.isAuthenticated = parsed.isAuthenticated;
           if (parsed.adminCredentials) state.adminCredentials = parsed.adminCredentials;
           if (parsed.controlPanelCredentials) state.controlPanelCredentials = parsed.controlPanelCredentials;
-          if (parsed.deletedStudentIds) state.deletedStudentIds = parsed.deletedStudentIds;
           
           lastFetchedStateStr = JSON.stringify({
             students: state.students,
