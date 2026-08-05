@@ -3096,21 +3096,6 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm text-center">
-              <p class="text-xs uppercase font-extrabold text-slate-400">Total Requested Leaves</p>
-              <p class="text-3xl font-black text-brand-600 mt-1">${state.students.reduce((acc, s) => acc + (s.leaves || []).length, 0)} Applications</p>
-            </div>
-            <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm text-center">
-              <p class="text-xs uppercase font-extrabold text-slate-400">Pending Review</p>
-              <p class="text-3xl font-black text-amber-500 mt-1">${state.students.reduce((acc, s) => acc + (s.leaves || []).filter(l => l.status === "Pending").length, 0)} Pending</p>
-            </div>
-            <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm text-center">
-              <p class="text-xs uppercase font-extrabold text-slate-400">${student.name}'s Approved Leaves</p>
-              <p class="text-3xl font-black text-emerald-600 mt-1">${student.totalLeaveDays} Days</p>
-            </div>
-          </div>
-
           <!-- ATTENDANCE CALENDAR -->
           <div class="glass-card p-6 rounded-3xl shadow-anti-gravity border border-white">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
