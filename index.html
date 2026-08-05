@@ -141,12 +141,23 @@
       background: #cbd5e1;
       border-radius: 9999px;
     }
-    .scrollbar-none::-webkit-scrollbar {
-      display: none;
-    }
     .scrollbar-none {
       -ms-overflow-style: none;
       scrollbar-width: none;
+    }
+
+    @keyframes modalPopIn {
+      0% { opacity: 0; transform: scale(0.94) translateY(10px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .animate-modal-pop {
+      animation: modalPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    button, input[type="button"], input[type="submit"], select {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    button:active {
+      transform: scale(0.97);
     }
   </style>
 </head>
@@ -4423,7 +4434,7 @@
           state.loginError = "";
           renderApp();
         } else {
-          state.loginError = `Invalid Admin Credentials! Use admin / 0000`;
+          state.loginError = `Invalid Admin Credentials! Use ${state.adminCredentials.username} / ${state.adminCredentials.password}`;
           renderApp();
         }
       } else if (state.loginRole === "controlpanel") {
