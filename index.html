@@ -1721,8 +1721,8 @@
                 <p class="text-xl font-black text-white mt-0.5">${state.students.length} Accounts</p>
               </div>
               <div class="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/60">
-                <p class="text-[10px] uppercase font-bold text-slate-400">Pending Leaves</p>
-                <p class="text-xl font-black text-amber-400 mt-0.5">${state.students.reduce((acc, s) => acc + s.leaves.filter(l => l.status === "Pending").length, 0)} Requests</p>
+                <p class="text-[10px] uppercase font-bold text-slate-400">Total Requested Leaves</p>
+                <p class="text-xl font-black text-amber-400 mt-0.5">${state.students.reduce((acc, s) => acc + (s.leaves || []).length, 0)} Total (${state.students.reduce((acc, s) => acc + (s.leaves || []).filter(l => l.status === "Pending").length, 0)} Pending)</p>
               </div>
               <div class="p-3.5 rounded-2xl bg-slate-800/60 border border-slate-700/60">
                 <p class="text-[10px] uppercase font-bold text-slate-400">Total Collections</p>
@@ -3096,9 +3096,19 @@
             </div>
           </div>
 
-          <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm text-center max-w-xs mx-auto">
-            <p class="text-xs uppercase font-extrabold text-slate-400">Total Leaves Taken</p>
-            <p class="text-3xl font-black text-brand-600 mt-1">${student.totalLeaveDays} Days</p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm text-center">
+              <p class="text-xs uppercase font-extrabold text-slate-400">Total Requested Leaves</p>
+              <p class="text-3xl font-black text-brand-600 mt-1">${state.students.reduce((acc, s) => acc + (s.leaves || []).length, 0)} Applications</p>
+            </div>
+            <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm text-center">
+              <p class="text-xs uppercase font-extrabold text-slate-400">Pending Review</p>
+              <p class="text-3xl font-black text-amber-500 mt-1">${state.students.reduce((acc, s) => acc + (s.leaves || []).filter(l => l.status === "Pending").length, 0)} Pending</p>
+            </div>
+            <div class="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm text-center">
+              <p class="text-xs uppercase font-extrabold text-slate-400">${student.name}'s Approved Leaves</p>
+              <p class="text-3xl font-black text-emerald-600 mt-1">${student.totalLeaveDays} Days</p>
+            </div>
           </div>
 
           <!-- ATTENDANCE CALENDAR -->
@@ -5844,23 +5854,49 @@
       }
     }
 
-    function handleApplyLeave(e) {
+    async function handleApplyLeave(e) {
       e.preventDefault();
       const student = getCurrentStudent();
       const startDate = document.getElementById("leaveStart").value;
       const endDate = document.getElementById("leaveEnd").value;
       const category = document.getElementById("leaveCategory").value;
       const reason = document.getElementById("leaveReason").value;
-      student.leaves.unshift({
+      
+      const startD = new Date(startDate);
+      const endD = new Date(endDate);
+      const diffTime = Math.abs(endD - startD);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      
+      const newLeave = {
         id: `LV-${Math.floor(100 + Math.random() * 900)}`,
         startDate, endDate, category, reason,
+        days: diffDays || 1,
         status: "Pending",
         appliedOn: new Date().toISOString().split('T')[0]
-      });
+      };
+      
+      student.leaves = student.leaves || [];
+      student.leaves.unshift(newLeave);
+      
       syncLeaveDatesToAttendance(student);
       student.lastUpdated = Date.now();
       toggleModal('leave', false);
-      saveState();
+      
+      // Explicit Firestore write for instant real-time cross-device sync
+      try {
+        if (db && fsDoc && fsSetDoc) {
+          await fsSetDoc(fsDoc(db, 'users', student.id), {
+            data: student,
+            last_updated: student.lastUpdated
+          });
+        }
+      } catch (err) {
+        console.error("Failed to write leave application to Firestore:", err);
+      }
+      
+      saveStateLocalOnly();
+      await saveState();
+      alert(`Leave application (${category}) submitted successfully! Synced across all devices.`);
       renderApp();
     }
 
