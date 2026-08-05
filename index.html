@@ -638,6 +638,7 @@
     };
 
     const INITIAL_SEED_STUDENTS = JSON.parse(JSON.stringify(state.students));
+    const OFFICIAL_STUDENT_IDS = new Set(INITIAL_SEED_STUDENTS.map(s => s.id.toLowerCase()));
     const STORAGE_KEY = "manshau_erp_state_v8";
 
     // Firebase Client Initialization Configuration
@@ -758,16 +759,17 @@
           querySnapshot.forEach((doc) => {
             const docData = doc.data();
             if (docData && docData.data) {
-              if (state.deletedStudentIds && state.deletedStudentIds.includes(doc.id)) {
-                if (db && fsDoc && fsDeleteDoc) {
-                  fsDeleteDoc(fsDoc(db, 'users', doc.id)).catch(() => {});
-                }
-              } else {
+              if (OFFICIAL_STUDENT_IDS.has(doc.id.trim().toLowerCase()) && (!state.deletedStudentIds || !state.deletedStudentIds.includes(doc.id))) {
                 dbStudents.push({
                   id: doc.id,
                   data: docData.data,
                   last_updated: docData.last_updated
                 });
+              } else {
+                // Purge dynamic/extra student records from Firebase Firestore
+                if (db && fsDoc && fsDeleteDoc) {
+                  fsDeleteDoc(fsDoc(db, 'users', doc.id)).catch(() => {});
+                }
               }
             }
           });
@@ -902,8 +904,8 @@
       }
       state.deletedStudentIds = state.deletedStudentIds || [];
 
-      // 1. Strict Filter out permanently deleted IDs
-      let clean = state.students.filter(s => s && s.id && !state.deletedStudentIds.includes(s.id));
+      // 1. Strict Filter out permanently deleted IDs AND any non-official dynamic/test accounts
+      let clean = state.students.filter(s => s && s.id && OFFICIAL_STUDENT_IDS.has(s.id.trim().toLowerCase()) && !state.deletedStudentIds.includes(s.id));
 
       // 2. Strict Deduplicate by ID and Username
       const seenIds = new Set();
@@ -932,7 +934,7 @@
         }
       });
 
-      // 4. Sort students deterministically by ID
+      // 4. Sort students deterministically by ID (MSH-2026-0001 to MSH-2026-0016)
       uniqueStudents.sort((a, b) => (a.id || '').localeCompare(b.id || ''));
 
       // 5. Fallback safety guard: ensure student roster is NEVER empty
@@ -974,7 +976,7 @@
 
           if (parsed.students && Array.isArray(parsed.students)) {
             state.students = parsed.students
-              .filter(s => s && s.id && !state.deletedStudentIds.includes(s.id))
+              .filter(s => s && s.id && OFFICIAL_STUDENT_IDS.has(s.id.trim().toLowerCase()) && !state.deletedStudentIds.includes(s.id))
               .map(s => {
                 let updated = false;
                 s.attendanceRecords = s.attendanceRecords || {};
@@ -1008,6 +1010,7 @@
 
           sanitizeStudentsRoster();
           syncGlobalAcademicLeaves();
+          processDailyAutoAttendance();
           saveStateLocalOnly();
 
           if (parsed.announcements) state.announcements = parsed.announcements;
@@ -4534,6 +4537,51 @@
       return false;
     }
 
+    function processDailyAutoAttendance() {
+      if (!Array.isArray(state.students)) return;
+      const todayKey = getTodayDateKey();
+      const now = new Date();
+      const currentHour = now.getHours();
+      
+      let updatedAny = false;
+      
+      state.students.forEach(student => {
+        student.attendanceRecords = student.attendanceRecords || {};
+        
+        // Sync leave approvals first so approved leave dates are respected
+        syncLeaveDatesToAttendance(student);
+        
+        const start = new Date(ACADEMIC_START_DATE);
+        const today = new Date(todayKey);
+        
+        let curr = new Date(start);
+        while (curr <= today) {
+          const y = curr.getFullYear();
+          const m = String(curr.getMonth() + 1).padStart(2, '0');
+          const d = String(curr.getDate()).padStart(2, '0');
+          const dKey = `${y}-${m}-${d}`;
+          
+          const isEligibleForAutoMark = (dKey < todayKey) || (dKey === todayKey && currentHour >= DAILY_ATTENDANCE_TIME_HOUR);
+          
+          if (isEligibleForAutoMark) {
+            // CRITICAL: If attendance was manually marked in advance or past, DO NOT OVERWRITE IT!
+            if (!student.attendanceRecords[dKey]) {
+              student.attendanceRecords[dKey] = "Present";
+              updatedAny = true;
+            }
+          }
+          curr.setDate(curr.getDate() + 1);
+        }
+        
+        recalculateAttendanceRate(student);
+        recalculateStudentLeaves(student);
+      });
+      
+      if (updatedAny) {
+        saveStateLocalOnly();
+      }
+    }
+
     function recalculateAttendanceRate(student) {
       if (!student) return;
       student.attendanceRecords = student.attendanceRecords || {};
@@ -4552,11 +4600,18 @@
       for (let d = 1; d <= daysCount; d++) {
         const dStr = d < 10 ? `0${d}` : `${d}`;
         const dateKey = `${year}-${mIdx}-${dStr}`;
-        if (isAttendanceActiveForDate(dateKey)) {
-          totalPassedDays++;
-          const status = student.attendanceRecords[dateKey] || "Present";
-          if (status === "Absent") absentCount += 1.0;
-          else if (status === "Half Day") halfDayCount += 0.5;
+        
+        // Check if date is active by 8 AM time rule OR has been manually marked for upcoming/past date
+        const hasManualRecord = Boolean(student.attendanceRecords[dateKey]);
+        const isActiveByTime = isAttendanceActiveForDate(dateKey);
+        
+        if (isActiveByTime || hasManualRecord) {
+          const status = student.attendanceRecords[dateKey] || (isActiveByTime ? "Present" : "");
+          if (status) {
+            totalPassedDays++;
+            if (status === "Absent") absentCount += 1.0;
+            else if (status === "Half Day") halfDayCount += 0.5;
+          }
         }
       }
       
@@ -5789,12 +5844,13 @@
       renderApp();
     }
 
-    // Live 12-Hour Clock Interval Ticker
+    // Live 12-Hour Clock & 8:00 AM Auto Attendance Ticker
     setInterval(() => {
       const clockEl = document.getElementById("liveClockPill");
       if (clockEl) {
         clockEl.innerText = get12HourTimeString();
       }
+      processDailyAutoAttendance();
     }, 1000);
 
     // Immediate Synchronous App Initialization & Render
