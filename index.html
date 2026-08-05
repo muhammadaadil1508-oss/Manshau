@@ -2047,28 +2047,7 @@
                 <h3 class="text-base font-extrabold text-slate-900">Daily Attendance Register for ${student.name}</h3>
                 
                 <!-- Legend / Color Guide -->
-                <div class="flex flex-wrap gap-4 mt-2 text-[10px] font-bold text-slate-500">
-                  <div class="flex items-center space-x-1.5">
-                    <div class="w-3 h-3 rounded bg-emerald-500"></div>
-                    <span>Present</span>
-                  </div>
-                  <div class="flex items-center space-x-1.5">
-                    <div class="w-3 h-3 rounded bg-rose-500"></div>
-                    <span>Absent</span>
-                  </div>
-                  <div class="flex items-center space-x-1.5">
-                    <div class="w-3 h-3 rounded bg-amber-500"></div>
-                    <span>Half Day</span>
-                  </div>
-                  <div class="flex items-center space-x-1.5">
-                    <div class="w-3 h-3 rounded bg-slate-900"></div>
-                    <span class="text-slate-900 font-extrabold">Academic Leave</span>
-                  </div>
-                  <div class="flex items-center space-x-1.5">
-                    <div class="w-3 h-3 rounded bg-white border border-slate-200"></div>
-                    <span>Upcoming Dates</span>
-                  </div>
-                </div>
+                ${renderInteractiveAttendanceLegend()}
               </div>
               
               <div class="flex flex-wrap gap-2.5 items-center">
@@ -2364,13 +2343,7 @@
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-4">
               <div>
                 <h3 class="text-base font-extrabold text-slate-900">Daily Attendance Register for ${cpStudent.name}</h3>
-                <div class="flex flex-wrap gap-4 mt-2 text-[10px] font-bold text-slate-500">
-                  <div class="flex items-center space-x-1.5"><div class="w-3 h-3 rounded bg-emerald-500"></div><span>Present</span></div>
-                  <div class="flex items-center space-x-1.5"><div class="w-3 h-3 rounded bg-rose-500"></div><span>Absent</span></div>
-                  <div class="flex items-center space-x-1.5"><div class="w-3 h-3 rounded bg-amber-500"></div><span>Half Day</span></div>
-                  <div class="flex items-center space-x-1.5"><div class="w-3 h-3 rounded bg-slate-900"></div><span class="text-slate-900 font-extrabold">Academic Leave</span></div>
-                  <div class="flex items-center space-x-1.5"><div class="w-3 h-3 rounded bg-white border border-slate-200"></div><span>Upcoming Dates</span></div>
-                </div>
+                ${renderInteractiveAttendanceLegend()}
               </div>
               <div class="flex flex-wrap gap-2.5 items-center">
                 <select onchange="state.cpSelectedStudentId=this.value;renderApp()" class="p-2.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800">
@@ -3125,28 +3098,7 @@
                 <h3 class="text-base font-extrabold text-slate-900">Attendance Calendar</h3>
                 
                 <!-- Legend / Color Guide -->
-                <div class="flex flex-wrap gap-4 mt-2 text-[10px] font-bold text-slate-500">
-                  <div class="flex items-center space-x-1.5">
-                    <div class="w-3 h-3 rounded bg-emerald-500"></div>
-                    <span>Present</span>
-                  </div>
-                  <div class="flex items-center space-x-1.5">
-                    <div class="w-3 h-3 rounded bg-rose-500"></div>
-                    <span>Absent</span>
-                  </div>
-                  <div class="flex items-center space-x-1.5">
-                    <div class="w-3 h-3 rounded bg-amber-500"></div>
-                    <span>Half Day</span>
-                  </div>
-                  <div class="flex items-center space-x-1.5">
-                    <div class="w-3 h-3 rounded bg-slate-900"></div>
-                    <span class="text-slate-900 font-extrabold">Academic Leave</span>
-                  </div>
-                  <div class="flex items-center space-x-1.5">
-                    <div class="w-3 h-3 rounded bg-white border border-slate-200"></div>
-                    <span>Upcoming Dates</span>
-                  </div>
-                </div>
+                ${renderInteractiveAttendanceLegend()}
               </div>
               
               <!-- Month Selector Dropdown -->
@@ -4486,6 +4438,59 @@
       renderApp();
     }
 
+    function setAttendanceStatusFilter(status) {
+      if (state.attendanceStatusFilter === status) {
+        state.attendanceStatusFilter = 'All';
+      } else {
+        state.attendanceStatusFilter = status;
+      }
+      renderApp();
+    }
+
+    function renderInteractiveAttendanceLegend(activeFilter) {
+      const filter = activeFilter || state.attendanceStatusFilter || 'All';
+      const items = [
+        { id: 'Present', label: 'Present', colorBg: 'bg-emerald-500', activeClass: 'ring-2 ring-emerald-500 bg-emerald-50 text-emerald-800' },
+        { id: 'Absent', label: 'Absent', colorBg: 'bg-rose-500', activeClass: 'ring-2 ring-rose-500 bg-rose-50 text-rose-800' },
+        { id: 'Half Day', label: 'Half Day', colorBg: 'bg-amber-500', activeClass: 'ring-2 ring-amber-500 bg-amber-50 text-amber-800' },
+        { id: 'Academic Leave', label: 'Academic Leave', colorBg: 'bg-slate-900', activeClass: 'ring-2 ring-slate-900 bg-slate-100 text-slate-900 font-extrabold' },
+        { id: 'Upcoming', label: 'Upcoming Dates', colorBg: 'bg-white border border-slate-300', activeClass: 'ring-2 ring-brand-500 bg-brand-50 text-brand-700' }
+      ];
+
+      return `
+        <div class="flex flex-wrap gap-2 sm:gap-2.5 mt-2 text-[10px] sm:text-[11px] font-extrabold">
+          ${items.map(item => {
+            const isSelected = filter === item.id;
+            return `
+              <button
+                type="button"
+                onclick="setAttendanceStatusFilter('${item.id}')"
+                class="flex items-center space-x-1.5 px-2.5 py-1 rounded-xl transition-all duration-200 border cursor-pointer hover:scale-105 active:scale-95 ${
+                  isSelected
+                    ? `${item.activeClass} shadow-sm border-transparent`
+                    : 'bg-slate-50/70 border-slate-200/80 text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                }"
+                title="Click to filter calendar dates by ${item.label}"
+              >
+                <div class="w-3 h-3 rounded-full ${item.colorBg} flex-shrink-0 shadow-xs"></div>
+                <span>${item.label}</span>
+                ${isSelected ? `<span class="ml-1 text-[9px] px-1.5 py-0.2 rounded-full bg-brand-600 text-white font-black uppercase">Active</span>` : ''}
+              </button>
+            `;
+          }).join('')}
+          ${filter !== 'All' ? `
+            <button
+              type="button"
+              onclick="setAttendanceStatusFilter('All')"
+              class="px-2 py-1 rounded-xl bg-slate-200 text-slate-700 text-[10px] font-bold hover:bg-slate-300 transition-all cursor-pointer"
+            >
+              Clear Filter
+            </button>
+          ` : ''}
+        </div>
+      `;
+    }
+
     function changeFundCategoryFilter(cat) {
       state.fundCategoryFilter = cat;
       renderApp();
@@ -4789,6 +4794,7 @@
 
       const isAdmin = state.role === 'admin' || state.role === 'controlpanel';
       const todayKey = getTodayDateKey();
+      const currentFilter = state.attendanceStatusFilter || 'All';
 
       for (let d = 1; d <= daysCount; d++) {
         const dStr = d < 10 ? `0${d}` : `${d}`;
@@ -4807,13 +4813,23 @@
         } else if (status === "Academic Leave") {
           statusClass = "bg-slate-900 text-white border-slate-900 shadow-sm font-black";
         }
+
+        let matchesFilter = true;
+        if (currentFilter !== 'All') {
+          if (currentFilter === 'Upcoming' && status !== '') matchesFilter = false;
+          if (currentFilter !== 'Upcoming' && status !== currentFilter) matchesFilter = false;
+        }
+
+        const filterClass = matchesFilter 
+          ? (currentFilter !== 'All' ? 'ring-2 ring-brand-500 scale-105 z-10 shadow-md' : '') 
+          : 'opacity-20 scale-90 grayscale transition-all duration-300';
         
         if (isAdmin) {
           html += `
             <button
               onclick="toggleAttendanceStatus('${student.id}', '${dateKey}')"
               ondblclick="resetAttendanceToNil('${student.id}', '${dateKey}')"
-              class="flex items-center justify-center rounded-xl transition-all hover:scale-105 active:scale-95 cursor-pointer h-9 sm:h-10 w-full font-black text-xs sm:text-sm ${statusClass}"
+              class="flex items-center justify-center rounded-xl transition-all hover:scale-105 active:scale-95 cursor-pointer h-9 sm:h-10 w-full font-black text-xs sm:text-sm ${statusClass} ${filterClass}"
               title="${dateKey} - ${status || 'Upcoming Date (Click to mark, double-click to reset to Nil)'}"
             >
               ${d}
@@ -4822,7 +4838,7 @@
         } else {
           html += `
             <div
-              class="flex items-center justify-center rounded-xl text-center cursor-default h-9 sm:h-10 w-full font-black text-xs sm:text-sm ${statusClass}"
+              class="flex items-center justify-center rounded-xl text-center cursor-default h-9 sm:h-10 w-full font-black text-xs sm:text-sm ${statusClass} ${filterClass}"
               title="${dateKey} - ${status || 'Upcoming Dates'}"
             >
               ${d}
@@ -4839,6 +4855,7 @@
       const mName = parts[0];
       const year = parts[1];
       const mIdx = MONTH_MAP[mName];
+      const currentFilter = state.attendanceStatusFilter || 'All';
       
       student.attendanceRecords = student.attendanceRecords || {};
       
@@ -4860,10 +4877,20 @@
         } else if (status === "Academic Leave") {
           statusClass = "bg-slate-900 text-white border-slate-900 shadow-sm font-black";
         }
+
+        let matchesFilter = true;
+        if (currentFilter !== 'All') {
+          if (currentFilter === 'Upcoming' && status !== '') matchesFilter = false;
+          if (currentFilter !== 'Upcoming' && status !== currentFilter) matchesFilter = false;
+        }
+
+        const filterClass = matchesFilter 
+          ? (currentFilter !== 'All' ? 'ring-2 ring-brand-500 scale-105 z-10 shadow-md' : '') 
+          : 'opacity-20 scale-90 grayscale transition-all duration-300';
         
         html += `
           <div
-            class="flex items-center justify-center rounded-xl text-center cursor-default h-9 sm:h-10 w-full font-black text-xs sm:text-sm ${statusClass}"
+            class="flex items-center justify-center rounded-xl text-center cursor-default h-9 sm:h-10 w-full font-black text-xs sm:text-sm ${statusClass} ${filterClass}"
             title="${dateKey} - ${status || 'Upcoming Dates'}"
           >
             ${d}
