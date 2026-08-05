@@ -4781,7 +4781,7 @@
 
       // Render empty offset cells before Day 1
       for (let i = 0; i < firstDayOfWeek; i++) {
-        html += `<div class="h-10 w-full rounded-xl bg-slate-50/50 border border-slate-100/50"></div>`;
+        html += `<div class="h-9 sm:h-10 w-full rounded-xl bg-slate-50/50 border border-slate-100/50"></div>`;
       }
 
       const isAdmin = state.role === 'admin' || state.role === 'controlpanel';
@@ -4810,7 +4810,7 @@
             <button
               onclick="toggleAttendanceStatus('${student.id}', '${dateKey}')"
               ondblclick="resetAttendanceToNil('${student.id}', '${dateKey}')"
-              class="flex items-center justify-center rounded-xl border text-center transition-all hover:scale-105 active:scale-95 cursor-pointer h-10 w-full font-black text-sm ${statusClass}"
+              class="flex items-center justify-center rounded-xl border text-center transition-all hover:scale-105 active:scale-95 cursor-pointer h-9 sm:h-10 w-full font-black text-xs sm:text-sm ${statusClass}"
               title="${dateKey} - ${status || 'Upcoming Date (Click to mark, double-click to reset to Nil)'}"
             >
               ${d}
@@ -4819,7 +4819,7 @@
         } else {
           html += `
             <div
-              class="flex items-center justify-center rounded-xl border text-center cursor-default h-10 w-full font-black text-sm ${statusClass}"
+              class="flex items-center justify-center rounded-xl border text-center cursor-default h-9 sm:h-10 w-full font-black text-xs sm:text-sm ${statusClass}"
               title="${dateKey} - ${status || 'Upcoming Dates'}"
             >
               ${d}
