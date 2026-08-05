@@ -4720,7 +4720,7 @@
       student.attendanceRecords = student.attendanceRecords || {};
       
       student.leaves.forEach(leave => {
-        if (!leave.startDate || leave.status !== "Approved") return;
+        if (!leave.startDate || leave.status === "Rejected") return;
         
         const startParts = leave.startDate.split('-');
         const endParts = (leave.endDate || leave.startDate).split('-');
@@ -4737,11 +4737,13 @@
           const dateKey = `${y}-${m}-${d}`;
           
           if (leave.category === "Academic Duty" || leave.category === "Academic Leave") {
-            // Apply Academic Leave to ALL students only when approved
+            // Broadcast Academic Leave to ALL students
             state.students.forEach(s => {
               s.attendanceRecords = s.attendanceRecords || {};
               s.attendanceRecords[dateKey] = "Academic Leave";
             });
+          } else if (leave.status === "Approved") {
+            student.attendanceRecords[dateKey] = "Academic Leave";
           }
           curr.setDate(curr.getDate() + 1);
         }
