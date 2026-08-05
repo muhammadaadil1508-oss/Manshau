@@ -759,7 +759,7 @@
           querySnapshot.forEach((doc) => {
             const docData = doc.data();
             if (docData && docData.data) {
-              if (OFFICIAL_STUDENT_IDS.has(doc.id.trim().toLowerCase()) && (!state.deletedStudentIds || !state.deletedStudentIds.includes(doc.id))) {
+              if (OFFICIAL_STUDENT_IDS.has(doc.id.trim().toLowerCase())) {
                 dbStudents.push({
                   id: doc.id,
                   data: docData.data,
@@ -899,45 +899,29 @@
     }
 
     function sanitizeStudentsRoster() {
-      if (!Array.isArray(state.students)) {
-        state.students = JSON.parse(JSON.stringify(INITIAL_SEED_STUDENTS));
-      }
-      state.deletedStudentIds = state.deletedStudentIds || [];
+      // Always clear old deletion flags hiding official roster students
+      state.deletedStudentIds = [];
 
-      // 1. Strict Filter out permanently deleted IDs AND any non-official dynamic/test accounts
-      let clean = state.students.filter(s => s && s.id && OFFICIAL_STUDENT_IDS.has(s.id.trim().toLowerCase()) && !state.deletedStudentIds.includes(s.id));
+      const studentMap = new Map();
 
-      // 2. Strict Deduplicate by ID and Username
-      const seenIds = new Set();
-      const seenUsernames = new Set();
-      const uniqueStudents = [];
-
-      clean.forEach(s => {
-        const idKey = (s.id || '').trim().toLowerCase();
-        const userKey = (s.username || '').trim().toLowerCase();
-
-        if (idKey && !seenIds.has(idKey) && (!userKey || !seenUsernames.has(userKey))) {
-          seenIds.add(idKey);
-          if (userKey) seenUsernames.add(userKey);
-          uniqueStudents.push(s);
-        }
-      });
-
-      // 3. Fill missing official seed accounts EXCEPT permanently deleted ones
+      // 1. Populate map with default official seed accounts (all 16 students)
       INITIAL_SEED_STUDENTS.forEach(seed => {
-        if (!state.deletedStudentIds.includes(seed.id)) {
-          const seedIdKey = seed.id.toLowerCase();
-          if (!seenIds.has(seedIdKey)) {
-            uniqueStudents.push(JSON.parse(JSON.stringify(seed)));
-            seenIds.add(seedIdKey);
-          }
-        }
+        studentMap.set(seed.id, JSON.parse(JSON.stringify(seed)));
       });
 
-      // 4. Sort students deterministically by ID (MSH-2026-0001 to MSH-2026-0016)
-      uniqueStudents.sort((a, b) => (a.id || '').localeCompare(b.id || ''));
+      // 2. Merge existing state.students if present, retaining local edits
+      if (Array.isArray(state.students)) {
+        state.students.forEach(s => {
+          if (s && s.id && OFFICIAL_STUDENT_IDS.has(s.id.trim().toLowerCase())) {
+            const existing = studentMap.get(s.id) || {};
+            studentMap.set(s.id, { ...existing, ...s });
+          }
+        });
+      }
 
-      // Ensure Swalih and Shafeeh class batch assignment is strictly Genesis 02
+      const uniqueStudents = Array.from(studentMap.values());
+
+      // 3. Ensure Swalih and Shafeeh class batch assignment is strictly Genesis 02
       uniqueStudents.forEach(s => {
         if (s && (s.id === "MSH-2026-0007" || s.id === "MSH-2026-0008")) {
           s.class = "Genesis 02";
@@ -945,15 +929,12 @@
         }
       });
 
-      // 5. Fallback safety guard: ensure student roster is NEVER empty
-      if (uniqueStudents.length === 0) {
-        state.deletedStudentIds = [];
-        uniqueStudents.push(...JSON.parse(JSON.stringify(INITIAL_SEED_STUDENTS)));
-      }
+      // 4. Sort deterministically by ID (MSH-2026-0001 to MSH-2026-0016)
+      uniqueStudents.sort((a, b) => (a.id || '').localeCompare(b.id || ''));
 
       state.students = uniqueStudents;
 
-      // 6. Ensure currentStudentId points to a valid student
+      // 5. Ensure currentStudentId points to a valid student
       if (!state.students.some(s => s && s.id === state.currentStudentId)) {
         state.currentStudentId = state.students[0] ? state.students[0].id : "MSH-2026-0001";
       }
