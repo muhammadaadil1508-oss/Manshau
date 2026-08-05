@@ -412,8 +412,8 @@
           name: "Swalih",
           status: "Present",
           school: "Manshau Alfaris",
-          class: "Genesis 01",
-          program: "Genesis 01",
+          class: "Genesis 02",
+          program: "Genesis 02",
           age: 15,
           phone: "+919800000007",
           attendanceRate: 100.0,
@@ -432,8 +432,8 @@
           name: "Shafeeh",
           status: "Present",
           school: "Manshau Alfaris",
-          class: "Genesis 01",
-          program: "Genesis 01",
+          class: "Genesis 02",
+          program: "Genesis 02",
           age: 15,
           phone: "+919800000008",
           attendanceRate: 100.0,
@@ -936,6 +936,14 @@
 
       // 4. Sort students deterministically by ID (MSH-2026-0001 to MSH-2026-0016)
       uniqueStudents.sort((a, b) => (a.id || '').localeCompare(b.id || ''));
+
+      // Ensure Swalih and Shafeeh class batch assignment is strictly Genesis 02
+      uniqueStudents.forEach(s => {
+        if (s && (s.id === "MSH-2026-0007" || s.id === "MSH-2026-0008")) {
+          s.class = "Genesis 02";
+          s.program = "Genesis 02";
+        }
+      });
 
       // 5. Fallback safety guard: ensure student roster is NEVER empty
       if (uniqueStudents.length === 0) {
