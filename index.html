@@ -4653,13 +4653,13 @@
       if (current === "Academic Leave") {
         state.students.forEach(s => {
           s.attendanceRecords = s.attendanceRecords || {};
-          delete s.attendanceRecords[dateKey];
+          s.attendanceRecords[dateKey] = "";
           recalculateAttendanceRate(s);
           recalculateStudentLeaves(s);
           s.lastUpdated = Date.now();
         });
       } else {
-        delete student.attendanceRecords[dateKey];
+        student.attendanceRecords[dateKey] = "";
         recalculateAttendanceRate(student);
         recalculateStudentLeaves(student);
         student.lastUpdated = Date.now();
@@ -4675,7 +4675,10 @@
       if (!student) return;
       
       student.attendanceRecords = student.attendanceRecords || {};
-      const recorded = student.attendanceRecords[dateKey];
+      const isActive = isAttendanceActiveForDate(dateKey);
+      const recorded = (student.attendanceRecords.hasOwnProperty(dateKey))
+        ? student.attendanceRecords[dateKey]
+        : (isActive ? "Present" : "");
       
       let nextStatus = "Present";
       if (!recorded || recorded === "") {
@@ -4687,7 +4690,7 @@
       } else if (recorded === "Half Day") {
         nextStatus = "Academic Leave";
       } else if (recorded === "Academic Leave") {
-        nextStatus = ""; // Reset to Nil / Upcoming
+        nextStatus = ""; // Cycle to Nil / Unmarked
       }
       
       if (nextStatus === "") {
@@ -4780,8 +4783,10 @@
         const dStr = d < 10 ? `0${d}` : `${d}`;
         const dateKey = `${year}-${mIdx}-${dStr}`;
         const isActive = isAttendanceActiveForDate(dateKey);
-        const recordedStatus = (student.attendanceRecords && student.attendanceRecords[dateKey]) ? student.attendanceRecords[dateKey] : "";
-        const status = recordedStatus || (isActive ? "Present" : "");
+        const recordedStatus = (student.attendanceRecords && student.attendanceRecords.hasOwnProperty(dateKey))
+          ? student.attendanceRecords[dateKey]
+          : undefined;
+        const status = (recordedStatus !== undefined) ? recordedStatus : (isActive ? "Present" : "");
         
         let statusClass = "bg-transparent text-slate-500 font-bold border border-transparent hover:bg-slate-100/60";
         if (status === "Present") {
@@ -4844,8 +4849,10 @@
         const dStr = d < 10 ? `0${d}` : `${d}`;
         const dateKey = `${year}-${mIdx}-${dStr}`;
         const isActive = isAttendanceActiveForDate(dateKey);
-        const recordedStatus = (student.attendanceRecords && student.attendanceRecords[dateKey]) ? student.attendanceRecords[dateKey] : "";
-        const status = recordedStatus || (isActive ? "Present" : "");
+        const recordedStatus = (student.attendanceRecords && student.attendanceRecords.hasOwnProperty(dateKey))
+          ? student.attendanceRecords[dateKey]
+          : undefined;
+        const status = (recordedStatus !== undefined) ? recordedStatus : (isActive ? "Present" : "");
         
         let statusClass = "bg-transparent text-slate-500 font-bold border border-transparent hover:bg-slate-100/60";
         if (status === "Present") {
