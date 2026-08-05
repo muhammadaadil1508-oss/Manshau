@@ -1576,7 +1576,7 @@
                             ${getStudentAvatarHtml(s, "w-9 h-9 flex-shrink-0", "text-xs")}
                             <div class="min-w-0">
                               <p class="font-extrabold text-xs text-slate-900 truncate">${s.name}</p>
-                              <p class="text-[10px] text-brand-600 font-bold">${s.id} • ${s.class}</p>
+                              <p class="text-[10px] text-slate-400 font-semibold">${s.class}</p>
                             </div>
                           </div>
                           <button onclick="toggleSpecificStudentStatus('${s.id}')" class="px-2.5 py-1 rounded-full text-[10px] font-extrabold flex-shrink-0 ${s.status === 'Present' ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'bg-amber-100 text-amber-700 border border-amber-200'}">
@@ -1627,7 +1627,7 @@
                                 ${getStudentAvatarHtml(s, "w-7 h-7 flex-shrink-0", "text-[10px]")}
                                 <div>
                                   <p class="font-bold text-slate-800">${s.name}</p>
-                                  <p class="text-[10px] text-brand-600 font-bold">${s.id} • ${s.class}</p>
+                                  <p class="text-[10px] text-slate-400 font-semibold">${s.class}</p>
                                 </div>
                               </div>
                             </td>
