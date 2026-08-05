@@ -940,29 +940,7 @@
         }
       });
 
-      // 4. Clean up any invalid/auto-generated Academic Leave entries from attendanceRecords
-      const validAcademicLeaveDates = new Set();
-      uniqueStudents.forEach(s => {
-        if (Array.isArray(s.leaves)) {
-          s.leaves.forEach(l => {
-            if (l.status === "Approved" && (l.category === "Academic Duty" || l.category === "Academic Leave") && l.startDate) {
-              validAcademicLeaveDates.add(l.startDate);
-            }
-          });
-        }
-      });
-
-      uniqueStudents.forEach(s => {
-        if (s.attendanceRecords) {
-          Object.keys(s.attendanceRecords).forEach(dKey => {
-            if (s.attendanceRecords[dKey] === "Academic Leave" && !validAcademicLeaveDates.has(dKey)) {
-              delete s.attendanceRecords[dKey];
-            }
-          });
-        }
-      });
-
-      // 5. Sort deterministically by ID (MSH-2026-0001 to MSH-2026-0016)
+      // 4. Sort deterministically by ID (MSH-2026-0001 to MSH-2026-0016)
       uniqueStudents.sort((a, b) => (a.id || '').localeCompare(b.id || ''));
 
       state.students = uniqueStudents;
