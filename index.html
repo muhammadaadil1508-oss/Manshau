@@ -2227,11 +2227,7 @@
     // --- ADMIN MODULE 5: FINANCIAL LEDGER ---
     // --- CONTROL PANEL PORTAL ---
     function renderControlPanelPortal() {
-      const genesis01 = state.students.filter(s => {
-        const cls = (s.class || '').toLowerCase();
-        return cls.includes('01') || cls.includes('genesis 1');
-      });
-      const targetStudents = genesis01.length > 0 ? genesis01 : (state.students || []);
+      const targetStudents = state.students || [];
       const cpStudent = targetStudents.find(s => s.id === state.cpSelectedStudentId) || targetStudents[0] || (state.students && state.students[0]);
       if (!cpStudent) return `<div class="glass-card p-8 rounded-3xl text-center text-slate-400 font-bold">No student records found.</div>`;
 
