@@ -838,26 +838,12 @@
           state.students.forEach(s => {
             let updated = false;
             
-            // Re-calculate or default attendance rate
+            // Re-calculate attendance rate reliably using recalculateAttendanceRate
             s.attendanceRecords = s.attendanceRecords || {};
-            const recordCount = Object.keys(s.attendanceRecords).length;
-            if (recordCount === 0) {
-              if (s.attendanceRate !== 0.0) {
-                s.attendanceRate = 0.0;
-                updated = true;
-              }
-            } else {
-              const vals = Object.values(s.attendanceRecords);
-              const presents = vals.reduce((acc, v) => {
-                if (v === "Present") return acc + 1.0;
-                if (v === "Half Day") return acc + 0.5;
-                return acc;
-              }, 0);
-              const rate = parseFloat(((presents / recordCount) * 100).toFixed(1));
-              if (s.attendanceRate !== rate) {
-                s.attendanceRate = rate;
-                updated = true;
-              }
+            const oldRate = s.attendanceRate;
+            recalculateAttendanceRate(s);
+            if (s.attendanceRate !== oldRate) {
+              updated = true;
             }
 
             if (s.class && s.class.toLowerCase().includes('geenesis')) {
