@@ -899,20 +899,21 @@
     }
 
     function sanitizeStudentsRoster() {
-      // Always clear old deletion flags hiding official roster students
-      state.deletedStudentIds = [];
+      state.deletedStudentIds = state.deletedStudentIds || [];
 
       const studentMap = new Map();
 
-      // 1. Populate map with default official seed accounts (all 16 students)
+      // 1. Populate map with default official seed accounts
       INITIAL_SEED_STUDENTS.forEach(seed => {
-        studentMap.set(seed.id, JSON.parse(JSON.stringify(seed)));
+        if (!state.deletedStudentIds.includes(seed.id)) {
+          studentMap.set(seed.id, JSON.parse(JSON.stringify(seed)));
+        }
       });
 
-      // 2. Merge existing state.students if present, retaining local edits
+      // 2. Merge existing state.students (including newly added accounts), retaining local edits
       if (Array.isArray(state.students)) {
         state.students.forEach(s => {
-          if (s && s.id && OFFICIAL_STUDENT_IDS.has(s.id.trim().toLowerCase())) {
+          if (s && s.id && !state.deletedStudentIds.includes(s.id)) {
             const existing = studentMap.get(s.id) || {};
             studentMap.set(s.id, { ...existing, ...s });
           }
@@ -929,7 +930,7 @@
         }
       });
 
-      // 4. Sort deterministically by ID (MSH-2026-0001 to MSH-2026-0016)
+      // 4. Sort deterministically by ID (e.g. MSH-2026-0001, MSH-2026-0002, etc.)
       uniqueStudents.sort((a, b) => (a.id || '').localeCompare(b.id || ''));
 
       state.students = uniqueStudents;
@@ -5193,8 +5194,19 @@
       const colors = ["from-brand-600 to-sky-400", "from-purple-600 to-pink-500", "from-emerald-600 to-teal-400", "from-rose-600 to-orange-400", "from-indigo-600 to-blue-400"];
       const bg = colors[Math.floor(Math.random() * colors.length)];
 
+      const maxSeq = state.students.reduce((max, s) => {
+        const match = (s.id || '').match(/MSH-2026-(\d+)/i);
+        if (match) {
+          const num = parseInt(match[1], 10);
+          return num > max ? num : max;
+        }
+        return max;
+      }, 16);
+      const newSeqStr = String(maxSeq + 1).padStart(4, '0');
+      const newStudentId = `MSH-2026-${newSeqStr}`;
+
       const newStudent = {
-        id: `MSH-2026-${Math.floor(8800 + Math.random() * 100)}`,
+        id: newStudentId,
         username, password, name, program, age, photoUrl,
         status: "Present",
         school,
