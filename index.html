@@ -283,7 +283,7 @@
       role: "student",
       activeTab: "dashboard",
       adminActiveTab: "overview",
-      activeGraphTag: "analytics",      selectedSem: "Sem 4",
+      activeGraphTag: "analytics",      selectedSem: "Sem 1",
       attendanceFilterMonth: "August 2026",
       selectedBatchFilter: "All",
       selectedLoginBatch: "Genesis 01",
@@ -746,11 +746,20 @@
       } catch(e) {}
     }
 
+    let unsubscribeSystem = null;
+    let unsubscribeAnnouncements = null;
+    let unsubscribeUsers = null;
+
     function setupRealtimeSync() {
       if (!db || !fsCollection || !fsOnSnapshot || !fsDoc) return;
 
-      // 1. Listen to Master System Credentials & Deletion List for 100% Mobile & PC Sync
-      fsOnSnapshot(fsDoc(db, 'system', 'credentials'), (docSnap) => {
+      // Clean up previous listeners if re-initialized
+      if (unsubscribeSystem) { try { unsubscribeSystem(); } catch(e){} unsubscribeSystem = null; }
+      if (unsubscribeAnnouncements) { try { unsubscribeAnnouncements(); } catch(e){} unsubscribeAnnouncements = null; }
+      if (unsubscribeUsers) { try { unsubscribeUsers(); } catch(e){} unsubscribeUsers = null; }
+
+      // 1. Independent listener for Master System Credentials & Deletion List
+      unsubscribeSystem = fsOnSnapshot(fsDoc(db, 'system', 'credentials'), (docSnap) => {
         if (docSnap.exists()) {
           const data = docSnap.data();
           if (data.adminCredentials) state.adminCredentials = data.adminCredentials;
@@ -759,139 +768,113 @@
             state.deletedStudentIds = data.deletedStudentIds;
           }
           sanitizeStudentsRoster();
-          if (!isUserActivelyEditing()) renderApp();
+          saveStateLocalOnly();
+          renderApp();
         }
-      }, (error) => {});
+      }, (error) => {
+        console.error("Firestore system credentials listener error:", error);
+      });
 
-      // 2. Listen to announcements updates
-      fsOnSnapshot(fsDoc(db, 'announcements', 'global'), (docSnap) => {
-        const announcements = docSnap.exists() ? (docSnap.data().data || []) : [];
-
-        // 3. Listen to users updates
-        fsOnSnapshot(fsCollection(db, 'users'), (querySnapshot) => {
-          const dbStudents = [];
-          querySnapshot.forEach((doc) => {
-            const docData = doc.data();
-            if (docData && docData.data) {
-              if (OFFICIAL_STUDENT_IDS.has(doc.id.trim().toLowerCase())) {
-                dbStudents.push({
-                  id: doc.id,
-                  data: docData.data,
-                  last_updated: docData.last_updated
-                });
-              } else {
-                // Purge dynamic/extra student records from Firebase Firestore
-                if (db && fsDoc && fsDeleteDoc) {
-                  fsDeleteDoc(fsDoc(db, 'users', doc.id)).catch(() => {});
-                }
-              }
-            }
-          });
-
-          handleIncomingSync(dbStudents, announcements);
-        }, (error) => {
-          console.error("Firestore users listener error:", error);
-        });
+      // 2. Independent listener for Announcement updates
+      unsubscribeAnnouncements = fsOnSnapshot(fsDoc(db, 'announcements', 'global'), (docSnap) => {
+        if (docSnap.exists()) {
+          state.announcements = docSnap.data().data || [];
+          saveStateLocalOnly();
+          isBackendActive = true;
+          updateStatusBadgeUI();
+          renderApp();
+        }
       }, (error) => {
         console.error("Firestore announcements listener error:", error);
       });
-    }
 
-    function handleIncomingSync(dbStudents, announcements) {
-      if (dbStudents.length > 0) {
-        const students = dbStudents.map(s => s.data);
-        const remoteStr = JSON.stringify({
-          students,
-          announcements
-        });
-
-        if (remoteStr !== lastFetchedStateStr) {
-          // Optimistic merge: compare timestamps before overwriting local state
-          dbStudents.forEach(row => {
-            const dbStud = row.data;
-            if (!dbStud || !dbStud.id) return;
-
-            if (state.deletedStudentIds && state.deletedStudentIds.includes(dbStud.id)) {
+      // 3. Independent listener for User Roster updates across all devices
+      unsubscribeUsers = fsOnSnapshot(fsCollection(db, 'users'), (querySnapshot) => {
+        const dbStudents = [];
+        querySnapshot.forEach((doc) => {
+          const docData = doc.data();
+          if (docData && docData.data) {
+            const studentId = doc.id.trim();
+            // Purge deleted students from backend if listed in deletedStudentIds
+            if (state.deletedStudentIds && state.deletedStudentIds.includes(studentId)) {
               if (db && fsDoc && fsDeleteDoc) {
-                fsDeleteDoc(fsDoc(db, 'users', dbStud.id)).catch(() => {});
+                fsDeleteDoc(fsDoc(db, 'users', studentId)).catch(() => {});
               }
               return;
             }
-
-            const localIndex = state.students.findIndex(s => s.id === dbStud.id);
-            if (localIndex > -1) {
-              const localStud = state.students[localIndex];
-              const localTime = Number(localStud.lastUpdated) || 0;
-              const dbTime = Number(row.last_updated) || 0;
-              if (dbTime > localTime) {
-                state.students[localIndex] = dbStud;
-              }
-            } else {
-              state.students.push(dbStud);
-            }
-          });
-          
-          sanitizeStudentsRoster();
-
-          // Recalculate attendance rates, fix class names, ensure arrays are initialized
-          let needsRemoteUpdate = false;
-          state.students.forEach(s => {
-            let updated = false;
-            
-            // Re-calculate attendance rate reliably using recalculateAttendanceRate
-            s.attendanceRecords = s.attendanceRecords || {};
-            const oldRate = s.attendanceRate;
-            recalculateAttendanceRate(s);
-            if (s.attendanceRate !== oldRate) {
-              updated = true;
-            }
-
-            if (s.class && s.class.toLowerCase().includes('geenesis')) {
-              s.class = s.class.replace(/geenesis/gi, 'genesis');
-              updated = true;
-            }
-            if (Array.isArray(s.transactions)) {
-              const origLen = s.transactions.length;
-              s.transactions = s.transactions.filter(t => !["TXN-1001", "TXN-1002", "TXN-1003", "TXN-1004", "TXN-2001"].includes(t.id));
-              if (s.transactions.length !== origLen) updated = true;
-            } else {
-              s.transactions = [];
-              updated = true;
-            }
-            if (!Array.isArray(s.exams)) {
-              s.exams = [];
-              updated = true;
-            }
-            if (updated) {
-              s.lastUpdated = Date.now();
-              needsRemoteUpdate = true;
-            }
-          });
-
-          state.announcements = announcements;
-          lastFetchedStateStr = remoteStr;
-          isBackendActive = true;
-          saveStateLocalOnly();
-
-          if (needsRemoteUpdate) {
-            saveState(); // Propagate zeroed attendance back to Firestore
+            dbStudents.push({
+              id: studentId,
+              data: docData.data,
+              last_updated: docData.last_updated || docData.data.lastUpdated || 0
+            });
           }
+        });
 
-          if (!isUserActivelyEditing()) {
-            renderApp();
-          } else {
-            updateStatusBadgeUI();
-          }
-        } else if (!isBackendActive) {
-          isBackendActive = true;
-          updateStatusBadgeUI();
-        }
-      } else {
-        // Empty DB: seed initial state
-        isBackendActive = true;
-        updateStatusBadgeUI();
+        handleIncomingUsersSync(dbStudents);
+      }, (error) => {
+        console.error("Firestore users collection listener error:", error);
+      });
+    }
+
+    function handleIncomingUsersSync(dbStudents) {
+      isBackendActive = true;
+      updateStatusBadgeUI();
+
+      if (dbStudents.length === 0) {
+        // Empty Firestore users collection: seed current local state to Firestore
         saveState();
+        return;
       }
+
+      let stateChanged = false;
+
+      // Update or add student records received from Firestore
+      dbStudents.forEach(row => {
+        const dbStud = row.data;
+        if (!dbStud || !dbStud.id) return;
+        if (state.deletedStudentIds && state.deletedStudentIds.includes(dbStud.id)) return;
+
+        const localIndex = state.students.findIndex(s => s.id === dbStud.id);
+        if (localIndex > -1) {
+          const localStud = state.students[localIndex];
+          const localTime = Number(localStud.lastUpdated) || 0;
+          const dbTime = Number(row.last_updated) || Number(dbStud.lastUpdated) || 0;
+
+          if (dbTime >= localTime || JSON.stringify(localStud) !== JSON.stringify(dbStud)) {
+            state.students[localIndex] = dbStud;
+            stateChanged = true;
+          }
+        } else {
+          state.students.push(dbStud);
+          stateChanged = true;
+        }
+      });
+
+      // Filter out deleted student IDs
+      if (state.deletedStudentIds && state.deletedStudentIds.length > 0) {
+        const origCount = state.students.length;
+        state.students = state.students.filter(s => s && s.id && !state.deletedStudentIds.includes(s.id));
+        if (state.students.length !== origCount) stateChanged = true;
+      }
+
+      sanitizeStudentsRoster();
+
+      // Recalculate attendance rates & validate object fields
+      state.students.forEach(s => {
+        s.attendanceRecords = s.attendanceRecords || {};
+        recalculateAttendanceRate(s);
+        if (s.class && s.class.toLowerCase().includes('geenesis')) {
+          s.class = s.class.replace(/geenesis/gi, 'genesis');
+        }
+        if (!Array.isArray(s.transactions)) s.transactions = [];
+        if (!Array.isArray(s.exams)) s.exams = [];
+        if (!Array.isArray(s.leaves)) s.leaves = [];
+      });
+
+      saveStateLocalOnly();
+
+      // Always re-render component state when real-time snapshot data changes
+      renderApp();
     }
 
     async function syncWithServer() {
@@ -966,7 +949,7 @@
 
           if (parsed.students && Array.isArray(parsed.students)) {
             state.students = parsed.students
-              .filter(s => s && s.id && OFFICIAL_STUDENT_IDS.has(s.id.trim().toLowerCase()) && !state.deletedStudentIds.includes(s.id))
+              .filter(s => s && s.id && !state.deletedStudentIds.includes(s.id))
               .map(s => {
                 let updated = false;
                 s.attendanceRecords = s.attendanceRecords || {};
@@ -1033,35 +1016,58 @@
         announcements: state.announcements
       };
 
-      lastFetchedStateStr = JSON.stringify(stateObj);
+    async function saveStudentDoc(student) {
+      saveStateLocalOnly();
+      if (!db || !fsDoc || !fsSetDoc || !student || !student.id) return;
+      try {
+        const incomingTime = Number(student.lastUpdated) || Date.now();
+        student.lastUpdated = incomingTime;
+        await fsSetDoc(fsDoc(db, 'users', student.id), {
+          data: student,
+          last_updated: incomingTime
+        });
+        if (!isBackendActive) {
+          isBackendActive = true;
+          updateStatusBadgeUI();
+        }
+      } catch (e) {
+        console.error("saveStudentDoc error:", e);
+      }
+    }
+
+    async function saveState() {
+      saveStateLocalOnly();
+
+      if (!db || !fsDoc || !fsSetDoc) return;
 
       try {
-        // 1. Upsert all students to Firebase Firestore
-        for (const student of state.students) {
-          const incomingTime = Number(student.lastUpdated) || 0;
-          await fsSetDoc(fsDoc(db, 'users', student.id), {
+        const studentPromises = (state.students || []).map(student => {
+          const incomingTime = Number(student.lastUpdated) || Date.now();
+          student.lastUpdated = incomingTime;
+          return fsSetDoc(fsDoc(db, 'users', student.id), {
             data: student,
             last_updated: incomingTime
           });
-        }
-
-        // 2. Save announcements
-        await fsSetDoc(fsDoc(db, 'announcements', 'global'), {
-          data: state.announcements
         });
 
-        // 3. Save credentials and deleted user IDs
-        await fsSetDoc(fsDoc(db, 'system', 'credentials'), {
+        const announcementsPromise = fsSetDoc(fsDoc(db, 'announcements', 'global'), {
+          data: state.announcements || []
+        });
+
+        const credentialsPromise = fsSetDoc(fsDoc(db, 'system', 'credentials'), {
           adminCredentials: state.adminCredentials,
           controlPanelCredentials: state.controlPanelCredentials,
-          deletedStudentIds: state.deletedStudentIds
+          deletedStudentIds: state.deletedStudentIds || []
         });
+
+        await Promise.all([...studentPromises, announcementsPromise, credentialsPromise]);
 
         if (!isBackendActive) {
           isBackendActive = true;
           updateStatusBadgeUI();
         }
       } catch(e) {
+        console.error("saveState error:", e);
         if (isBackendActive) {
           isBackendActive = false;
           updateStatusBadgeUI();
@@ -1741,7 +1747,7 @@
     }
 
     function getSemesterRankHolders(sem, classFilter) {
-      const targetSem = sem || state.selectedSem || 'Sem 4';
+      const targetSem = sem || state.selectedSem || 'Sem 1';
       let list = state.students || [];
       if (classFilter) {
         list = list.filter(st => (st.class || '').toLowerCase().includes(classFilter.toLowerCase()));
@@ -1768,7 +1774,7 @@
     }
 
     function renderSemesterRankHoldersComponent(sem) {
-      const targetSem = sem || state.selectedSem || 'Sem 4';
+      const targetSem = sem || state.selectedSem || 'Sem 1';
       const classes = ["Genesis 01", "Genesis 02"];
       const medals = ["🥇", "🥈", "🥉"];
 
@@ -2396,7 +2402,7 @@
                 <tbody class="divide-y divide-slate-50">
                   ${semExams.length === 0 ? `
                     <tr>
-                      <td colspan="4" class="py-6 text-center text-slate-400 font-bold">No subjects recorded for ${state.selectedSem || 'Sem 4'}. Click "Add Subject" to enter marks.</td>
+                      <td colspan="4" class="py-6 text-center text-slate-400 font-bold">No subjects recorded for ${state.selectedSem || 'Sem 1'}. Click "Add Subject" to enter marks.</td>
                     </tr>
                   ` : semExams.map((item, idx) => `
                     <tr class="hover:bg-slate-50/80 transition-colors">
@@ -4564,7 +4570,7 @@
       });
       
       if (updatedAny) {
-        saveStateLocalOnly();
+        saveState();
       }
     }
 
@@ -5015,6 +5021,8 @@
       if (state.role !== 'admin') return;
       const student = getCurrentStudent();
       student.status = student.status === "Present" ? "On Leave" : "Present";
+      student.lastUpdated = Date.now();
+      saveState();
       renderApp();
     }
 
@@ -5024,6 +5032,7 @@
       if (student) {
         student.status = student.status === "Present" ? "On Leave" : "Present";
         student.lastUpdated = Date.now();
+        saveState();
         renderApp();
       }
     }
@@ -5070,11 +5079,13 @@
     function markRead(id) {
       const item = state.announcements.find(a => a.id === id);
       if (item) item.read = true;
+      saveState();
       renderApp();
     }
 
     function markAllRead() {
       state.announcements.forEach(a => a.read = true);
+      saveState();
       renderApp();
     }
 
@@ -5166,6 +5177,7 @@
       student.avatarInitials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || "ST";
 
       toggleModal('editStudent', false);
+      saveState();
       alert(`Successfully saved profile settings for ${student.name}!`);
       renderApp();
     }
@@ -5747,7 +5759,7 @@
         score, 
         grade, 
         percentage, 
-        sem: state.selectedSem || 'Sem 4' 
+        sem: state.selectedSem || 'Sem 1' 
       });
 
       state.modals.addSubject = false;
@@ -5788,6 +5800,7 @@
       student.school = document.getElementById("adminSchoolInput").value;
       student.class = document.getElementById("adminClassInput").value;
       student.lastUpdated = Date.now();
+      saveState();
       alert(`Updated identity for ${student.name}!`);
       renderApp();
     }
