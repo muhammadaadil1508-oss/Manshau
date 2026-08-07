@@ -2479,7 +2479,7 @@
       `;
     }
 
-    function cpAddTransaction(e, studentId) {
+    async function cpAddTransaction(e, studentId) {
       e.preventDefault();
       const student = state.students.find(s => s.id === studentId);
       if (!student) return;
@@ -2497,16 +2497,18 @@
         category: type === 'Credit' ? 'Cash In' : 'Cash Out'
       });
       student.lastUpdated = Date.now();
-      saveState();
+      await saveStudentDoc(student);
+      await saveState();
       renderApp();
     }
 
-    function cpDeleteTransaction(studentId, index) {
+    async function cpDeleteTransaction(studentId, index) {
       const student = state.students.find(s => s.id === studentId);
       if (!student || !student.transactions[index]) return;
       student.transactions.splice(index, 1);
       student.lastUpdated = Date.now();
-      saveState();
+      await saveStudentDoc(student);
+      await saveState();
       renderApp();
     }
 
@@ -4628,7 +4630,7 @@
       });
     }
 
-    function resetAttendanceToNil(studentId, dateKey) {
+    async function resetAttendanceToNil(studentId, dateKey) {
       if (state.role !== 'admin' && state.role !== 'controlpanel') return;
       const student = state.students.find(s => s.id === studentId);
       if (!student) return;
@@ -4644,18 +4646,20 @@
           recalculateStudentLeaves(s);
           s.lastUpdated = Date.now();
         });
+        await saveState();
       } else {
         student.attendanceRecords[dateKey] = "";
         recalculateAttendanceRate(student);
         recalculateStudentLeaves(student);
         student.lastUpdated = Date.now();
+        await saveStudentDoc(student);
+        await saveState();
       }
       
-      saveState();
       renderApp();
     }
 
-    function toggleAttendanceStatus(studentId, dateKey) {
+    async function toggleAttendanceStatus(studentId, dateKey) {
       if (state.role !== 'admin' && state.role !== 'controlpanel') return;
       const student = state.students.find(s => s.id === studentId);
       if (!student) return;
@@ -4680,7 +4684,7 @@
       }
       
       if (nextStatus === "") {
-        resetAttendanceToNil(studentId, dateKey);
+        await resetAttendanceToNil(studentId, dateKey);
         return;
       }
       
@@ -4693,14 +4697,16 @@
           recalculateStudentLeaves(s);
           s.lastUpdated = Date.now();
         });
+        await saveState();
       } else {
         student.attendanceRecords[dateKey] = nextStatus;
         recalculateAttendanceRate(student);
         recalculateStudentLeaves(student);
         student.lastUpdated = Date.now();
+        await saveStudentDoc(student);
+        await saveState();
       }
       
-      saveState();
       renderApp();
     }
 
@@ -5795,7 +5801,7 @@
       renderApp();
     }
 
-    function handleAdminInjectTxnForStudent(e, studentId) {
+    async function handleAdminInjectTxnForStudent(e, studentId) {
       e.preventDefault();
       const student = state.students.find(s => s.id === studentId) || state.students.find(s => s.id === state.currentStudentId) || state.students[0];
       if (!student) return;
@@ -5813,20 +5819,22 @@
         category: type === 'Credit' ? 'Cash In' : 'Cash Out'
       });
       student.lastUpdated = Date.now();
-      saveState();
+      await saveStudentDoc(student);
+      await saveState();
       renderApp();
     }
 
-    function deleteTxnForStudent(studentId, index) {
+    async function deleteTxnForStudent(studentId, index) {
       const student = state.students.find(s => s.id === studentId);
       if (!student || !student.transactions[index]) return;
       student.transactions.splice(index, 1);
       student.lastUpdated = Date.now();
-      saveState();
+      await saveStudentDoc(student);
+      await saveState();
       renderApp();
     }
 
-    function handleAdminBroadcast(e) {
+    async function handleAdminBroadcast(e) {
       e.preventDefault();
       const title = document.getElementById("adminAnnTitle").value;
       const urgency = document.getElementById("adminAnnUrgency").value;
@@ -5842,9 +5850,9 @@
         date: `Just Now (${getShort12HourTimeString()})`,
         read: false
       });
-      alert("Announcement broadcasted directly to student feed!");
-      saveState();
+      await saveState();
       renderApp();
+      alert("Announcement broadcasted directly to student feed!");
     }
 
     function openEditBroadcastModal(id) {
