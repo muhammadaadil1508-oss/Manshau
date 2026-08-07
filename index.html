@@ -669,8 +669,32 @@
     let db;
     let fsDoc, fsSetDoc, fsDeleteDoc, fsCollection, fsGetDocs, fsOnSnapshot;
     let isBackendActive = false;
+    function showToast(message, type = 'success') {
+      let toastContainer = document.getElementById("toastContainer");
+      if (!toastContainer) {
+        toastContainer = document.createElement("div");
+        toastContainer.id = "toastContainer";
+        toastContainer.className = "fixed top-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none max-w-sm w-full px-4";
+        document.body.appendChild(toastContainer);
+      }
+
+      const toast = document.createElement("div");
+      const bgColor = type === 'error' ? 'bg-rose-600 text-white' : (type === 'info' ? 'bg-brand-600 text-white' : 'bg-emerald-600 text-white');
+      const iconSvg = type === 'error' 
+        ? `<svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`
+        : `<svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>`;
+
+      toast.className = `pointer-events-auto flex items-center space-x-3 p-3.5 rounded-2xl shadow-xl transition-all duration-300 transform translate-y-0 opacity-100 ${bgColor} font-extrabold text-xs sm:text-sm`;
+      toast.innerHTML = `${iconSvg}<span>${message}</span>`;
+      toastContainer.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
     async function initFirebase() {
-      // Check if global window.db is already initialized by another script
       if (window.db) {
         db = window.db;
         try {
@@ -683,14 +707,17 @@
           fsOnSnapshot = onSnapshot;
           
           setupRealtimeSync();
+          console.log("Firebase & Firestore connected via global window.db!");
           return;
         } catch(e) {
           console.error("Failed to load modular Firestore helpers for global window.db:", e);
+          showToast("Firestore SDK load error: " + e.message, "error");
         }
       }
 
       if (firebaseConfig.apiKey === "YOUR_API_KEY") {
         console.warn("Firebase initialization skipped (placeholders active).");
+        showToast("Firebase Config error: placeholder API key detected!", "error");
         return;
       }
       try {
@@ -699,7 +726,7 @@
 
         const app = initializeApp(firebaseConfig);
         db = getFirestore(app);
-        window.db = db; // Expose locally initialized Firestore globally!
+        window.db = db;
         
         fsDoc = doc;
         fsSetDoc = setDoc;
@@ -709,8 +736,10 @@
         fsOnSnapshot = onSnapshot;
 
         setupRealtimeSync();
+        console.log("Firebase & Firestore initialized successfully!");
       } catch (e) {
         console.error("Firebase init failed:", e);
+        showToast("Firebase init error: " + e.message, "error");
       }
     }
 
@@ -1008,7 +1037,11 @@
 
     async function saveStudentDoc(student) {
       saveStateLocalOnly();
-      if (!db || !fsDoc || !fsSetDoc || !student || !student.id) return;
+      if (!db || !fsDoc || !fsSetDoc || !student || !student.id) {
+        console.warn("Firestore not ready for saveStudentDoc");
+        if (!db) showToast("Database offline - saved locally", "info");
+        return;
+      }
       try {
         const incomingTime = Number(student.lastUpdated) || Date.now();
         student.lastUpdated = incomingTime;
@@ -1016,19 +1049,23 @@
           data: student,
           last_updated: incomingTime
         });
-        if (!isBackendActive) {
-          isBackendActive = true;
-          updateStatusBadgeUI();
-        }
+        isBackendActive = true;
+        updateStatusBadgeUI();
       } catch (e) {
-        console.error("saveStudentDoc error:", e);
+        console.error("saveStudentDoc write error:", e);
+        showToast("Firebase write error: " + (e.message || e), "error");
+        isBackendActive = false;
+        updateStatusBadgeUI();
       }
     }
 
     async function saveState() {
       saveStateLocalOnly();
 
-      if (!db || !fsDoc || !fsSetDoc) return;
+      if (!db || !fsDoc || !fsSetDoc) {
+        console.warn("Firestore not initialized during saveState()");
+        return;
+      }
 
       try {
         const studentPromises = (state.students || []).map(student => {
@@ -1052,12 +1089,11 @@
 
         await Promise.all([...studentPromises, announcementsPromise, credentialsPromise]);
 
-        if (!isBackendActive) {
-          isBackendActive = true;
-          updateStatusBadgeUI();
-        }
+        isBackendActive = true;
+        updateStatusBadgeUI();
       } catch(e) {
-        console.error("saveState error:", e);
+        console.error("saveState write error:", e);
+        showToast("Firebase Sync error: " + (e.message || e), "error");
         if (isBackendActive) {
           isBackendActive = false;
           updateStatusBadgeUI();
@@ -5180,78 +5216,72 @@
 
     async function handleAddStudentSubmit(e) {
       e.preventDefault();
-      const name = document.getElementById("newStudName").value.trim();
-      const school = document.getElementById("newStudSchool").value.trim();
-      const className = document.getElementById("newStudClass").value.trim();
-      const phone = document.getElementById("newStudPhone").value.trim();
-      const age = parseInt(document.getElementById("newStudAge").value) || 0;
-      const photoUrl = document.getElementById("newStudPhotoUrl").value;
-      const program = className;
-      const username = document.getElementById("newStudUser").value.trim();
-      const password = document.getElementById("newStudPass").value.trim();
-      const smsPref = document.getElementById("newStudSmsPref").checked;
-      const clockPref = document.getElementById("newStudClockPref").checked;
-
-      const exists = state.students.some(s => s.username === username);
-      if (exists) {
-        alert(`Username "${username}" is already taken. Please choose another.`);
-        return;
-      }
-
-      const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || "ST";
-      const colors = ["from-brand-600 to-sky-400", "from-purple-600 to-pink-500", "from-emerald-600 to-teal-400", "from-rose-600 to-orange-400", "from-indigo-600 to-blue-400"];
-      const bg = colors[Math.floor(Math.random() * colors.length)];
-
-      const maxSeq = state.students.reduce((max, s) => {
-        const match = (s.id || '').match(/MSH-2026-(\d+)/i);
-        if (match) {
-          const num = parseInt(match[1], 10);
-          return num > max ? num : max;
-        }
-        return max;
-      }, 16);
-      const newSeqStr = String(maxSeq + 1).padStart(4, '0');
-      const newStudentId = `MSH-2026-${newSeqStr}`;
-
-      const newStudent = {
-        id: newStudentId,
-        username, password, name, program, age, photoUrl,
-        status: "Present",
-        school,
-        class: className,
-        phone,
-        smsNotifications: smsPref,
-        clock12Hour: clockPref,
-        attendanceRate: 0.0,
-        totalLeaveDays: 0,
-        avatarInitials: initials,
-        avatarBg: bg,
-        lastUpdated: Date.now(),
-        transactions: [],
-        exams: [],
-        leaves: []
-      };
-
-      state.students.push(newStudent);
-
-      // Explicitly write new student doc to Firestore immediately
       try {
-        if (db && fsDoc && fsSetDoc) {
-          await fsSetDoc(fsDoc(db, 'users', newStudent.id), {
-            data: newStudent,
-            last_updated: newStudent.lastUpdated
-          });
+        const name = document.getElementById("newStudName").value.trim();
+        const school = document.getElementById("newStudSchool").value.trim();
+        const className = document.getElementById("newStudClass").value.trim();
+        const phone = document.getElementById("newStudPhone").value.trim();
+        const age = parseInt(document.getElementById("newStudAge").value) || 0;
+        const photoUrl = document.getElementById("newStudPhotoUrl").value;
+        const program = className;
+        const username = document.getElementById("newStudUser").value.trim();
+        const password = document.getElementById("newStudPass").value.trim();
+        const smsPref = document.getElementById("newStudSmsPref").checked;
+        const clockPref = document.getElementById("newStudClockPref").checked;
+
+        const exists = state.students.some(s => s.username === username);
+        if (exists) {
+          showToast(`Username "${username}" is already taken.`, "error");
+          return;
         }
+
+        const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || "ST";
+        const colors = ["from-brand-600 to-sky-400", "from-purple-600 to-pink-500", "from-emerald-600 to-teal-400", "from-rose-600 to-orange-400", "from-indigo-600 to-blue-400"];
+        const bg = colors[Math.floor(Math.random() * colors.length)];
+
+        const maxSeq = state.students.reduce((max, s) => {
+          const match = (s.id || '').match(/MSH-2026-(\d+)/i);
+          if (match) {
+            const num = parseInt(match[1], 10);
+            return num > max ? num : max;
+          }
+          return max;
+        }, 16);
+        const newSeqStr = String(maxSeq + 1).padStart(4, '0');
+        const newStudentId = `MSH-2026-${newSeqStr}`;
+
+        const newStudent = {
+          id: newStudentId,
+          username, password, name, program, age, photoUrl,
+          status: "Present",
+          school,
+          class: className,
+          phone,
+          smsNotifications: smsPref,
+          clock12Hour: clockPref,
+          attendanceRate: 0.0,
+          totalLeaveDays: 0,
+          avatarInitials: initials,
+          avatarBg: bg,
+          lastUpdated: Date.now(),
+          transactions: [],
+          exams: [],
+          leaves: []
+        };
+
+        state.students.push(newStudent);
+
+        // Immediate write to Firestore
+        await saveStudentDoc(newStudent);
+        await saveState();
+
+        toggleModal('addStudent', false);
+        showToast(`Student "${name}" created and synced to Firebase!`, "success");
+        renderApp();
       } catch (err) {
-        console.error("Failed to write new student to Firestore:", err);
+        console.error("handleAddStudentSubmit error:", err);
+        showToast("Error adding student: " + err.message, "error");
       }
-
-      saveStateLocalOnly();
-      await saveState();
-
-      toggleModal('addStudent', false);
-      alert(`Student account created successfully!\nName: ${name}\nUsername: ${username}\nPassword: ${password}`);
-      renderApp();
     }
 
     function handleImageUpload(input, mode) {
@@ -5947,7 +5977,9 @@
     }
     renderApp();
 
-    // Background Firebase async initialization
+    // Immediate Firebase async initialization
+    initFirebase().catch(e => console.error("initFirebase error:", e));
+
     document.addEventListener("DOMContentLoaded", () => {
       renderApp();
       initFirebase().catch(e => console.error("initFirebase error:", e));
