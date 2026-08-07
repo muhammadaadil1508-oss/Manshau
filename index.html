@@ -1006,16 +1006,6 @@
       await syncWithServer();
     }
 
-    async function saveState() {
-      saveStateLocalOnly();
-
-      if (!db || !fsDoc || !fsSetDoc) return;
-
-      const stateObj = {
-        students: state.students,
-        announcements: state.announcements
-      };
-
     async function saveStudentDoc(student) {
       saveStateLocalOnly();
       if (!db || !fsDoc || !fsSetDoc || !student || !student.id) return;
